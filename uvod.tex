@@ -1,8 +1,9 @@
-\chap Uvod
+\chap Úvod
 
+% komentare 
 aaaaa
 
-\chap usb
+\chap Universal Serial Bus
 
 \label[usb]
 
@@ -23,18 +24,69 @@ Krome kontrolniho prenosu existuje izochroni, prerusovany a blokovy prenos.
 Enumerace je posloupnost standardizovanych prikazu, ktery zapocal host. V prubehu enumerace se predavani tzv. deskriptory. Ktere obsahuji tyto dulezite informace o zarizeni. Na zaklade informace v deskriptorech se na zarizeni pouzije specialni ovladac.
 Tento standart se v soucasne dobe rozvinul u umoznuje pripojit temer jakekoli zarizeni. Jako jsou ukazovaci zarizeni, pametova zarizeni, tiskarny, komunikacni zarizeni a mnohe dalsi.
 Tato zarizeni jsou roztrizena do trid z dovodu s jednoceni druhu chovani jako jsou HID, PID Printer, Mass Storage a mnohe dalsi.
-Toto sjednocene chovani ma za dusledek spolecnych ovladacu, ktera tato zarizeni mohou vyuzivat. 
+Toto sjednocene chovani ma za dusledek spolecnych ovladacu, ktera tato zarizeni mohou vyuzivat.
 A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene chovani a potrebuji specailni pristup.
 
-\sec mii rmii
+\chap Media Independent Interface
 
-\secc popis
+\sec popis
 
-\secc komunikace
+Media Independent Interface (MII) je specifikovano standardem IEEE 802.3 v kapitole 22. Interface je nezavysli na procesoru a fyzickem mediu.
+MII propojuje dve vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
+MII obsahuje dva druhy sbernic a to datovou a manezovaci.
+Menagement Data Input/Output (MDIO) Serial Management Interface (SMI) se používá k nastovování mezi MAC a PHY.
 
-\secc regspace
+\medskip 
+\clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
+%\picw=13cm \cinspic MIItoISO.png
+\picw=6cm \cinspic a.png
+\caption/f Obrazek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \ref[IEEE8023].
+\medskip
 
-\secc linux?
+Na oprazku \ref[MIItoISO] muzeme videt pripojeni MII inerface na Reconciliation Sublayer (RS) a PCS/PLS. RS je podvrstva, ktera mapuje signali z MII na MAC/PLS obsluhu. Mapovani techto signalu muzeme videt na obrazku \ref[RStoMII]. PLS/PLC vrstvy, ktere se staraji o kodovani signalu.
+
+%asi zbytecny detaili
+\medskip 
+\clabel[RStoMII]{Mapovani signalu RS to MII}
+%\picw=13cm \cinspic MIItoISO.png
+\picw=6cm \cinspic a.png
+\caption/f Obrazek popisuje mapovani signalu mezi RS vstupem a vystupem a STA v MII \ref[IEEE8023].
+\medskip
+
+Az 32 PHY jednotek muze byt obsluhovano jednim manazovacim  MII rozhranim.
+MII podporuje dva datove toky a to je 10~Mb/s a 100~Mb/s. Funkcionalita je identicka na oboch datovych tokach a lisi se poze v nominalni frakvenci hodin.
+
+MII disponuje nekolika druhy signalu, ktere muzeme videt na prave strane obrazku \ref[RStoMII]. 
+
+\begitems
+*TX\_CLK -- Refenecni hodiny pro TX\_EN, TXD a TX\_ER signaly z RS do PHY. Zdrojem TX\_CLK je PHY. Frekvence hodin by mela byt 20\% z nominalniho prenosu dat +- 100ppm.
+*RX\_CLK -- Refenecni hodiny pro RX\_DV, RXD a RX\_ER signaly z PHY do RS. Zdrojem RX\_CLK je PHY. RX\_CLK muze mit referenci hodnotu z prijimanych dat nebo muze byt odvozena z nominalni hodnoty jako u TX\_CLK.
+*
+\enditems
+
+
+MII comprises of 4-bit transmit, TXD[3:0], and receive data, RXD[3:0], buses operating from independent 25MHz clocks TXCLK (local clock) and RXCLK (recovered line clock), respectively.
+Additionally, on the transmit side, TXEN indicates when data is sent by the MAC and TXER indicates if errors have occurred during transmission.
+Similarly, the receive side uses RXDV to indicate valid data and RXER to signal if physical layer errors are detected.
+For half duplex operation signal COL indicates a collision during transmission, and CRS signals the presence of data  transmission and/or data reception.
+
+
+
+% Ne do DP
+%\sec GMII
+
+%The Gigabit Media Independent Interface (GMII) is similar to the MII. The GMII uses the MII management interface and register set specified in 22.2.4. These common elements of operation allow Station Management to determine PHY capabilities for any supported speed of operation and configure the station based on those capabilities. In a station supporting both MII and GMII operation, configuration of the station would include enabling either the MII or GMII operation as appropriate for the data rate of the selected PHY. Most of the MII and GMII signals use the same names, but the width of the RXD and TXD data bundles and the semantics of the associated control signals differ between MII and GMII operation. The GMII transmit path clocking also differs significantly from MII clocking. MII operation of these signals and clocks is specified within Clause 22 and GMII operation is specified within Clause 35.
+
+\sec RMII
+
+RMIITM Specification (Reduced MII). RMII provides independent 2-bit wide transmit and receive paths synchronised to a common 50MHz reference clock. Furthermore, carrier sense and receive data valid are now combined  as one signal CRS\_DV. Collision detection is regenerated on the MAC side by ANDing signals TX\_EN and CRS\_DV. This reduces the total pins per port to 8 from 16 (MII)
+
+
+\sec komunikace
+
+\sec regspace
+
+\sec linux?
 
 \sec colibri t20
 
@@ -81,6 +133,8 @@ A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene
 \secc vytvor
 
 \secc hw
+
+\secc zvolen RMII na misto MII
 
 \secc sw
 
