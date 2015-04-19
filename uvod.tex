@@ -196,6 +196,8 @@ Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznu
 
 \secc device
 
+At the lowest level, every device in a Linux system is represented by an instance of struct device. The device structure contains the information that the device model core needs to model the system. Most subsystems, however, track additional information about the devices they host. As a result, it is rare for devices to be represented by bare device structures; instead, that structure, like kobject structures, is usually embedded within a higher-level representation of the device \ref[DEV].
+
 \secc Distributed Switch Architecture
 
  Distributed Switch Architecture (DSA) je protokol pro menezovani hardwarovych switchu, ktere obsahuji MII menezovaci registry a prikazy nastavujici switche a ethernotovy format ktery signalizuje, na kterm portu apyl paket prijet nebo ktery se hodla odelsat \ref[DSA].
@@ -256,6 +258,10 @@ Pro komunikaci se vsemi USB zarizenimi linux pouziva USB request block (urb). Ur
 %\secc net\_device
 
 \secc usbnet
+
+Usbnet je subsystem linuxoveho jadra, ktery umoznuje ovladat USB-sitove zarizeni jako je ethernet, DSL, IDSN atd \ref[USBNET].
+Je to genericky USB sitovy framework, ktery pracuje na ruznych rochlostech a ruznymi protokoli. 
+
 
 \secc System Filesystem
 
