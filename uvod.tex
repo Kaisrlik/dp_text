@@ -2,18 +2,24 @@
 
 aaaaa
 
+\sec Aktualni stav problematiky
+
 \label[USB]
 
 \chap Universal Serial Bus
 
 
 Universal Serial Bus (USB) je standart vyvyjeny od roku 1994 pro pripojeni periferii k pocitaci.
+Byla vytvorena aby nahradila pomale a ruzne sbernice serail, paralel, keyboard s jednou sbernici.
 USB melo nahradit seriove a paralerni porty a vsak v soucasne dobe nahrazuje take PS/2, audio, video a take umoznuje prenaset ethernetove ramce.
+USB se rozrostlo a nyni podporuje skoro kazdy druh zarizeni \cite[LDD3].
+Topologicky neni usb subsystem polozen jako sbernice, ael spise strom slozeny z point-to-point linek.S jednim mastrem na sberici.
+Linky jsou 4 dratove - zem, napeti, D+ and D-. Ktere pripojuji zarizeni a HUBY. USB controller je ve veleni a pta se kazdeho usb jestli nema neco na odelani. Diky topologii nemuze usb vysilat aniz by bylo dotazano na data. A proto umoznuji jednoduchy plug-and-play susbsystem, ktery je rizen a configurovan automaticky host computer.
+
 USB je asymetricka topoligii pripojena do hvezdicove topologie - konkretne stromu. Pricemz USB huby vytvareji jednotlive uzly tohoto stromu a zarizeni tvori jejich listy. Maximalni hloubka toho stromu je 5 a k usb muze mit maximalne 127 zarizeni.
 USB komunikace je zalozena na logickych kanalech tzv. pipes. Kazdemu vystupnimu kanalu by mel odpovidat jeden vstupni.
 USB muze mit maximalne 30 endpointu. Tyto endpointy jsou inicializovany v prubehu enumarace USB zarizeni, ktere probiha po kontrolnim kanalu 0, ktery maji vsechna zarizeni.
 Krome kontrolniho prenosu existuje izochroni, prerusovany a blokovy prenos.
-%TODO plag and play
 
 \begitems
 *Kontrolni - Slouzi ke konfiguraci zarizeni. Kazde zarizeni disponuje timto endpointem. Tento endpoint slouzi k enumeraci
@@ -27,6 +33,9 @@ Tento standart se v soucasne dobe rozvinul u umoznuje pripojit temer jakekoli za
 Tato zarizeni jsou roztrizena do trid z dovodu s jednoceni druhu chovani jako jsou HID, PID Printer, Mass Storage a mnohe dalsi.
 Toto sjednocene chovani ma za dusledek spolecnych ovladacu, ktera tato zarizeni mohou vyuzivat.
 A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene chovani a potrebuji specailni pristup.
+
+%LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
+
 
 \label[MII]
 
@@ -97,7 +106,7 @@ Format menezovacich ramcu je popsan tabulkou tab X a je odesilan z leva do prava
 
 \midinsert \clabel[MDIOframe]{Format menezovaciho ramce.}
 \ctable{lllllllll}{
- \hfil   operace  & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip0pt
+ \hfil   operace  & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip4pt
           cteni   & 1...1 & 01 & 10 & AAAAA & RRRRR & Z0 & D...D & Z \cr
           zapis   & 1...1 & 01 & 01 & AAAAA & RRRRR & 10 & D...D & Z \cr
 }
@@ -113,18 +122,21 @@ Zacatek ramce (ST) je 01. Pote nasleduje Operacni kod (OP), ktery urcuje druh op
 
 %The Gigabit Media Independent Interface (GMII) is similar to the MII. The GMII uses the MII management interface and register set specified in 22.2.4. These common elements of operation allow Station Management to determine PHY capabilities for any supported speed of operation and configure the station based on those capabilities. In a station supporting both MII and GMII operation, configuration of the station would include enabling either the MII or GMII operation as appropriate for the data rate of the selected PHY. Most of the MII and GMII signals use the same names, but the width of the RXD and TXD data bundles and the semantics of the associated control signals differ between MII and GMII operation. The GMII transmit path clocking also differs significantly from MII clocking. MII operation of these signals and clocks is specified within Clause 22 and GMII operation is specified within Clause 35.
 %GMII obsahuje 3ti zakladni registr Extended status reg(15)
+
 \sec RMII
 
 RMIITM Specification (Reduced MII). RMII provides independent 2-bit wide transmit and receive paths synchronised to a common 50MHz reference clock. Furthermore, carrier sense and receive data valid are now combined  as one signal CRS\_DV. Collision detection is regenerated on the MAC side by ANDing signals TX\_EN and CRS\_DV. This reduces the total pins per port to 8 from 16 (MII)
 
 \chap HW
+
 \sec Colibri T20
 
 Colibri T20 je SODIMM pocitacovy modul posltaven na zaklade NVIDIA Tegra 2 embeded systemu na cipu (SOC). 
 SOC modul Tegra 2 je zalozanan na dvoujadrovem procesoru Cortex A9 symmetric MPCore od firmy ARM s rychlosti okolo 1 Ghz.
 Jelikoz se jedna o SOC obsahuje tento cip take mnoho mluku jako Audio/Video rekorder. Graficky cip s podporou 2D rendrovani a 3D pixel a vektor shaderem.
 
-Cip obsahuje periferie popsane na blokovem diagramu z (https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2).
+Cip obsahuje periferie popsane na blokovem diagramu z 
+%(https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2).
 
 %chtelo by to swap Colibri a ARM ci spojit...
 \sec ARM Cortex A9
@@ -148,18 +160,31 @@ AX88772b podporuje volitelny Multy-Function-Bus(MFA/MFB) pro externi PHY nebo ex
 %neudelat 802.3 chap?
 MAC Core podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
 
-\sec marvell
+\sec Marvell 88E6065
+
+Obsahuje  petkrat yysilac na fyzicke vrstve 10~BASE-T/100~BASE-TX, ktere muzou byt pouzity take pro optickou linku 100~BASE-FX.
+Sestym portem je nezavysli Fast ethernet media access controller.
+Je jedno cipovy obvod integrujici 4 + 2 portu Fast Ethernetoveho switche. Toto zarizeni podporuje Quality of Service (QoS) A vyjmecne muzou vyuzivat podpory pro routry a vychozi brany.
+Zarizeni ma high-speed, non-blocking four traffic class QoS. True plag-n-play je podporovano s Auto-Crossoer, Auto-polarity a Auto-nogotiation na fyzike vrtve. Zarizeni podporuje 64 z 4096 802.1Q WLAN s 3 levlovou ochranou. Ma dve RMII/MII/SNI rozhrani, ktera mohou byt pripojena k menezovacimu rozhrani nebo Router CPU s integrovanou MAC.
+
+MAC a PHY rozhrani jsou plne kompatibilni se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
+Zarizeni muze byt configurovano prez STA (SNI) nebo moze nastaveni nacitat z flash.
+
+
+\chap SW
 
 \sec linux
 
-\secc Co to je Ovladac?
+\sec Co to je Ovladac?
 
-Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznuji HW aby odpovidal definovanym programovym rozhranim. 
+Ovladac je kus programu ktery operuje nebo controluje urcite zarizeni pripojene k pocitaci. Ovladace vytvareni softwareove rozhrani pro hardwarove zarizeni, ktere umoznuji operacnimu systemy ovladat tento hardware aniz by vedel jak presne funguje.
+
+Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznuji HW aby odpovidal definovanym rozhranim.
 
 
-\secc info kernel
+\sec info kernel
 
-\secc loading proces
+\sec loading proces
 
 \sec disribuce
 
@@ -171,13 +196,98 @@ Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznu
 
 \secc device
 
-\secc dsa
+\secc Distributed Switch Architecture
+
+ Distributed Switch Architecture (DSA) je protokol pro menezovani hardwarovych switchu, ktere obsahuji MII menezovaci registry a prikazy nastavujici switche a ethernotovy format ktery signalizuje, na kterm portu apyl paket prijet nebo ktery se hodla odelsat \ref[DSA].
+Tento driver podporuje swtihe, ktere jsou pripojeny zpusobem:
+
+%+-----------+       +-----------+ \hfill \break
+%|           | RGMII |           |
+%|           +-------+           +------ 1000baseT MDI ("WAN")
+%|           |       |  6-port   +------ 1000baseT MDI ("LAN1")
+%|    CPU    |       |  ethernet +------ 1000baseT MDI ("LAN2")
+%|           |MIImgmt|  switch   +------ 1000baseT MDI ("LAN3")
+%|           +-------+  w/5 PHYs +------ 1000baseT MDI ("LAN4")
+%|           |       |           |
+%+-----------+       +-----------+
+
+Tento switch driver reprezentuje kazdy port jako oddeleny sitove rozhrani. Pollovani, stav portu, MII manazement interfacu je proveden diky ethtoolu.
+
+
+DSA podporuje i propojeni mezi switchy, ktere pak muzem take ovladat.
+
+%        +-----+          +--------+       +--------+
+%        |     |eth0    10| switch |9    10| switch |
+%        | CPU +----------+        +-------+        |
+%        |     |          | chip 0 |       | chip 1 |
+%        +-----+          +---++---+       +---++---+
+%                             ||               ||
+%                             ||               ||
+%                             ||1000baseT      ||1000baseT
+%                             ||ports 1-8      ||ports 9-16
+
+
+
+
+
+\secc usb driver
+
+Linuxove jadro podporuje dva druhy zarizeni drivers on a host system and drivers on a device \cite[LDD3]. USB ovladac na hostosky system ke kteremu je USB zarizeni pripojeno.
+Ovladace na zarizeni neboli \"USB gadget drivers\" ovladini zarizeni vypadajici jako hostovska stanice pripojena prez USB.
+NA obrazku nize muzeme videt USB stack. Kde USB muze zit v nekolika ruznych subsystemych (net, block, char ...). USB core dava rozhrani pro USB ovladace, kteri chteji kontrolovat a pristupovat k HW. Ruzne druhy kontroleru jsou reprezentovany v systemu.
+
+USB endpointy jsou popsany v kernelu strukturou struct usb\_host\_endpoint a ta obsahuje informace o realnem endpintu v strukture struct usb\_endpoint\_descriptor - ten popisuje data pomoci prijmutych dekriptoru.
+
+USB interface nekolik endpointu, ktere tvori jedno logicke pripojeni jako je mys, klavesni, video atd. Nektera USB zarizeni mohou mit vice interfacu. USB speaker ma dva interfaci jako je USB keyboear pro tlacitka a USB audio stream.%TODO presunout nahoru
+Pro kazdy interface Linux pouziva jeden hardwarovy ovladac. A tento interface je popsan struktorou struct usb\_interface. Tato struktura je to co USB core dava USB driverum.
+Kazde zarizeni je vazano konfiguraci a jedno USB zarizeni muze mit vice configuraci, ktera se mohou menit. A vsak Linux nemuze obsluhovat vice configuraci v jeden cas. Linux popisuje configuraci v struct usb\_host\_config a cele USB zarizeni strukturou struct usb\_device.
+USB drivery obycejne prepisuji data z usb\_interafacu do struct usb\_device.
+
+Samotny usb\_device a usb\_interface je zobrazeny v sysfs jako jednotliva zarizeni.
+
+usb\_device:
+/sys/devices/pci0000:00/0000:00:09.0/usb2/2-1
+
+usb\_interface je pojmenovan podle formatu root\_hub-hub\_port:config.interface(pro hlubsi stromy je schema root\_hub-hub\_port-hub\_port:config.interface) :
+/sys/devices/pci0000:00/0000:00:09.0/usb2/2-1/2-1:1.0
+
+Pro komunikaci se vsemi USB zarizenimi linux pouziva USB request block (urb). Urb se pouziva k posilani a prijmu da pro specificky usb endpint a specifivcke usb zarizeni v asynchronim zpusobem.
+
+%\secc net\_device
 
 \secc usbnet
 
-\secc sysfs
+\secc System Filesystem
 
-\sec Prakticka cast
+SYstem FileSystem (Sysfs) je charakteristika linuxu 2.6, ktera umozuje kernelovemu kodu exportovat informace do userspacu za pouziti pameti za pouziti VFS\ref[SYSFS]. Vetsinou kazdy file vetsinou ASCII obsahuje pouze jednu hodnotu.
+Hlavnim ucelem je reprezentovat objekty, jejich atributy a jejich vstahy navzajem.
+Poskytuje dve slozky:
+*kernel programing interface -- pro export itemu skrz sysfs
+*user interface -- k videni a manipulaci techto itemu, ktere mapuje zpet na objekty v kernelu
+Mapovani mezi objekty muzeme videt v \ref[SYSFSmap].
+
+\midinsert \clabel[SYSFSmap]{Mapovani objektu a atributu v sysfs.}
+\ctable{ll}{
+ \hfil  Interni   & Externi  \crl \tskip4pt
+        Kernelove objekty    & Slozky  \cr
+        Atributy objektu     & Soubory  \cr
+        Vazby mezi objekty   & Symbolicke odkazy  \cr
+}
+\caption/t  Tabulka prevzana z \cite[SYSFS].
+\endinsert
+
+V systemu muzeme videt tyto zarizeni v slozce /sys a muzeme tam napriklad videt tyto zarizeni ....
+
+%/sys/
+%|-- block
+%|-- bus
+%|-- class
+%|-- devices
+%|-- firmware
+%|-- module
+%‘-- power
+
+\chap Prakticka cast
 
 \secc vytvor
 

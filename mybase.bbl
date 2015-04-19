@@ -42,4 +42,14 @@ IEEE Instrumentation and Measurement Society,TODO.
 \newblock {\em USB documentation}, 2005.
 \newblock \url{http://www.usb.org/developers/docs/}.
 
+
+\bibitem{SYSFS}
+Patrick Mochel
+\newblock {\em The Sysfs Filesystem}, 2005.
+\newblock \url{https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf}.
+
+\bibitem{KERNEL}
+\newblock {\em Linux Documentation}.
+\newblock \url{http://lxr.free-electrons.com/source/Documentation/}.
+
 \end{thebibliography}

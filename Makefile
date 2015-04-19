@@ -5,3 +5,6 @@ all:
 	pdfcsplain dp
 	okular dp.pdf
 
+osnova:
+	grep '\\chap\|\\sec' uvod.tex
+
