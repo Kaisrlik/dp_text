@@ -1,12 +1,24 @@
 \chap Úvod
 
-aaaaa
+Tu se deje kupa zajimavych veci ....
+
+V kapitole pouzitech technologie \ref[pouztech] se dozvime teorii o XXX.
+
 
 \sec Aktualni stav problematiky
 
+
+%\chap Navrh
+
+\label[pouztech]
+
+\chap Pouzite technologie
+
+Tato kapitola se zabiva pouzitymi technologiemi konkterne pouziti jednotlivych sbernic.
+
 \label[USB]
 
-\chap Universal Serial Bus
+\sec Universal Serial Bus
 
 
 Universal Serial Bus (USB) je standart vyvyjeny od roku 1994 pro pripojeni periferii k pocitaci.
@@ -16,7 +28,8 @@ USB se rozrostlo a nyni podporuje skoro kazdy druh zarizeni \cite[LDD3].
 Topologicky neni usb subsystem polozen jako sbernice, ael spise strom slozeny z point-to-point linek.S jednim mastrem na sberici.
 Linky jsou 4 dratove - zem, napeti, D+ and D-. Ktere pripojuji zarizeni a HUBY. USB controller je ve veleni a pta se kazdeho usb jestli nema neco na odelani. Diky topologii nemuze usb vysilat aniz by bylo dotazano na data. A proto umoznuji jednoduchy plug-and-play susbsystem, ktery je rizen a configurovan automaticky host computer.
 
-USB je asymetricka topoligii pripojena do hvezdicove topologie - konkretne stromu. Pricemz USB huby vytvareji jednotlive uzly tohoto stromu a zarizeni tvori jejich listy. Maximalni hloubka toho stromu je 5 a k usb muze mit maximalne 127 zarizeni.
+USB je asymetricka topoligii pripojena do hvezdicove topologie - konkretne stromu. Pricemz USB huby vytvareji jednotlive uzly tohoto stromu a zarizeni tvori jejich listy.
+Maximalni hloubka toho stromu je 5 a k usb muze mit maximalne 127 zarizeni \cite[USB].
 USB komunikace je zalozena na logickych kanalech tzv. pipes. Kazdemu vystupnimu kanalu by mel odpovidat jeden vstupni.
 USB muze mit maximalne 30 endpointu. Tyto endpointy jsou inicializovany v prubehu enumarace USB zarizeni, ktere probiha po kontrolnim kanalu 0, ktery maji vsechna zarizeni.
 Krome kontrolniho prenosu existuje izochroni, prerusovany a blokovy prenos.
@@ -39,7 +52,7 @@ A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene
 
 \label[MII]
 
-\chap Media Independent Interface
+\sec Media Independent Interface
 
 Media Independent Interface (MII) je specifikovano standardem IEEE 802.3 v kapitole 22. Interface je nezavysli na procesoru a fyzickem mediu.
 MII propojuje dve vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
@@ -66,7 +79,7 @@ Na oprazku \ref[MIItoISO] muzeme videt pripojeni MII inerface na Reconciliation 
 Az 32 PHY jednotek muze byt obsluhovano jednim manazovacim  MII rozhranim.
 MII podporuje dva datove toky a to je 10~Mb/s a 100~Mb/s. Funkcionalita je identicka na oboch datovych tokach a lisi se poze v nominalni frakvenci hodin.
 
-\sec Fyzicke rozhrani MII
+\secc Fyzicke rozhrani MII
 
 MII disponuje nekolika druhy signalu, ktere muzeme videt na prave strane obrazku \ref[RStoMII]. 
 
@@ -98,7 +111,7 @@ Prizemz byte je rozdelen na dva nibble a odeslan po dvouch castech. Tak jak muze
 \caption/f Obrazek ukazuje jak vypada komunikace po MII bez zadne kolize \cite[IEEE8023].
 \medskip
 
-\sec Manezovaci rozhrani a registrovy prostor
+\secc Manezovaci rozhrani a registrovy prostor
 
 Manezovaci rozhrani je specifikovano dvou linkovym seriovym rozhranim pripojenym k menozovacim vstupum PHY pro ovladni PHY a zbirani informaci o PHY.
 MII obsahuje dva zakladne sety registru Controlni a Stavovy. Vsechny PHY, ktere podporuji MII by meli zahrnovat tuto sadu registru. Stavovy a Controlni registrove prostory muzete videt v priloha X. A specifikuji zakladni vlastnosti pro 100Mb/s 1Gb/s PHYs. Registry 2-14josu casti rozsireneho regitroveho prostoru.(22.2.4 info o reg)
@@ -123,74 +136,28 @@ Zacatek ramce (ST) je 01. Pote nasleduje Operacni kod (OP), ktery urcuje druh op
 %The Gigabit Media Independent Interface (GMII) is similar to the MII. The GMII uses the MII management interface and register set specified in 22.2.4. These common elements of operation allow Station Management to determine PHY capabilities for any supported speed of operation and configure the station based on those capabilities. In a station supporting both MII and GMII operation, configuration of the station would include enabling either the MII or GMII operation as appropriate for the data rate of the selected PHY. Most of the MII and GMII signals use the same names, but the width of the RXD and TXD data bundles and the semantics of the associated control signals differ between MII and GMII operation. The GMII transmit path clocking also differs significantly from MII clocking. MII operation of these signals and clocks is specified within Clause 22 and GMII operation is specified within Clause 35.
 %GMII obsahuje 3ti zakladni registr Extended status reg(15)
 
-\sec RMII
+\secc RMII
 
 RMIITM Specification (Reduced MII). RMII provides independent 2-bit wide transmit and receive paths synchronised to a common 50MHz reference clock. Furthermore, carrier sense and receive data valid are now combined  as one signal CRS\_DV. Collision detection is regenerated on the MAC side by ANDing signals TX\_EN and CRS\_DV. This reduces the total pins per port to 8 from 16 (MII)
 
-\chap HW
+% TODO
+%\sec linux
 
-\sec Colibri T20
+%\sec info kernel
 
-Colibri T20 je SODIMM pocitacovy modul posltaven na zaklade NVIDIA Tegra 2 embeded systemu na cipu (SOC). 
-SOC modul Tegra 2 je zalozanan na dvoujadrovem procesoru Cortex A9 symmetric MPCore od firmy ARM s rychlosti okolo 1 Ghz.
-Jelikoz se jedna o SOC obsahuje tento cip take mnoho mluku jako Audio/Video rekorder. Graficky cip s podporou 2D rendrovani a 3D pixel a vektor shaderem.
+%\sec loading proces
 
-Cip obsahuje periferie popsane na blokovem diagramu z 
-%(https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2).
+%\sec disribuce
 
-%chtelo by to swap Colibri a ARM ci spojit...
-\sec ARM Cortex A9
+%\secc openwrt
 
-ARM je 32-bitove RISC architektura vyvajena spolecnosti ARM Holding venujici se vyvoji procesorovych jader.
+\sec linux sub
 
-Dvoujadrovy procesor ARM Cortex A9 symmetric MPCore je jeden z aplikacnich procesoru.
-
-Tento procesor porporuje out-of-order a spekulaticni provadeni instrukci. 
-Ma plne koheretni podporu pro symetricke procesory.
-Tento modulu dosahuje velmi vysokeho grafickeho ale take vypocetniho vykonu viz. \ref[testColibriT20]. 
-Procesor tez obsaguje jednotku pro vypocty s plovouci radovou carkou.
-
-\sec Asix AX88772b
-
-Jako jediny z vyrobnich rad dosahuje v revizi AX88772bXX ma teplotni rozsahy od -40C az +85C.
-
-AX88772b je USB 2.0 - 10/100 Mb/s Fast Ethernet kontroler s vysokou vykonosti a intergraci ASIC, ktera umoznuje malou zpotrebu a plug-and-play Fast Ethernet internetove pripojeni pro zarizeni pouzivajici stantardyzovane USB \ref[USB].
-
-AX88772b podporuje volitelny Multy-Function-Bus(MFA/MFB) pro externi PHY nebo externim MAC. MFA/MFB muze byt nakonfigutovano jako General purpose I/O, RMII \ref[RMII] pro implementaci Fast ethernetu nebo jako Reverse-RMII pro MAC-to-MAC pripojeni k nejakakemu MCU s ethernet MAC RMII rozhranim.
-%neudelat 802.3 chap?
-MAC Core podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
-
-\sec Marvell 88E6065
-
-Obsahuje  petkrat yysilac na fyzicke vrstve 10~BASE-T/100~BASE-TX, ktere muzou byt pouzity take pro optickou linku 100~BASE-FX.
-Sestym portem je nezavysli Fast ethernet media access controller.
-Je jedno cipovy obvod integrujici 4 + 2 portu Fast Ethernetoveho switche. Toto zarizeni podporuje Quality of Service (QoS) A vyjmecne muzou vyuzivat podpory pro routry a vychozi brany.
-Zarizeni ma high-speed, non-blocking four traffic class QoS. True plag-n-play je podporovano s Auto-Crossoer, Auto-polarity a Auto-nogotiation na fyzike vrtve. Zarizeni podporuje 64 z 4096 802.1Q WLAN s 3 levlovou ochranou. Ma dve RMII/MII/SNI rozhrani, ktera mohou byt pripojena k menezovacimu rozhrani nebo Router CPU s integrovanou MAC.
-
-MAC a PHY rozhrani jsou plne kompatibilni se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
-Zarizeni muze byt configurovano prez STA (SNI) nebo moze nastaveni nacitat z flash.
-
-
-\chap SW
-
-\sec linux
-
-\sec Co to je Ovladac?
+\secc Co to je Ovladac?
 
 Ovladac je kus programu ktery operuje nebo controluje urcite zarizeni pripojene k pocitaci. Ovladace vytvareni softwareove rozhrani pro hardwarove zarizeni, ktere umoznuji operacnimu systemy ovladat tento hardware aniz by vedel jak presne funguje.
 
 Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznuji HW aby odpovidal definovanym rozhranim.
-
-
-\sec info kernel
-
-\sec loading proces
-
-\sec disribuce
-
-\secc openwrt
-
-\sec linux sub
 
 \secc miibus
 
@@ -293,22 +260,123 @@ V systemu muzeme videt tyto zarizeni v slozce /sys a muzeme tam napriklad videt 
 %|-- module
 %‘-- power
 
-\chap Prakticka cast
 
-\secc vytvor
+\chap Pouzity hardware
 
-\secc hw
+\sec Colibri T20
 
-\secc zvolen RMII na misto MII
+Colibri T20 je SODIMM pocitacovy modul posltaven na zaklade NVIDIA Tegra 2 embeded systemu na cipu (SOC). 
+SOC modul Tegra 2 je zalozanan na dvoujadrovem procesoru Cortex A9 symmetric MPCore od firmy ARM s rychlosti okolo 1 Ghz.
+Jelikoz se jedna o SOC obsahuje tento cip take mnoho mluku jako Audio/Video rekorder. Graficky cip s podporou 2D rendrovani a 3D pixel a vektor shaderem.
 
-\secc sw
+Cip obsahuje periferie popsane na blokovem diagramu z 
+%(https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2).
 
-\secc testing
+%chtelo by to swap Colibri a ARM ci spojit...
+\sec ARM Cortex A9
 
-\secc results
+ARM je 32-bitove RISC architektura vyvajena spolecnosti ARM Holding venujici se vyvoji procesorovych jader.
 
-\secc Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
+Dvoujadrovy procesor ARM Cortex A9 symmetric MPCore je jeden z aplikacnich procesoru.
+
+Tento procesor porporuje out-of-order a spekulaticni provadeni instrukci. 
+Ma plne koheretni podporu pro symetricke procesory.
+Tento modulu dosahuje velmi vysokeho grafickeho ale take vypocetniho vykonu viz. \ref[testColibriT20]. 
+Procesor tez obsaguje jednotku pro vypocty s plovouci radovou carkou.
+
+\sec Asix AX88772b
+
+Jako jediny z vyrobnich rad dosahuje v revizi AX88772bXX ma teplotni rozsahy od -40C az +85C.
+
+AX88772b je USB 2.0 - 10/100 Mb/s Fast Ethernet kontroler s vysokou vykonosti a intergraci ASIC, ktera umoznuje malou zpotrebu a plug-and-play Fast Ethernet internetove pripojeni pro zarizeni pouzivajici stantardyzovane USB \ref[USB].
+
+AX88772b podporuje volitelny Multy-Function-Bus(MFA/MFB) pro externi PHY nebo externim MAC. MFA/MFB muze byt nakonfigutovano jako General purpose I/O, RMII \ref[RMII] pro implementaci Fast ethernetu nebo jako Reverse-RMII pro MAC-to-MAC pripojeni k nejakakemu MCU s ethernet MAC RMII rozhranim.
+%neudelat 802.3 chap?
+MAC Core podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
+
+%jake umoznuje propojeni po rmii?
+
+\sec Marvell 88E6065
+
+Obsahuje  petkrat yysilac na fyzicke vrstve 10~BASE-T/100~BASE-TX, ktere muzou byt pouzity take pro optickou linku 100~BASE-FX.
+Sestym portem je nezavysli Fast ethernet media access controller.
+Je jedno cipovy obvod integrujici 4 + 2 portu Fast Ethernetoveho switche. Toto zarizeni podporuje Quality of Service (QoS) A vyjmecne muzou vyuzivat podpory pro routry a vychozi brany.
+Zarizeni ma high-speed, non-blocking four traffic class QoS. True plag-n-play je podporovano s Auto-Crossoer, Auto-polarity a Auto-nogotiation na fyzike vrtve. Zarizeni podporuje 64 z 4096 802.1Q WLAN s 3 levlovou ochranou. Ma dve RMII/MII/SNI rozhrani, ktera mohou byt pripojena k menezovacimu rozhrani nebo Router CPU s integrovanou MAC.
+
+MAC a PHY rozhrani jsou plne kompatibilni se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
+Zarizeni muze byt configurovano prez STA (SNI) nebo moze nastaveni nacitat z flash.
+
+%jake umoznuje porjojeni RMII
+
+\sec deska USB prepinace
+
+Jedna se o desku, ktera umoznuje konfiguraci ethernetoveho prepinace za pomoci USB kontroleru.
+Deska obsahuje USB kontroler AX88772b od firmy Asix ke kteremu je pripojena externi pamet eeprom M93-C66.
+A tento kontroler je pripojen RMII rozhranim k cipu Marvell 88E6065. Marvell 88E6065 je ethernetovy prepinac, ktery ma k sobe krome zmineneho RMII portu pripojeno pet ethernetovych rozhrani a taktez je knemu pripojena externi pamet eeprom.
+Oba tyto cipy tez vlastni vlastni krystal na frakvenci 25~Mhz.
+Deska je tez ossazena regulatorem napeti.
+
+Deska USB prepinace je vyrobena firmou Retia a.s. na zaklade jejich navrhu a zapojeni popsanych v priloze \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
+
+\chap Implementace
+
+popis o co se tu jedna
+
+\sec navrh
+
+\sec Rozchozeni hardwaru
+
+Rozchozeni hardwaru byla jedna z nejobtiznejsich casti.
+
+Pricemz se zacalo s testovanim USB kontroleru Asix AX88772b. A po rozchozeni komunikacnich interfacu bylo pokracovano s ladenim ethernetoveho prepinace 88E6065.
+Posledni casti bylo testovani ethernetovych portu.
+
+Pricemz bylo objeveno nekolik chyb v navrhu zarizeni. Ktera na zaklade mojich pripominek byla opravena(XXX to zaveru).
+
+\secc asixu
+
+Kdy byla objevena zavada na pripojeni kontroleru.
+Tato zavada se projevovala chybnou komunikaci na USB sbernici. Tu to chybnou komunikaci muzete videt na obrazku \ref[usbbuserr].
+
+\medskip
+\clabel[usbbuserr]{Chybna komunikace na usb sbernici.}
+%\picw=13cm \cinspic MIItoISO.png
+\picw=6cm \cinspic a.png
+\caption/f Na obrazku muzeme videt chybnou komunikaci na usb sbernici mezi PC a usb kontrolerem Asix AX88772b zavinou spatnym nepripojenim blokovacich kondenzatoru.
+\medskip
+
+Po uprave zapojeni kontroleru. Zacal USB kontroler odpovidat na dotazy.
+
+Dale bylo potreba nastavit vhodne chovani cipu Asix aby zacalo fungovat manazovaci rozhrani RMII sbernice. Bylo zvoleno zapojeni, ktere aktivuje RMII. Pote, jiz bylo mozne vycitat data ze zarizeni Marvell.
+
+\secc marvell
+
+Na zarezeni 88E6065 bylo provedeno nekolik zasahu. Byli pridany pull-up a pull-down rezistory pro spravne a deterministicke chovani prepinace.
+Dale byl doplne kondenzator, ktery zarizeni vyresotoval po dobu konstanty RC po pripojeni pripinace k napajeni. Tento kro byl dulezity ponevadz vsechny zarizeni marvell chce vstupy pri startu v definovene hodnote. A stavalo ze pri zapnuti prepinace se hodnoty ruznych zapnuti ruzne menili.
+
+\sec zpracovani
+
+\sec celek?
+
+\sec odezva komunity
+
+Odezva komunity byla dobra - po odeslani RFC patche (*pozn pod carou) se mi dostalo odpovedi behem pouhych par hodin po jeho odesalni.
+
+\chap Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
+
+Tato kapitola se zabiva
+
+\sec propustnost
+
+\sec porovnani s jinym eth interfacem
+
+\sec konfigurace 
+
+co se testuje a jak se testuje(co pisu za prikazy) -> vysledky
+
+\sec logterm
 
 \chap Zaver
 
+funguje, odezva, linuxova komunita, dosazene vysledky, vykon
 MII,RMII,GMII,RGMII,SGMII,QGMII,XAUI
