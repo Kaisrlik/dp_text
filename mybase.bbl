@@ -66,4 +66,9 @@ Patrick Mochel
 \newblock {\em Struct device}.
 \newblock \url{https://www.kernel.org/doc/htmldocs/device-drivers/API-struct-device.html}.
 
+\bibitem{USBNovak}
+doc. Ing. Jiří Novák, Ph.D.
+\newblock {\em USB}.
+\newblock \url{http://measure.feld.cvut.cz/system/files/files/cs/vyuka/predmety/A4M38KRP/USB.pdf}.
+
 \end{thebibliography}

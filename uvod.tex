@@ -12,40 +12,69 @@ V kapitole pouzitech technologie \ref[pouztech] se dozvime teorii o XXX.
 
 \label[pouztech]
 
-\chap Pouzite technologie
+\chap Použité technologie
 
-Tato kapitola se zabiva pouzitymi technologiemi konkterne pouziti jednotlivych sbernic.
+Tato kapitola je rozebírána použitá technologie.
+V první části je rozebrána sběrnice USB.
+Další významnou sekcí je rozhraní Media Independet Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
+Ke konci této kapitoly bylo rozepsáno jak vypadájí ovladače v linuxu a tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
 
 \label[USB]
 
 \sec Universal Serial Bus
 
 
-Universal Serial Bus (USB) je standart vyvyjeny od roku 1994 pro pripojeni periferii k pocitaci.
-Byla vytvorena aby nahradila pomale a ruzne sbernice serail, paralel, keyboard s jednou sbernici.
-USB melo nahradit seriove a paralerni porty a vsak v soucasne dobe nahrazuje take PS/2, audio, video a take umoznuje prenaset ethernetove ramce.
-USB se rozrostlo a nyni podporuje skoro kazdy druh zarizeni \cite[LDD3].
-Topologicky neni usb subsystem polozen jako sbernice, ael spise strom slozeny z point-to-point linek.S jednim mastrem na sberici.
-Linky jsou 4 dratove - zem, napeti, D+ and D-. Ktere pripojuji zarizeni a HUBY. USB controller je ve veleni a pta se kazdeho usb jestli nema neco na odelani. Diky topologii nemuze usb vysilat aniz by bylo dotazano na data. A proto umoznuji jednoduchy plug-and-play susbsystem, ktery je rizen a configurovan automaticky host computer.
+Universal Serial Bus (USB) je standard vyvíjený od roku 1994 pro připojení periferií k pocitaci.
+Konkrétně tento standard měl nahradit pomalé sběrnice jako jsou seriová linka, paralelní port, PS2 a mnohé další jednou sběrnicí \cite[LDD3].
+V dnešní době USB umožňuje přenášet velké množství dat s rychlostí až 640 MB/s u USB 3.0 zařízení.
+Díky tomu se USB rozrostlo a nyní podporuje skoro každý druh zařízení, která umožňují přenašet video, audio a dokonce i ethernetové rámce a pakety.
+Tento standart se v současné době rozvinul a umožňuje připojit téměř jakékoli zařízení.
+Jako jsou polohovací zařízení, paměťová zařízení, tiskárny, komunikační zařízení a mnohé další.
+Tato zařízení jsou roztřízena do tříd z důvodu sjednocení funkcionality a chovaní zařízení jako jsou HID, PID Printer, Mass Storage a mnohé další.
+Toto sjednocené chování má za důsledek společných ovladacu, ktera tato zarizeni mohou vyuzivat.
+A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene chovani a potrebuji specailni pristup.
 
-USB je asymetricka topoligii pripojena do hvezdicove topologie - konkretne stromu. Pricemz USB huby vytvareji jednotlive uzly tohoto stromu a zarizeni tvori jejich listy.
-Maximalni hloubka toho stromu je 5 a k usb muze mit maximalne 127 zarizeni \cite[USB].
-USB komunikace je zalozena na logickych kanalech tzv. pipes. Kazdemu vystupnimu kanalu by mel odpovidat jeden vstupni.
-USB muze mit maximalne 30 endpointu. Tyto endpointy jsou inicializovany v prubehu enumarace USB zarizeni, ktere probiha po kontrolnim kanalu 0, ktery maji vsechna zarizeni.
-Krome kontrolniho prenosu existuje izochroni, prerusovany a blokovy prenos.
+\sec Rysy USB zařízení
 
+
+USB je deterministická sběrnice (Master/Slave), která podporuje detekci připojení (plug\&play) mechanismus a automatickou konfiguraci (hotswap).
+Zařízení obsahuje 3 druhy zařízení \cite[USB]:
 \begitems
-*Kontrolni - Slouzi ke konfiguraci zarizeni. Kazde zarizeni disponuje timto endpointem. Tento endpoint slouzi k enumeraci
-*Izochroni - Slouzi  ke stalemu prenosu vetsich dat. Je garantovana latence, ale neni garantovao doruceni. Velmi vhodne pro audio a video.
-*Prerusovany - urceny pro caste prenosy maleho mnozstvi dat. Garantovano doruceni a sircka pasma. Je defonovano maximalni zpozdeni
-*Blokovy - je urcen pro prenos velkeho mnozstvi dat, ale nezarucuje pasmo ci latenci(prenos dat) viz prednaska Novaka
+*Hostitel -- je jediný v systému, řídí komunikaci a obvykle integruje rozbočovač označen jako kořenový.
+Přiděluje zařízením unikátní adresu v síti.
+*Rozbočovač -- distribuuje datové toky a identifikuje připojejí a odpojení dalších zařízení
+*Zařízení -- koncové zařízení s požadovanou funkcionalitou, která odpovídají na kontrolní zprávy.
 \enditems
 
-Enumerace je posloupnost standardizovanych prikazu, ktery zapocal host. V prubehu enumerace se predavani tzv. deskriptory. Ktere obsahuji tyto dulezite informace o zarizeni. Na zaklade informace v deskriptorech se na zarizeni pouzije specialni ovladac.
-Tento standart se v soucasne dobe rozvinul u umoznuje pripojit temer jakekoli zarizeni. Jako jsou ukazovaci zarizeni, pametova zarizeni, tiskarny, komunikacni zarizeni a mnohe dalsi.
-Tato zarizeni jsou roztrizena do trid z dovodu s jednoceni druhu chovani jako jsou HID, PID Printer, Mass Storage a mnohe dalsi.
-Toto sjednocene chovani ma za dusledek spolecnych ovladacu, ktera tato zarizeni mohou vyuzivat.
-A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene chovani a potrebuji specailni pristup.
+USB je asymetrická sběrnice s jedním zařízením typu Master, která spíše vypadá jako strom složený z linek bod-bod.
+Přičemž USB huby vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
+Linky USB sběrnice jsou 4 vodičové obsahující diferenciální pár datových linek, napěťový a zemnící vodič, které připojují zařízení a USB huby.
+USB umožňuje připojit až 127 zařízení v rámci jedné USB sítě o hloubce maximálně pěti rozbočovaču.
+
+Hostitel se a pta se kazdeho usb jestli nema neco na odelani.
+Díky topologii nemuže USB vysílat aniž by bylo dotázáno. A proto je zde hostitel, který se ptá každého zařízení zda-li chce komunikovat a má nějaká data k odeslaní.
+A proto USB umožňuje jednoduchý mechanismus detekce a enumerace za běhu systému, který je řízen a konfigurován automaticky hostitelem.
+Průběh konfigurace se nazývá enumerace vice informací níže \ref[USBkom].
+
+\label[USBkom]
+
+\sec Komunikace
+
+USB komunikace je založena na logických kanálech tzv. rourách. Každému výstupnímu kanálu by měl odpovídat právě jeden vstupní.
+Koncový bod je roura s definovaným směrem.
+USB muže mít maximalně 30 těchto koncových bodů. Tyto koncové body jsou inicializovány v průběhu enumarace USB zarizeni, které probíha po kontrolním rouře označenou číslem 0, kterou mají všechna zařízení společnou.
+Každý koncový bod obsahuje rouru s předem definovanym typem přenosu popsanou níže.
+
+\begitems
+*Řídící -- Obousměrná roura sloužící ke konfiguraci zařízení. Každé zařízení disponuje tímto druhem roury. Má rezervovanou určitou přenosovou kapacitu.
+*Izochronní - Jednosměrná roura sloužící ke stálému přenosu většího objemu dat. Má garantovanou latenci, avšak přenos není spolehlivý. Tento typ roury je velmi vhodný pro audio a video.
+*Přerušovací - Jednosměrná roura sloužící pro časté přenosy malého množství dat. Má garantovano šířku pásma a přenos je spolehlivý. V případě chyby se přenos opakuje.
+*Blokový - Jednosměrná roura sloužící přenosu velkého množství dat. Nemá rezervovanou žádnou přenosovou kapacitu ani dobu odezvy. Komunikace po této rouře je spolehlivá a v případě chyby se přenos opakuje.
+\enditems
+
+Enumerace je posloupnost standardizovaných příkazů, který započal hostitel.
+V průběhu enumerace se předávají deskriptory, které obsahují důležité informace o zařízení.
+Na základě informací v deskriptorech se operační systém rozhoduje, který druh driveru přiřádí tomuto druhu zařízení.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
 
@@ -54,54 +83,70 @@ A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene
 
 \sec Media Independent Interface
 
-Media Independent Interface (MII) je specifikovano standardem IEEE 802.3 v kapitole 22. Interface je nezavysli na procesoru a fyzickem mediu.
-MII propojuje dve vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
-MII obsahuje dva druhy sbernic a to datovou a manezovaci.
-Menagement Data Input/Output (MDIO) Serial Management Interface (SMI) se používá k nastovování mezi MAC a PHY.
+Media Independet Interface je typ rozhraní, který umožňuje připojení nezávyslého na procesoru a k fyzickém médiu.
+Media Independent Interface (MII) je specifikováno standardem IEEE 802.3 v kapitole 22 \ref[IEEE8023].
+MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
 
 \medskip
 \clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=6cm \cinspic a.png
-\caption/f Obrazek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
+\caption/f Obrázek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
 \medskip
 
-Na oprazku \ref[MIItoISO] muzeme videt pripojeni MII inerface na Reconciliation Sublayer (RS) a PCS/PLS. RS je podvrstva, ktera mapuje signali z MII na MAC/PLS obsluhu. Mapovani techto signalu muzeme videt na obrazku \ref[RStoMII]. PLS/PLC vrstvy, ktere se staraji o kodovani signalu.
+Na obrázku \ref[MIItoISO] můžeme vidět připojení MII na Reconsiliation Sublayer (RS) a PCS/PLS.
+RS je podvrstva, která mapuje signály z MII na MAC/PLS obsluhu.
+Mapování těchto signálů můžeme vidět na obrázku \ref[RStoMII].
+PLS/PLC jsou vrstvy, které se starají o kódování a dekódování signálů.
+
 
 %asi zbytecny detaili
 \medskip
-\clabel[RStoMII]{Mapovani signalu RS to MII}
+\clabel[RStoMII]{Mapování signálů RS to MII}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=6cm \cinspic a.png
-\caption/f Obrazek popisuje mapovani signalu mezi RS vstupem a vystupem a STA v MII \cite[IEEE8023].
+\caption/f Obrázek popisuje mapování signalů mezi RS vstupem a výstupem a také STA na MII \cite[IEEE8023].
 \medskip
 
-Az 32 PHY jednotek muze byt obsluhovano jednim manazovacim  MII rozhranim.
-MII podporuje dva datove toky a to je 10~Mb/s a 100~Mb/s. Funkcionalita je identicka na oboch datovych tokach a lisi se poze v nominalni frakvenci hodin.
+Až 32 PHY jednotek může být obsluhováno jedním menežovacim MII rozhraním.
+MII podporuje dva datové toky a to je 10~Mb/s a 100~Mb/s.
+Funkcionalita je identicka na obou datových tokách a liší se pouze v nominální frekvenci hodin.
 
-\secc Fyzicke rozhrani MII
+Fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací \ref[MIImdio].
 
-MII disponuje nekolika druhy signalu, ktere muzeme videt na prave strane obrazku \ref[RStoMII]. 
+\label[MIIdat]
+
+\secc Datová část MII rozhraní
+
+Datová část MII disponuje několika druhy signálu, které mužeme vidět na pravé straně obrázku \ref[RStoMII] popsané níže.
 
 \begitems
-*TX\_CLK -- Refenecni hodiny pro TX\_EN, TXD a TX\_ER signaly z RS do PHY. Zdrojem TX\_CLK je PHY. Frekvence hodin by mela byt 20\% z nominalniho prenosu dat +- 100ppm.
-*RX\_CLK -- Refenecni hodiny pro RX\_DV, RXD a RX\_ER signaly z PHY do RS. Zdrojem RX\_CLK je PHY. RX\_CLK muze mit referenci hodnotu z prijimanych dat nebo muze byt odvozena z nominalni hodnoty jako u TX\_CLK.
-*TX\_EN -- Indikace ze RS je pripravena odeslat nibble na MII.
-*TDX -- je ctverice datovych signalu (TDX[3:0]) ovladana RS, ktera prenasi data synchrone na zaklade TX\_CLK. TDX[0] je nejmene vyznami bit. Pokud je TX\_EN odpojen TDX nema zadny efekt na PHY.
-*TX\_ER -- synchrone na TX\_CLK a pokud je TX\_EN take nastaven. PHY by mela vyslat jeden ci vyce symbolu, ktera nejsou casti dat neb rperusit nekde v ramci.
-*RX\_DV -- Prijata data jsou validni je rizen PHY a rika, ze dekodoval nibble na RXD[3:0] a je synchroni k RX\_CLK
-*RXD -- je ctverice datovych signalu (RDX[3:0]) ovladane PHY. Krera slouzi k prenosu dat z PHY do RS. RXD[0] je LSB.
-*RX\_ER -- Signal rizeny RHY.Ktrery indikuje RS ze nastal error detekovany nekde ve framu.  pokud je RX\_DV odpojen nema zadny vliv na RS
-*CRS -- Je aktivovan pokud prijemce nebo odesilatel je zaneprazdnen. A neaktivni pokud jsou idle. Neni neni synchroni jak na TX\_EN tak na RX\_EN.v
-*COL -- je vyvolan PHY pokud se na mediu nastane kolize. 
-*CRS a COL -- A neaktivni pokud jsou idle. Neni neni synchroni jak na TX\_EN tak na RX\_EN. Nedefinovane chovani COL a CRS pokud bit 0.8 je aktivni. Reprezentuje pokud josu data na odeslani nebo prijeti.
-*MDC -- Casova zakladna pro MDIO signal. Je aperiodicky signal, ktery nema zadne minimum a maximum, ale mel by se pohybovat od 160 do 400 ns.
-*MDIO -- je obousmerny signal, proveden tristavovym obvodem, mezi PHY a STA. Pouziva se k prenosu kontrolnich zprav mezi temito zarizenimi. MDIO je synchroni s MDC a informace josu rizeny z PHY.
+*TX\_CLK -- Pin vysílající refeneční hodinový signál pro synchronizaci pinů TX\_EN, TXD a TX\_ER, která vede z RS do PHY. 
+Zdrojem TX\_CLK je PHY. 
+Frekvence tohoto signálu by měl být 20\% z nominální hodnoty přenosu dat +- 100ppm.
+*RX\_CLK -- Pin vysílající refeneční hodinový signál pro synchronizaci pinů RX\_DV, RXD a RX\_ER, která vede z PHY do RS.
+Zdrojem RX\_CLK je PHY. 
+RX\_CLK může mít referenční hodnotu z přijímaných dat nebo muže být odvozena z nominální hodnoty tak jako u TX\_CLK.
+*TX\_EN -- Pin indikující, že RS je připravena odesílat data.
+*TDX -- Čtveřice datových pinů (TDX[3:0]) ovládána RS, která přenáší data synchroně na základě TX\_CLK. 
+TDX[0] je nejméně významný bit.
+Pokud je TX\_EN fyzicky odpojen TDX nemá žádný efekt na PHY.
+*TX\_ER -- Pokud PHY vysílá jeden či více symbolů, která nejsou součástí dat nebo předčasně dojde k přerušení rámce, tak tento pin synchroně na základě hodinového signálu TX\_CLK a nastaveného signálu TX\_EN vyhodí chybu.
+*RX\_DV -- Pin označující, že přijatá data jsou validní. Tento pin je řizen PHY a je synchroní s RX\_CLK.
+*RXD -- Čtveřice datových pinů (RDX[3:0]) ovladané PHY, které slouží k přenosu dat z PHY do RS. RXD[0] přenáší nejméně významný bit.
+*RX\_ER -- Pin řízený RHY, který indikuje RS, že nastal error detekovaný někde v průběhu přijímaní rámce.
+Pokud je RX\_DV odpojen nemá žadný vliv na RS.
+*CRS -- Tento pin je aktivní pokud příjemce nebo odesilatel je zaneprázdněn a neaktivní pokud jsou idle.
+Není synchroní jak na TX\_EN tak ani na RX\_EN.
+*COL -- Tento pin vyvolán PHY pokud na mediu nastane kolize.
+*CRS a COL -- Piny jous neaktivní pokud ve stavu idle. Nejsou synchroní na TX\_CLK tak ani na RX\_CLK. Nedefinovane chovani COL a CRS pokud bit 0.8 je aktivni.
+%Reprezentuje pokud josu data na odeslani nebo prijeti.
 \enditems
 
 Prenos dat je popsan formatem
-<inter-frame><preamble><sfd><data><efd>.
-Prizemz byte je rozdelen na dva nibble a odeslan po dvouch castech. Tak jak muzeme videt na obrazku X.
+<inter-frame><preambule><začátek datového rámce><data><konec datového rámce>.
+Pričemž byte je rozdělen na dvě poloviny tzv. nibble. A ty jsou odeslány ve dvouc částech po TXD. 
+Jak mužeme vidět na obrázku X.
 %popis  <inter-frame><preamble><sfd><data><efd>  ?
 
 \medskip
@@ -111,7 +156,15 @@ Prizemz byte je rozdelen na dva nibble a odeslan po dvouch castech. Tak jak muze
 \caption/f Obrazek ukazuje jak vypada komunikace po MII bez zadne kolize \cite[IEEE8023].
 \medskip
 
-\secc Manezovaci rozhrani a registrovy prostor
+\secc Menežovací rozhraní a příslušný registrový prostor
+
+Menežovací čast sběrnice označena STA používá k nastavování a čtením hodnot mezi MAC a PHY.
+Ta obsahuje dva datové vodiče:
+\begitems
+*MDC -- Pin určující časovou základnu pro MDIO signal. MDC je aperiodický signál, který nemá žádnou minimální ani maximální frekvenci, avšak by se měl pohybovat v rozmezí od 160 ns do 400 ns.
+*MDIO -- Pin, který je vstupně výstupní a posílají se po něm signály oboumi směry je proveden třístavovým obvodem mezi PHY a STA.
+Používá se k přenosu kontrolních zpráv mezi těmito zařizeními. MDIO je synchroní s MDC a informace jsou řizeny z PHY.
+\enditems
 
 Manezovaci rozhrani je specifikovano dvou linkovym seriovym rozhranim pripojenym k menozovacim vstupum PHY pro ovladni PHY a zbirani informaci o PHY.
 MII obsahuje dva zakladne sety registru Controlni a Stavovy. Vsechny PHY, ktere podporuji MII by meli zahrnovat tuto sadu registru. Stavovy a Controlni registrove prostory muzete videt v priloha X. A specifikuji zakladni vlastnosti pro 100Mb/s 1Gb/s PHYs. Registry 2-14josu casti rozsireneho regitroveho prostoru.(22.2.4 info o reg)
