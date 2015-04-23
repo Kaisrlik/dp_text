@@ -34,8 +34,9 @@ Lennert Buytenhek.
 \newblock \url{https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=91da11f870f00a3322b81c73042291d7f0be5a17}.
 
 \bibitem{IEEE8023}
-IEEE Instrumentation and Measurement Society,TODO.
+The Institude of Electrical and Electronics Engineers.
 \newblock {\em Part 3: Carrier Sense Multiple Access with Collision Detection (CSMA/CD) access method and Physical Layer specifications.}, 2008.
+%\newblock {ISBN-X-XXXX-...}.
 \newblock \url{http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6419737}.
 
 \bibitem{USB}

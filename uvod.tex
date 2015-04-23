@@ -74,6 +74,9 @@ Každý koncový bod obsahuje rouru s předem definovanym typem přenosu popsano
 
 Enumerace je posloupnost standardizovaných příkazů, který započal hostitel.
 V průběhu enumerace se předávají deskriptory, které obsahují důležité informace o zařízení.
+Každý druh deskriptoru opsahuje specifické informace.
+%info o deskriptorech???
+Jakou jsou ID produktu, ID vendora, 
 Na základě informací v deskriptorech se operační systém rozhoduje, který druh driveru přiřádí tomuto druhu zařízení.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
@@ -150,37 +153,50 @@ Jak mužeme vidět na obrázku X.
 %popis  <inter-frame><preamble><sfd><data><efd>  ?
 
 \medskip
-\clabel[transiotionMII]{Komunikace bez kolize po MII}
+\clabel[transiotionMII]{Komunikace po MII bez kolize.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=6cm \cinspic a.png
-\caption/f Obrazek ukazuje jak vypada komunikace po MII bez zadne kolize \cite[IEEE8023].
+\caption/f Obrázek ukazuje jak vypada komunikace po MII bez nastání kolize \cite[IEEE8023].
 \medskip
 
 \secc Menežovací rozhraní a příslušný registrový prostor
 
 Menežovací čast sběrnice označena STA používá k nastavování a čtením hodnot mezi MAC a PHY.
-Ta obsahuje dva datové vodiče:
+Toto rozhraní je specifikovano dvou linkovym seriovym rozhraním.
+Toto rozhraní obsahuje dva datové vodiče:
 \begitems
 *MDC -- Pin určující časovou základnu pro MDIO signal. MDC je aperiodický signál, který nemá žádnou minimální ani maximální frekvenci, avšak by se měl pohybovat v rozmezí od 160 ns do 400 ns.
 *MDIO -- Pin, který je vstupně výstupní a posílají se po něm signály oboumi směry je proveden třístavovým obvodem mezi PHY a STA.
 Používá se k přenosu kontrolních zpráv mezi těmito zařizeními. MDIO je synchroní s MDC a informace jsou řizeny z PHY.
 \enditems
 
-Manezovaci rozhrani je specifikovano dvou linkovym seriovym rozhranim pripojenym k menozovacim vstupum PHY pro ovladni PHY a zbirani informaci o PHY.
-MII obsahuje dva zakladne sety registru Controlni a Stavovy. Vsechny PHY, ktere podporuji MII by meli zahrnovat tuto sadu registru. Stavovy a Controlni registrove prostory muzete videt v priloha X. A specifikuji zakladni vlastnosti pro 100Mb/s 1Gb/s PHYs. Registry 2-14josu casti rozsireneho regitroveho prostoru.(22.2.4 info o reg)
-Format menezovacich ramcu je popsan tabulkou tab X a je odesilan z leva do prava.
+Formát menežovacích rámců je popsán tabulkou \ref[MDIOframe]. A data jsou odesílána po MDIO z levé strany tabulky do pravé.
 
-\midinsert \clabel[MDIOframe]{Format menezovaciho ramce.}
+\midinsert \clabel[MDIOframe]{Formát menežovacích rámců.}
 \ctable{lllllllll}{
  \hfil   operace  & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip4pt
           cteni   & 1...1 & 01 & 10 & AAAAA & RRRRR & Z0 & D...D & Z \cr
           zapis   & 1...1 & 01 & 01 & AAAAA & RRRRR & 10 & D...D & Z \cr
 }
-\caption/t Format menezovacich zprav odesilany z leva do prava \cite[IEEE8023] (table 22-12).
+\caption/t Format menezovacich zprav odesilany z leva do prava \cite[IEEE8023] (Tabulka 22-12).
 \endinsert
 
-V tabulce \ref[MDIOframe] muzeme videt hodnotu Preambule (PRE), ktera je posloupnost 32bitu hodnoty logicke 1 slouzici k synchronizaci s MDC.
-Zacatek ramce (ST) je 01. Pote nasleduje Operacni kod (OP), ktery urcuje druh operace cteni nebo zapisu. PHYAD je fyzicka adresa zarizeni o delce 5bitu tj. az 32 zarizeni. Prvni bit je MSB. Dalsi polozkouy je adresa registru (REGAD) cislovana jako vyse. Dalsim blokem je TA coz slouzi u cteni k prohozeni odesilatele, kdy se aktivni odesilatel prehodi do stavu vysoke impedance a necha vysilani PHY. Pri zapisu je vysilana logicka 1. Data jsou 16bitova hodnota.
+V tabulce \ref[MDIOframe] mužeme vidět hodnotu preambule (PRE), která je posloupnost 32 bitu hodnoty logické 1 sloužící k synchronizaci s MDC.
+Začátek rámce označný ST je 01.
+Poté následuje OPerační kód (OP), který určuje druh operace, čtení nebo zápis.
+PHYAD je fyzická adresa zařízení o délce 5 bitu tj. až 32 zařízení, které můžeme naadresovat.
+První bit adresy je nejvíce významný.
+Další položkou je adresa registru (REGAD) číslovaná jako níže uvedene registry. Dalším blokem je TA.
+Při čteni hodnota vysoké impedance slouží k prohození odesilatele, kdy se aktivní odesilatel přehodí do stavu vysoké impedance a nechá vysílat PHY.
+Pri zápisu zde není místo, na prohození odesílatelů a odesílá se logická 1.
+Data jsou 16 bitová hodnota, jako je velikost registrů.
+
+Za pomoci STA, MAC může vyčítat z registrového prostoru PHY. Část registrového prostoru je definována tež standardem 802.3.
+Registrový prostor obsahuje dva základní sety registrů kontrolní a stavový.
+Všechny PHY, které podporují MII by měli používat tuto sadu registrů.
+Stavový a kontrolní registrové prostory můžeme vidět v příloza XXX.
+Tyto registry specifikují základní vlastnosti pro 100Mb/s a 1Gb/s PHYs.
+Registry 2-14 jsou částí rozšířeného regisrového prostoru \cite[IEEE8023] (22.2.4).
 
 
 % Ne do DP
@@ -189,9 +205,12 @@ Zacatek ramce (ST) je 01. Pote nasleduje Operacni kod (OP), ktery urcuje druh op
 %The Gigabit Media Independent Interface (GMII) is similar to the MII. The GMII uses the MII management interface and register set specified in 22.2.4. These common elements of operation allow Station Management to determine PHY capabilities for any supported speed of operation and configure the station based on those capabilities. In a station supporting both MII and GMII operation, configuration of the station would include enabling either the MII or GMII operation as appropriate for the data rate of the selected PHY. Most of the MII and GMII signals use the same names, but the width of the RXD and TXD data bundles and the semantics of the associated control signals differ between MII and GMII operation. The GMII transmit path clocking also differs significantly from MII clocking. MII operation of these signals and clocks is specified within Clause 22 and GMII operation is specified within Clause 35.
 %GMII obsahuje 3ti zakladni registr Extended status reg(15)
 
-\secc RMII
+\secc Reduce Media Independet Interface
 
-RMIITM Specification (Reduced MII). RMII provides independent 2-bit wide transmit and receive paths synchronised to a common 50MHz reference clock. Furthermore, carrier sense and receive data valid are now combined  as one signal CRS\_DV. Collision detection is regenerated on the MAC side by ANDing signals TX\_EN and CRS\_DV. This reduces the total pins per port to 8 from 16 (MII)
+Reduce Media Independet Interface (RMII) je obdoba MII, která má snížený počet pinů z 16 na 8.
+Datové vodiče RMII jsou pouze 2 bity široké.
+Dále je jsou sjednoceny signály COL a CRS do jednoho signálu CRS\_DV.
+Detekce kolizí na MAC je logický součin signálů TX\_EN a CRS\_DV.
 
 % TODO
 %\sec linux
@@ -204,24 +223,36 @@ RMIITM Specification (Reduced MII). RMII provides independent 2-bit wide transmi
 
 %\secc openwrt
 
-\sec linux sub
+\sec Subsystém operačního systému Linux
 
-\secc Co to je Ovladac?
+Tato kapitola obsahuje informace o tom, co to je ovladač. A jak je ovladač přepínače \ref[DSA] a usb zařízeních integrovaný \ref[USBst]  v operačním systému Linux.
 
-Ovladac je kus programu ktery operuje nebo controluje urcite zarizeni pripojene k pocitaci. Ovladace vytvareni softwareove rozhrani pro hardwarove zarizeni, ktere umoznuji operacnimu systemy ovladat tento hardware aniz by vedel jak presne funguje.
+\secc Co je to ovladač
 
-Ovladace zarizeni maji v linuxu specialni roly \ref[LDD3]. Tyto kusy kodu umoznuji HW aby odpovidal definovanym rozhranim.
-
-\secc miibus
+Ovladač je kus programu (algoritmu), který operuje nebo kontroluje určité zařízení připojené k počítači.
+Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware aniž by uživatel věděl jak přesně funguje \ref[LDD3].
 
 \secc device
 
-At the lowest level, every device in a Linux system is represented by an instance of struct device. The device structure contains the information that the device model core needs to model the system. Most subsystems, however, track additional information about the devices they host. As a result, it is rare for devices to be represented by bare device structures; instead, that structure, like kobject structures, is usually embedded within a higher-level representation of the device \ref[DEV].
+%{\em } 
+%\fnote{\url{Odkaz na IEEE}}}.
+
+Každé zařízní na té nejnižší úrovni je v operačním systému Linux je reprezentováno instancí struktory {\em struct device}.
+Struktora device obsahuje informace o tom co zařízení potřebuje aby správně fungoval v systému.
+Mnoho subsystému uchovává informace o této struktuře, na které stavějí.
+Je velmi optížné dnes narazit na zařízení, které je reprezentováno pouze struktorou {\em struct device}.
+Místo toho struktury obecně implementují vyšší reprezentaci zařízení \ref[DEV].
+
+\secc miibus
+
+\label[DSA]
 
 \secc Distributed Switch Architecture
 
- Distributed Switch Architecture (DSA) je protokol pro menezovani hardwarovych switchu, ktere obsahuji MII menezovaci registry a prikazy nastavujici switche a ethernotovy format ktery signalizuje, na kterm portu apyl paket prijet nebo ktery se hodla odelsat \ref[DSA].
-Tento driver podporuje swtihe, ktere jsou pripojeny zpusobem:
+Distributed Switch Architecture (DSA) je protokol pro menežování hardwarových přepínačů.
+Obsahuje MII menežovací registry, příkazy pro nastavení přepínače a formát ethernetových hlaviček, který signalizuje na kterém portu byl paket přijat nebo ktery se hodlá odeslat \ref[DSA].
+
+Tento driver podporuje přepínače, které jsou připojeny způsobem zobrazeným na obrázku \ref[DSAcon].
 
 %+-----------+       +-----------+ \hfill \break
 %|           | RGMII |           |
@@ -233,10 +264,11 @@ Tento driver podporuje swtihe, ktere jsou pripojeny zpusobem:
 %|           |       |           |
 %+-----------+       +-----------+
 
-Tento switch driver reprezentuje kazdy port jako oddeleny sitove rozhrani. Pollovani, stav portu, MII manazement interfacu je proveden diky ethtoolu.
+Tento ovladač přepínače reprezentuje každý port jako oddělené síťove rozhraní.
+Pollování, stav portů, MII menežment rozhraní je proveden za základě rozhraní ethtool \fnote{Copak je ethTool XXX}.
 
 
-DSA podporuje i propojeni mezi switchy, ktere pak muzem take ovladat.
+DSA podporuje i propojení mezi switchy, které pak mužem take ovladat.
 
 %        +-----+          +--------+       +--------+
 %        |     |eth0    10| switch |9    10| switch |
@@ -251,58 +283,78 @@ DSA podporuje i propojeni mezi switchy, ktere pak muzem take ovladat.
 
 
 
+\label[USBst]
 
 \secc usb driver
 
-Linuxove jadro podporuje dva druhy zarizeni drivers on a host system and drivers on a device \cite[LDD3]. USB ovladac na hostosky system ke kteremu je USB zarizeni pripojeno.
-Ovladace na zarizeni neboli \"USB gadget drivers\" ovladini zarizeni vypadajici jako hostovska stanice pripojena prez USB.
-NA obrazku nize muzeme videt USB stack. Kde USB muze zit v nekolika ruznych subsystemych (net, block, char ...). USB core dava rozhrani pro USB ovladace, kteri chteji kontrolovat a pristupovat k HW. Ruzne druhy kontroleru jsou reprezentovany v systemu.
+Linuxové jádro podporuje dva druhy USB zařízení ovladače na hostovském systému a ovladače na zařízení \cite[LDD3].
+USB ovladač na hostovském systému, jak může být podle názvu jasné, běží systému ke kterému je USB zařizení připojeno.
+Ovladače na zařízení neboli \"USB gadget drivers\"  zařízení připojojené k hostovskému systému vypadá jako hostovská stanice připojena přez USB.
+Na obrázku níže mužeme vidět USB stack, kde USB muže existovat v několika různých subsystémech (net, block, char ...). USB core dává rozhraní pro USB ovladače, které chtějí kontrolovat a přistupovat k hardwaru.
 
-USB endpointy jsou popsany v kernelu strukturou struct usb\_host\_endpoint a ta obsahuje informace o realnem endpintu v strukture struct usb\_endpoint\_descriptor - ten popisuje data pomoci prijmutych dekriptoru.
 
-USB interface nekolik endpointu, ktere tvori jedno logicke pripojeni jako je mys, klavesni, video atd. Nektera USB zarizeni mohou mit vice interfacu. USB speaker ma dva interfaci jako je USB keyboear pro tlacitka a USB audio stream.%TODO presunout nahoru
-Pro kazdy interface Linux pouziva jeden hardwarovy ovladac. A tento interface je popsan struktorou struct usb\_interface. Tato struktura je to co USB core dava USB driverum.
-Kazde zarizeni je vazano konfiguraci a jedno USB zarizeni muze mit vice configuraci, ktera se mohou menit. A vsak Linux nemuze obsluhovat vice configuraci v jeden cas. Linux popisuje configuraci v struct usb\_host\_config a cele USB zarizeni strukturou struct usb\_device.
-USB drivery obycejne prepisuji data z usb\_interafacu do struct usb\_device.
+Koncové body USB jsou popsány v jádře Linuxu strukturou {\em struct usb\_host\_endpoint}.
+Tato struktora obsahuje informace o realném koncovém bodu v struktuře {\em struct usb\_endpoint\_descriptor}.
+Struktora {\em struct usb\_endpoint\_descriptor} popisuje data pomocí příjmutých dekriptorů.
 
-Samotny usb\_device a usb\_interface je zobrazeny v sysfs jako jednotliva zarizeni.
+USB rozhraní je složeno z několik koncových bodů, které tvoří jedno logické připojení jako je napřiklad myš, klávesnice, video atd. Některá USB zařízení mohou mít více rozhraní.
+USB repoduktory mohou mít dvě rozhraní jako je USB klávesnice pro tlačítka a USB audio stream \ref[LDD3].%TODO presunout nahoru
+Pro každé rozhraní Linuxové jádro používá jeden hardwarový ovladač.
+Toto rozhraní je popsáno strukturou {\em struct usb\_interface}.
+Tato struktura je to co USB core předává USB ovladačům.
+Každé zařízení je vázáno konfigurací a jedno USB zařízení muže mít těchto konfigurací více.
+Tyto konfigurace se mouhou v průběhu běhu zařízení měnit.
+A však Linuxové jádro nemůže obsluhovat více konfigurací v jeden čas. Linuxové jádro popisuje konfigurace v struktuře {\em struct usb\_host\_config} a celé USB zařízení strukturou {\em struct usb\_device}.
+Ovladače USB zařízení  obyčejně přepisují data z {\em usb\_interaface} do {\em struct usb\_device}.
 
-usb\_device:
-/sys/devices/pci0000:00/0000:00:09.0/usb2/2-1
+Samotné struktury {\em struct usb\_device} a {\em struct usb\_interface} jsou zobrazeny v sysfs\ref[SYSFS] jako jednotlivá soubory.
 
-usb\_interface je pojmenovan podle formatu root\_hub-hub\_port:config.interface(pro hlubsi stromy je schema root\_hub-hub\_port-hub\_port:config.interface) :
-/sys/devices/pci0000:00/0000:00:09.0/usb2/2-1/2-1:1.0
+Na řádce níže můžeme vidět ukázkovou cestu k {\em struct usb\_device} reprezentovanou pomocí sysfs:
 
-Pro komunikaci se vsemi USB zarizenimi linux pouziva USB request block (urb). Urb se pouziva k posilani a prijmu da pro specificky usb endpint a specifivcke usb zarizeni v asynchronim zpusobem.
+\begtt  /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1  \endtt
 
-%\secc net\_device
+K výše uvedené cestě k USB zařízení je na řádku níže zvírazněno USB rozhraní reprezentováno strukturou {\em struct usb\_interface} je pojmenovan podle formátu root\_hub-hub\_port:config.interface (pro hlubší stromy je schéma root\_hub-hub\_port-hub\_port:config.interface):
+
+\begtt /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1/2-1:1.0 \endtt
+
+Pro komunikaci se všemi USB zařízeními Linuxové jádro používá USB request block (urb). Urb se používá k posílaní a příjmu dat pro specifický koncový bod USB a specifické USB zařízení asynchroním způsobem.
+
+%\secc net\_device XXX
+
+\label[USBNET]
 
 \secc usbnet
 
-Usbnet je subsystem linuxoveho jadra, ktery umoznuje ovladat USB-sitove zarizeni jako je ethernet, DSL, IDSN atd \ref[USBNET].
-Je to genericky USB sitovy framework, ktery pracuje na ruznych rochlostech a ruznymi protokoli. 
+Usbnet je subsystem Linuxového jadra, který umožňuje ovládat USB-síťové zařízení jako je ethernet, DSL, IDSN atd \ref[USBNET].
+Usbnet je to genericky USB síťový framework, který pracuje na různých rychlostech a nad různými protokoly.
 
 
 \secc System Filesystem
 
-SYstem FileSystem (Sysfs) je charakteristika linuxu 2.6, ktera umozuje kernelovemu kodu exportovat informace do userspacu za pouziti pameti za pouziti VFS\ref[SYSFS]. Vetsinou kazdy file vetsinou ASCII obsahuje pouze jednu hodnotu.
-Hlavnim ucelem je reprezentovat objekty, jejich atributy a jejich vstahy navzajem.
-Poskytuje dve slozky:
-*kernel programing interface -- pro export itemu skrz sysfs
-*user interface -- k videni a manipulaci techto itemu, ktere mapuje zpet na objekty v kernelu
-Mapovani mezi objekty muzeme videt v \ref[SYSFSmap].
+SYstem FileSystem (Sysfs) je charakteristika Linuxového jádra od verze 2.6, která umožňuje kernelovému kódu exportovat informace do userspace za použití paměti VFS\ref[SYSFS].
+Hlavním učelem je reprezentovat objekty, jejich atributy a jejich vstahy navzájem.
+Většina atributů je reprezentována souborem jež je ve formátu ASCII a obsahuje pouze jednu hodnotu.
+Sysfs poskytuje dvě složky:
 
-\midinsert \clabel[SYSFSmap]{Mapovani objektu a atributu v sysfs.}
+\begitems
+*kernel programing interface -- Slouží k exportování a importování položek (viz níže) skrz sysfs do kernelu
+*user interface -- Slouží k vidění a manipulaci těchto položek (viz níže), které mapuje zpět na objekty v kernelu
+\enditems
+
+Mapování mezi objekty můžeme vidět v \ref[SYSFSmap].
+
+\midinsert \clabel[SYSFSmap]{Mapováni objektů a atributu v sysfs.}
 \ctable{ll}{
  \hfil  Interni   & Externi  \crl \tskip4pt
-        Kernelove objekty    & Slozky  \cr
-        Atributy objektu     & Soubory  \cr
-        Vazby mezi objekty   & Symbolicke odkazy  \cr
+        Kernelovské objekty    & Složky  \cr
+        Atributy objektů     & Soubory  \cr
+        Vazby mezi objekty   & Symbolické odkazy  \cr
 }
 \caption/t  Tabulka prevzana z \cite[SYSFS].
 \endinsert
 
-V systemu muzeme videt tyto zarizeni v slozce /sys a muzeme tam napriklad videt tyto zarizeni ....
+V systemu můžeme vidět tyto zařízení vidět ve složce  {\em /sys/ }.
+Složka /sys/ může vypadat následovně:
 
 %/sys/
 %|-- block
