@@ -1,0 +1,55 @@
+\label[UPUBOOT]
+
+\sec Nahrátí upstreamového zavaděče U-Boot
+
+git clone git://git.denx.de/u-boot.git
+
+Utility tegrarcn a cbootimage sloužící k flashování:
+
+ git clone https://github.com/NVIDIA/cbootimage-configs.git
+
+BCT + U-Boot:
+
+ cbootimage -gbct -t20 tegra20/toradex/colibri-t20/colibri-t20\_512\_v12\_nand.bct.cfg colibri-t20\_512\_v12\_nand.bct
+ cp ../u-boot/u-boot-dtb-tegra.bin u-boot.bin
+ cbootimage -t20 tegra20/toradex/colibri-t20/colibri-t20_512_v12_nand.img.cfg colibri-t20\_512\_v12\_nand.img
+
+Nahrání image v recovery módu a následné spustění image:
+
+ tegrarcm --bct colibri-t20\_512\_v12\_nand.bct --loadaddr=0x00108000 --bootloader=../u-boot/u-boot-dtb-tegra.bin
+
+Přehrání bootloaderu v U-Bootu:
+
+Tegra20 (Colibri) # usb start
+(Re)start USB...
+USB1: USB EHCI 1.00
+scanning bus 1 for devices... 1 USB Device(s) found
+USB2: USB EHCI 1.00
+scanning bus 2 for devices... 2 USB Device(s) found
+ scanning usb for storage devices... 0 Storage Device(s) found
+ scanning usb for ethernet devices... 1 Ethernet Device(s) found
+Tegra20 (Colibri) # setenv ipaddr 192.168.80.90; setenv serverip 192.168.80.3 
+Tegra20 (Colibri) # tftpboot 0x02100000 colibri-t20\_512\_v12\_nand.img
+Waiting for Ethernet connection... done.
+TFTP from server 192.168.80.3; our IP address is 192.168.80.90
+Filename \'colibri-t20\_512\_v12\_nand.img\'.
+Load address: 0x02100000
+Loading: ##################################################
+         3.6 MiB/s
+done
+Bytes transferred = 729088 (b2000 hex)
+Tegra20 (Colibri) #
+
+A následné přepsání v NAND paměti:
+
+Tegra20 (Colibri) # nand erase.chip
+
+NAND erase.chip: device 0 whole chip
+Erasing at 0x3ffc0000 -- 100\% complete.
+OK
+Tegra20 (Colibri) # nand write 0x02100000 0 0xb2000
+
+NAND write: device 0 offset 0x0, size 0x95000
+ 577536 bytes written: OK
+
+0xb2000 délka popsána u přenosu

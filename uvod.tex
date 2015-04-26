@@ -1,5 +1,6 @@
 \chap Úvod
-
+%TODO list
+% usb obr, enumaration, mazna edpoint+interface
 Tu se deje kupa zajimavych veci ....
 
 V kapitole pouzitech technologie \ref[pouztech] se dozvime teorii o XXX.
@@ -34,7 +35,7 @@ Tato zařízení jsou roztřízena do tříd z důvodu sjednocení funkcionality
 Toto sjednocené chování má za důsledek společných ovladacu, ktera tato zarizeni mohou vyuzivat.
 A vsak nektera z techto zarizeni se do techto trid nevnestnaji ci maji rozsirene chovani a potrebuji specailni pristup.
 
-\sec Rysy USB zařízení
+\secc Rysy USB zařízení
 
 
 USB je deterministická sběrnice (Master/Slave), která podporuje detekci připojení (plug\&play) mechanismus a automatickou konfiguraci (hotswap).
@@ -58,7 +59,7 @@ Průběh konfigurace se nazývá enumerace vice informací níže \ref[USBkom].
 
 \label[USBkom]
 
-\sec Komunikace
+\secc Komunikace
 
 USB komunikace je založena na logických kanálech tzv. rourách. Každému výstupnímu kanálu by měl odpovídat právě jeden vstupní.
 Koncový bod je roura s definovaným směrem.
@@ -76,11 +77,11 @@ Enumerace je posloupnost standardizovaných příkazů, který započal hostitel
 V průběhu enumerace se předávají deskriptory, které obsahují důležité informace o zařízení.
 Každý druh deskriptoru opsahuje specifické informace.
 %info o deskriptorech???
-Jakou jsou ID produktu, ID vendora, 
+Jakou jsou ID produktu, ID vendora, XXX.
 Na základě informací v deskriptorech se operační systém rozhoduje, který druh driveru přiřádí tomuto druhu zařízení.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
-
+%MAC podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
 
 \label[MII]
 
@@ -92,8 +93,7 @@ MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Med
 
 \medskip
 \clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
-%\picw=13cm \cinspic MIItoISO.png
-\picw=6cm \cinspic a.png
+\picw=16cm \cinspic images/802_iso.pdf
 \caption/f Obrázek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
 \medskip
 
@@ -107,7 +107,7 @@ PLS/PLC jsou vrstvy, které se starají o kódování a dekódování signálů.
 \medskip
 \clabel[RStoMII]{Mapování signálů RS to MII}
 %\picw=13cm \cinspic MIItoISO.png
-\picw=6cm \cinspic a.png
+\picw=15cm \cinspic images/802_rs.pdf
 \caption/f Obrázek popisuje mapování signalů mezi RS vstupem a výstupem a také STA na MII \cite[IEEE8023].
 \medskip
 
@@ -146,18 +146,29 @@ Není synchroní jak na TX\_EN tak ani na RX\_EN.
 %Reprezentuje pokud josu data na odeslani nebo prijeti.
 \enditems
 
-Prenos dat je popsan formatem
-<inter-frame><preambule><začátek datového rámce><data><konec datového rámce>.
+Prenos dat je popsan formatem: \hfill \break
+<inter-frame><preambule><začátek datového rámce><data><konec datového rámce>. \hfill \break
 Pričemž byte je rozdělen na dvě poloviny tzv. nibble. A ty jsou odeslány ve dvouc částech po TXD. 
 Jak mužeme vidět na obrázku X.
 %popis  <inter-frame><preamble><sfd><data><efd>  ?
 
 \medskip
+\clabel[NIBBLE]{Rozdělení bytu po datových pinech}
+%\picw=13cm \cinspic MIItoISO.png
+\picw=15cm \cinspic images/802_nibble.pdf
+\caption/f Obrázek popisuje jak je rozdělen byte, který je následně odeslán po TDX \cite[IEEE8023].
+\medskip
+
+
+
+\medskip
 \clabel[transiotionMII]{Komunikace po MII bez kolize.}
 %\picw=13cm \cinspic MIItoISO.png
-\picw=6cm \cinspic a.png
+\picw=15cm \cinspic images/802_miicom.pdf
 \caption/f Obrázek ukazuje jak vypada komunikace po MII bez nastání kolize \cite[IEEE8023].
 \medskip
+
+\label[MDIOs]
 
 \secc Menežovací rozhraní a příslušný registrový prostor
 
@@ -187,9 +198,16 @@ Poté následuje OPerační kód (OP), který určuje druh operace, čtení nebo
 PHYAD je fyzická adresa zařízení o délce 5 bitu tj. až 32 zařízení, které můžeme naadresovat.
 První bit adresy je nejvíce významný.
 Další položkou je adresa registru (REGAD) číslovaná jako níže uvedene registry. Dalším blokem je TA.
-Při čteni hodnota vysoké impedance slouží k prohození odesilatele, kdy se aktivní odesilatel přehodí do stavu vysoké impedance a nechá vysílat PHY.
+Při čteni hodnota vysoké impedance slouží k prohození odesilatele, kdy se aktivní odesilatel přehodí do stavu vysoké impedance a nechá vysílat PHY, tak jak můžeme vidět na obrázku \ref[mdioread].
 Pri zápisu zde není místo, na prohození odesílatelů a odesílá se logická 1.
 Data jsou 16 bitová hodnota, jako je velikost registrů.
+
+\medskip
+\clabel[mdioread]{Čtení registru po STA.}
+%\picw=13cm \cinspic MIItoISO.png
+\picw=15cm \cinspic images/802_miimdio.pdf
+\caption/f Obrázek ukazuje čtení z registru po komunikaci po seriové lince STA \cite[IEEE8023].
+\medskip
 
 Za pomoci STA, MAC může vyčítat z registrového prostoru PHY. Část registrového prostoru je definována tež standardem 802.3.
 Registrový prostor obsahuje dva základní sety registrů kontrolní a stavový.
@@ -207,10 +225,16 @@ Registry 2-14 jsou částí rozšířeného regisrového prostoru \cite[IEEE8023
 
 \secc Reduce Media Independet Interface
 
-Reduce Media Independet Interface (RMII) je obdoba MII, která má snížený počet pinů z 16 na 8.
+
+Reduce Media Independet Interface (RMII) je obdoba MII, která má snížený počet pinů z 16 na 8 \cite[RMII].
+RMII je nízkonákladova obdoba MII, která přidává pouze reconciliation layer (RS) na oboch stranách MII či náhradu aktualního RS v MII \cite[RMIIcon].
+RMII používá stejné menežovací rozhraní jako MII definované IEEE 802.3u \cite[IEEE8023] popsané \ref[MDIOs].
 Datové vodiče RMII jsou pouze 2 bity široké.
 Dále je jsou sjednoceny signály COL a CRS do jednoho signálu CRS\_DV.
 Detekce kolizí na MAC je logický součin signálů TX\_EN a CRS\_DV.
+Zdrojem hodinového signálu je vrstva MAC nebo je generován externími hodinami.
+
+%TODO pridat obrazek RSl
 
 % TODO
 %\sec linux
@@ -229,7 +253,7 @@ Tato kapitola obsahuje informace o tom, co to je ovladač. A jak je ovladač př
 
 \secc Co je to ovladač
 
-Ovladač je kus programu (algoritmu), který operuje nebo kontroluje určité zařízení připojené k počítači.
+Ovladač je kus programu (algoritmu), který zpravuje nebo kontroluje určité zařízení připojené k počítači.
 Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware aniž by uživatel věděl jak přesně funguje \ref[LDD3].
 
 \secc device
@@ -366,66 +390,126 @@ Složka /sys/ může vypadat následovně:
 %‘-- power
 
 
-\chap Pouzity hardware
+\chap Použitý hardware
+
+\label[T20]
 
 \sec Colibri T20
 
-Colibri T20 je SODIMM pocitacovy modul posltaven na zaklade NVIDIA Tegra 2 embeded systemu na cipu (SOC). 
-SOC modul Tegra 2 je zalozanan na dvoujadrovem procesoru Cortex A9 symmetric MPCore od firmy ARM s rychlosti okolo 1 Ghz.
-Jelikoz se jedna o SOC obsahuje tento cip take mnoho mluku jako Audio/Video rekorder. Graficky cip s podporou 2D rendrovani a 3D pixel a vektor shaderem.
+Colibri T20 je počítačový modul postaven na základě NVIDIA Tegra 2 embeded systému na čipu (SOC) \cite[SOC].
+SOC modul Tegra 2 je založen na dvoujádrovém procesoru Cortex A9 se symetrickým procesorovým jádrem od firmy ARM s rychlostí okolo 1 Ghz.
+Jelikož se jedná o SOC obsahuje tento čip také mnoho bluků jako je například Audio/Video rekordér.
+Grafický čip s podporou 2D rendrovaní a 3D pixel a vektor shadrem.
 
-Cip obsahuje periferie popsane na blokovem diagramu z 
-%(https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2).
+Čip obsahuje periferie popsané na blokovém diagramu na obrázku \ref[SOC].
+
+\medskip
+\clabel[SOC]{Colibri T20 blokový diagram.}
+\picw=15cm \cinspic images/soc.pdf
+\caption/f Obrázek popisuje části integrované na modulu Colibri T20 \cite[SOC].
+\medskip
+
+Toradex dodává podporu BSP pro Linuxové jádro 3.1.
 
 %chtelo by to swap Colibri a ARM ci spojit...
-\sec ARM Cortex A9
+\sec NVIDIA Tegra 2
 
-ARM je 32-bitove RISC architektura vyvajena spolecnosti ARM Holding venujici se vyvoji procesorovych jader.
+Dvoujadrový procesor ARM Cortex A9 symmetric MPCore je jeden z aplikačních procesorů vyvíjený firmou ARM.
+Tento ARM je 32-bitová RISC architektura vyvíjená společností ARM Holding věnující se vývoji procesorových jader.
+Tento procesor porporuje out-of-order a spekulativní provádění instrukcí.
+Má plnou podporu koherence pamětí pro symetrické procesory.
+Toto jádro dosahuje vysokého grafického výkonu, ale také výpočetního výkonu viz. \cite[BENCH].
+Procesor též obsahuje jednotku pro výpočty s plovoucí řádovou čárkou.
 
-Dvoujadrovy procesor ARM Cortex A9 symmetric MPCore je jeden z aplikacnich procesoru.
+Popis jádra NVIDIA Tegra 2 můžeme vidět na obrázky níže \ref[TEGRA].
 
-Tento procesor porporuje out-of-order a spekulaticni provadeni instrukci. 
-Ma plne koheretni podporu pro symetricke procesory.
-Tento modulu dosahuje velmi vysokeho grafickeho ale take vypocetniho vykonu viz. \ref[testColibriT20]. 
-Procesor tez obsaguje jednotku pro vypocty s plovouci radovou carkou.
+\medskip
+\clabel[TEGRA]{Popis jádra NVIDIA Tegra 2.}
+\picw=15cm \cinspic images/tegra2.pdf
+\caption/f Obrázek popisuje vnitřek proceosru NVIDIA Tegra 2 \cite[TEGRA].
+\medskip
+
+\label[ASIX]
 
 \sec Asix AX88772b
 
-Jako jediny z vyrobnich rad dosahuje v revizi AX88772bXX ma teplotni rozsahy od -40C az +85C.
 
-AX88772b je USB 2.0 - 10/100 Mb/s Fast Ethernet kontroler s vysokou vykonosti a intergraci ASIC, ktera umoznuje malou zpotrebu a plug-and-play Fast Ethernet internetove pripojeni pro zarizeni pouzivajici stantardyzovane USB \ref[USB].
+AX88772b je zákaznický integrovaný obvod, který umožňuje plug-and-play Fast Ethernet internetové připojení pro zařizení používající stantardizované USB \ref[USB].
 
-AX88772b podporuje volitelny Multy-Function-Bus(MFA/MFB) pro externi PHY nebo externim MAC. MFA/MFB muze byt nakonfigutovano jako General purpose I/O, RMII \ref[RMII] pro implementaci Fast ethernetu nebo jako Reverse-RMII pro MAC-to-MAC pripojeni k nejakakemu MCU s ethernet MAC RMII rozhranim.
+Jako jediný z výrobních řad dosahuje revize AX88772bli teplotní rozsah od -40°C až +85°C.
+
+AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMII] nebo jako Reverse-RMII pro MAC-to-MAC připojení k nějakému mikrokontroléru s ethernet MAC RMII rozhraním.
+
+MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 %neudelat 802.3 chap?
-MAC Core podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
 
+\medskip
+\clabel[ASIX]{.}
+\picw=15cm \cinspic images/asix.pdf
+\caption/f Obrázek popisuje  \cite[ASIX].
+\medskip
 %jake umoznuje propojeni po rmii?
+
+\label[MARVELL]
 
 \sec Marvell 88E6065
 
-Obsahuje  petkrat yysilac na fyzicke vrstve 10~BASE-T/100~BASE-TX, ktere muzou byt pouzity take pro optickou linku 100~BASE-FX.
-Sestym portem je nezavysli Fast ethernet media access controller.
-Je jedno cipovy obvod integrujici 4 + 2 portu Fast Ethernetoveho switche. Toto zarizeni podporuje Quality of Service (QoS) A vyjmecne muzou vyuzivat podpory pro routry a vychozi brany.
-Zarizeni ma high-speed, non-blocking four traffic class QoS. True plag-n-play je podporovano s Auto-Crossoer, Auto-polarity a Auto-nogotiation na fyzike vrtve. Zarizeni podporuje 64 z 4096 802.1Q WLAN s 3 levlovou ochranou. Ma dve RMII/MII/SNI rozhrani, ktera mohou byt pripojena k menezovacimu rozhrani nebo Router CPU s integrovanou MAC.
+Marvell 88E6065 je 5+1 portový ethernetový přepínač integrovaný na jednom čipu.
+Obsahuje  pět portů na fyzicke vrstvě 10~BASE-T/100~BASE-TX, znichž dva porty můžou být použity pro optickou linku 100~BASE-FX.
+Šestým portem je nezávyslí Fast ethernet MAC.
+Zařízení má high-speed, non-blocking čtyřúrovňový QoS.
+PHY podporuje plag-n-play s možností Auto-Crossoer, Auto-polarity a Auto-nogotiation.
+Zařízení dále odporuje 64 z 4096 802.1Q WLAN s 3 úrovňovou ochranou.
+Má dva RMII/MII/SNI rozhraní, která mohou být připojena k menežovacímu rozhraní nebo ke kontroleru s integrovanou MAC.
 
-MAC a PHY rozhrani jsou plne kompatibilni se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
-Zarizeni muze byt configurovano prez STA (SNI) nebo moze nastaveni nacitat z flash.
+MAC a PHY rozhraní jsou plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
+Zařízení může být konfigurováno přez STA nebo může nastavení načítat z EEPROM paměti.
 
+Výjmečně se může Marvell 88E6065 využívat podpory pro směrovače a výchozí brány.
 %jake umoznuje porjojeni RMII
 
-\sec deska USB prepinace
+\label[SWITCH]
 
-Jedna se o desku, ktera umoznuje konfiguraci ethernetoveho prepinace za pomoci USB kontroleru.
-Deska obsahuje USB kontroler AX88772b od firmy Asix ke kteremu je pripojena externi pamet eeprom M93-C66.
-A tento kontroler je pripojen RMII rozhranim k cipu Marvell 88E6065. Marvell 88E6065 je ethernetovy prepinac, ktery ma k sobe krome zmineneho RMII portu pripojeno pet ethernetovych rozhrani a taktez je knemu pripojena externi pamet eeprom.
-Oba tyto cipy tez vlastni vlastni krystal na frakvenci 25~Mhz.
-Deska je tez ossazena regulatorem napeti.
+\sec Menežovatelný přepínač
 
-Deska USB prepinace je vyrobena firmou Retia a.s. na zaklade jejich navrhu a zapojeni popsanych v priloze \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
+
+Menežovatelný přepínače umožňuje konfiguraci ethernetoveho přepínače za pomoci USB kontroleru Asix AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět eeprom M93-C66.
+Tento kontrolér je připojen RMII rozhraním k čipu Marvell 88E6065 \ref[MARVELL].
+Marvell 88E6065 je ethernetový přepínač, který má k sobě kromě zmíněného RMII portu připojeno pět ethernetových portů a taktéž je kněmu připojena externí pamět eeprom.
+Oba tyto čipy mají též vlastní krystal na frekvenci 25~Mhz.
+Deska je taktéž osazena regulátorem napětí.
+
+Desku menežovatelného přepínače je vyrobena firmou Retia a.s. \fnote{Firma zabívající se elektronickými vojeskými systémy, zaznomovými zařízeními a lokalizačních a bezpočnostních systémů. \url{www.retia.cz}}} na základě jejich návrhu a zapojení popsaných v přílohách \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
 
 \chap Implementace
 
-popis o co se tu jedna
+Tato kapitola rozebírá update systému pro modul Colibri T20 \ref[T20], který byl zapotřebí pro další implementaci ovladačů pro aktuální Linuxové jádro.
+Dále se zabívá způsobem oživení desky \ref[SWITCH] a následným popisem tvorby ovladače pro menežovatelný přepínač.
+
+Vývoj probíhal na vyvojovém kitu s modulem Colibri T20.
+Pro vývoj ovladače bylo zvoleno jádro z upstreamové větve kernelu
+\fnote{\url{http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git}}}
+konkrétně se začlo s verzí 3.17 a došlo až k přeportování ovladače na verzi 3.19.
+Portace upstreamového jádra je popsána v \ref[UPSTREAM].
+
+\label[UPSTREAM]
+
+\sec Portace upstreamové linuxové jádro a zavaděče
+
+Portace upstramového jádra vyžaduje několik nástrojů a programů.
+
+\sec U-Boot
+
+V první řadě je potřeba naistalovat zavaděč, který se postará o zavedení Linuxové jádra.
+Pro tento úkol byl zvolen U-Boot, který používá již výrobce desky Colibri T20.
+Jen byla zvolena jeho novejší verze
+\fnote{U-Boot je možný stáhnout z repozitáře \url{git://git.denx.de/u-boot.git}}}.
+
+Potup nahrání nového U-Bootu je popsán v příloze \ref[UPUBOOT] jež byl inspirován \ref[UPLINUXT20].
+
+\sec Linuxové jádro
+
+
 
 \sec navrh
 

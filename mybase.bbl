@@ -34,7 +34,8 @@ Lennert Buytenhek.
 \newblock \url{https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=91da11f870f00a3322b81c73042291d7f0be5a17}.
 
 \bibitem{IEEE8023}
-The Institude of Electrical and Electronics Engineers.
+Ethernet, Energy Efficient.
+%The Institude of Electrical and Electronics Engineers.
 \newblock {\em Part 3: Carrier Sense Multiple Access with Collision Detection (CSMA/CD) access method and Physical Layer specifications.}, 2008.
 %\newblock {ISBN-X-XXXX-...}.
 \newblock \url{http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6419737}.
@@ -71,5 +72,49 @@ Patrick Mochel
 doc. Ing. Jiří Novák, Ph.D.
 \newblock {\em USB}.
 \newblock \url{http://measure.feld.cvut.cz/system/files/files/cs/vyuka/predmety/A4M38KRP/USB.pdf}.
+
+\bibitem{RMII}
+Mike Jones, Micrel Inc.
+\newblock {\em Interfacing Fast Ethernet to Processors}.
+\newblock \url{http://www.micrel.com/\_PDF/Ethernet/White\%20Paper/Ethernet\_to\_processors.pdf}.
+
+\bibitem{RMIIcon}
+MII Consortium. "RMII-Specification." AMD Inc., Broadcom Corp., National Semiconductor Corp., and Texas Instruments Inc.
+\newblock {\em RMII Specification}, 1997.
+%\newblock \url{http://wenku.baidu.com/view/3866862ced630b1c59eeb58a.html}.
+
+\bibitem{SOC}
+Toradex.
+\newblock {\em NVIDIA Tegra 2 Computer on Module - Colibri T20}, 2012.
+\newblock \url{https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2}.
+
+\bibitem{TEGRA}
+NVIDIA Corporation.
+\newblock {\em NVIDIA Tegra 2}, 2011.
+\newblock \url{http://www.nvidia.com/content/PDF/tegra\_white\_papers/Bringing\_High-End\_Graphics\_to\_Handheld\_Devices.pdf}.
+
+\bibitem{BENCH}
+Notebookcheck.net.
+\newblock {\em NVIDIA Tegra 2 benchmark}, 2013.
+\newblock \url{http://www.notebookcheck.net/NVIDIA-Tegra-250-SoC.54654.0.html}.
+
+\bibitem{ASIX}
+Asix Electronics Corporation.
+\newblock {\em }, .
+\newblock \url{}.
+
+
+\bibitem{UPLINUXT20}
+\newblock {\em Colibri T20 upstream Linux kernel}, 2014.
+\newblock \url{http://falstaff.agner.ch/2014/03/16/colibri-t20-upstream-linux-kernel/}.
+
+\bibitem{IX}
+\newblock {\em }, .
+\newblock \url{}.
+
+
+\bibitem{SIX}
+\newblock {\em }, .
+\newblock \url{}.
 
 \end{thebibliography}
