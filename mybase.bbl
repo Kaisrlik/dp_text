@@ -44,10 +44,21 @@ Ethernet, Energy Efficient.
 \newblock {\em USB documentation}, 2005.
 \newblock \url{http://www.usb.org/developers/docs/}.
 
+
+\bibitem{USBBL}
+Craig.Peacock@beyondlogic.org
+\newblock {\em xxx }, 2010.
+\newblock \url{http://www.beyondlogic.org/usbnutshell/usb5.shtml}.
+
 \bibitem{LUSB}
 Free Electrons.
 \newblock {\em Linux usb}, 2009.
 \newblock \url{http://free-electrons.com/doc/linux-usb.pdf}.
+
+
+\bibitem{MSTECH}
+Microsoft Corporation.
+\newblock \url{http://technet.microsoft.com}.
 
 \bibitem{USBNET}
 David Brownell
