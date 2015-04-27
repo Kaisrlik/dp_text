@@ -1,6 +1,7 @@
 \chap Úvod
 %TODO list
 % usb obr, enumaration, mazna edpoint+interface
+% ASIX zapojeni + asix zapojeni RMII
 Tu se deje kupa zajimavych veci ....
 
 V kapitole pouzitech technologie \ref[pouztech] se dozvime teorii o XXX.
@@ -267,7 +268,7 @@ Mnoho subsystému uchovává informace o této struktuře, na které stavějí.
 Je velmi optížné dnes narazit na zařízení, které je reprezentováno pouze struktorou {\em struct device}.
 Místo toho struktury obecně implementují vyšší reprezentaci zařízení \ref[DEV].
 
-\secc miibus
+%\secc miibus
 
 \label[DSA]
 
@@ -305,6 +306,9 @@ DSA podporuje i propojení mezi switchy, které pak mužem take ovladat.
 %                             ||ports 1-8      ||ports 9-16
 
 
+\label[NETDEV]
+
+\secc net device
 
 
 \label[USBst]
@@ -349,7 +353,7 @@ Pro komunikaci se všemi USB zařízeními Linuxové jádro používá USB reque
 
 \secc usbnet
 
-Usbnet je subsystem Linuxového jadra, který umožňuje ovládat USB-síťové zařízení jako je ethernet, DSL, IDSN atd \ref[USBNET].
+Usbnet je subsystém Linuxového jadra, který umožňuje ovládat USB-síťové zařízení jako je ethernet, DSL, IDSN atd \ref[USBNET].
 Usbnet je to genericky USB síťový framework, který pracuje na různých rychlostech a nad různými protokoly.
 
 
@@ -389,6 +393,7 @@ Složka /sys/ může vypadat následovně:
 %|-- module
 %‘-- power
 
+Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em struct kobj}, který obsahuje tři druhu obslužného volání na zápis, čtení a na uvolňení.
 
 \chap Použitý hardware
 
@@ -436,19 +441,22 @@ Popis jádra NVIDIA Tegra 2 můžeme vidět na obrázky níže \ref[TEGRA].
 
 AX88772b je zákaznický integrovaný obvod, který umožňuje plug-and-play Fast Ethernet internetové připojení pro zařizení používající stantardizované USB \ref[USB].
 
-Jako jediný z výrobních řad dosahuje revize AX88772bli teplotní rozsah od -40°C až +85°C.
+Jako jediný z výrobních řad dosahuje revize AX88772bli teplotní rozsah od -40 stupňů Celsia až +85 stupňu Celsia.
 
 AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMII] nebo jako Reverse-RMII pro MAC-to-MAC připojení k nějakému mikrokontroléru s ethernet MAC RMII rozhraním.
 
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 %neudelat 802.3 chap?
 
-\medskip
-\clabel[ASIX]{.}
-\picw=15cm \cinspic images/asix.pdf
-\caption/f Obrázek popisuje  \cite[ASIX].
-\medskip
+%TODO ASIX
+%\medskip
+%\clabel[ASIXcip]{.}
+%\picw=15cm \cinspic images/asix.pdf
+%\caption/f Obrázek popisuje  \cite[ASIX].
+%\medskip
 %jake umoznuje propojeni po rmii?
+
+Jak je vidět na obrázku \ref[ASIXcip] čip AX88772b obsahuje ethernetovou PHY, která nemůže být aktivní současně s RMII rozhraním.
 
 \label[MARVELL]
 
@@ -479,7 +487,7 @@ Marvell 88E6065 je ethernetový přepínač, který má k sobě kromě zmíněn�
 Oba tyto čipy mají též vlastní krystal na frekvenci 25~Mhz.
 Deska je taktéž osazena regulátorem napětí.
 
-Desku menežovatelného přepínače je vyrobena firmou Retia a.s. \fnote{Firma zabívající se elektronickými vojeskými systémy, zaznomovými zařízeními a lokalizačních a bezpočnostních systémů. \url{www.retia.cz}}} na základě jejich návrhu a zapojení popsaných v přílohách \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
+Desku menežovatelného přepínače je vyrobena firmou Retia a.s. \fnote{Firma zabívající se elektronickými vojeskými systémy, zaznomovými zařízeními a lokalizačních a bezpočnostních systémů. \url{www.retia.cz}} na základě jejich návrhu a zapojení popsaných v přílohách \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
 
 \chap Implementace
 
@@ -488,7 +496,7 @@ Dále se zabívá způsobem oživení desky \ref[SWITCH] a následným popisem t
 
 Vývoj probíhal na vyvojovém kitu s modulem Colibri T20.
 Pro vývoj ovladače bylo zvoleno jádro z upstreamové větve kernelu
-\fnote{\url{http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git}}}
+\fnote{\url{http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git}}
 konkrétně se začlo s verzí 3.17 a došlo až k přeportování ovladače na verzi 3.19.
 Portace upstreamového jádra je popsána v \ref[UPSTREAM].
 
@@ -498,20 +506,20 @@ Portace upstreamového jádra je popsána v \ref[UPSTREAM].
 
 Portace upstramového jádra vyžaduje několik nástrojů a programů.
 
-\sec U-Boot
+\secc U-Boot
 
 V první řadě je potřeba naistalovat zavaděč, který se postará o zavedení Linuxové jádra.
 Pro tento úkol byl zvolen U-Boot, který používá již výrobce desky Colibri T20.
 Jen byla zvolena jeho novejší verze
-\fnote{U-Boot je možný stáhnout z repozitáře \url{git://git.denx.de/u-boot.git}}}.
+\fnote{U-Boot je možný stáhnout z repozitáře \url{git://git.denx.de/u-boot.git}}.
 
-Potup nahrání nového U-Bootu je popsán v příloze \ref[UPUBOOT] jež byl inspirován \ref[UPLINUXT20].
+Potup nahrání nového U-Bootu je popsán v příloze \ref[UPUBOOT].
 
-\sec Linuxové jádro
+\secc Linuxové jádro
 
+V dalším krokem byla instalace současné verze jádra, která byla nutná k vývoji ovladačů a komunikací s linuxovou komunitou.
+Jelokož upstreamové jádro nepodporuje NAND paměť načítání nového jádro probýhalo přez síť \ref[UPLINUX].
 
-
-\sec navrh
 
 \sec Rozchozeni hardwaru
 
@@ -519,41 +527,167 @@ Rozchozeni hardwaru byla jedna z nejobtiznejsich casti.
 
 Pricemz se zacalo s testovanim USB kontroleru Asix AX88772b. A po rozchozeni komunikacnich interfacu bylo pokracovano s ladenim ethernetoveho prepinace 88E6065.
 Posledni casti bylo testovani ethernetovych portu.
-
 Pricemz bylo objeveno nekolik chyb v navrhu zarizeni. Ktera na zaklade mojich pripominek byla opravena(XXX to zaveru).
 
-\secc asixu
+\secc Oživení Asix AX88772b
 
-Kdy byla objevena zavada na pripojeni kontroleru.
-Tato zavada se projevovala chybnou komunikaci na USB sbernici. Tu to chybnou komunikaci muzete videt na obrazku \ref[usbbuserr].
+Při oživování USB kontroléru byla objevena zavada na jeho připojení na desce.
+Tato závada se projevovala chybnou komunikací na USB sběrnici, která byla objevena při použití modulu Colibri T20.
+Tu to chybnou komunikaci můžete vidět na obrázku \ref[usbbuserr].
+Kde je znatelně vidět, že pakety přijímalo zeřízení poškozené.
 
 \medskip
-\clabel[usbbuserr]{Chybna komunikace na usb sbernici.}
+\clabel[usbbuserr]{Chybná komunikace na USB sběrnici.}
 %\picw=13cm \cinspic MIItoISO.png
-\picw=6cm \cinspic a.png
-\caption/f Na obrazku muzeme videt chybnou komunikaci na usb sbernici mezi PC a usb kontrolerem Asix AX88772b zavinou spatnym nepripojenim blokovacich kondenzatoru.
+\picw=15cm \cinspic images/wrong_com_wire.pdf
+\caption/f Na obrázku můžeme vidět chybnou komunikaci na usb sběrnici mezi PC a USB kontrolerem Asix AX88772b zaviněnou nepřipojením blokovacího kondenzatoru.
 \medskip
 
-Po uprave zapojeni kontroleru. Zacal USB kontroler odpovidat na dotazy.
+Po úpravě zapojení kontroléru. Začal USB kontroler odpovídat na dotazy.
 
-Dale bylo potreba nastavit vhodne chovani cipu Asix aby zacalo fungovat manazovaci rozhrani RMII sbernice. Bylo zvoleno zapojeni, ktere aktivuje RMII. Pote, jiz bylo mozne vycitat data ze zarizeni Marvell.
+Bylo zvoleno zapojení, které aktivuje RMII rozhraní, nastavením spojky K2 na zapojení \ref[zapojeni3].
 
-\secc marvell
+%TODO 
+%\medskip
+%\clabel[usbbuserr]{Chybna komunikace na usb sbernici.}
+%\picw=15cm \cinspic images/wrong_com_wire.png
+%\caption/f Na obrázku .
+%\medskip
 
-Na zarezeni 88E6065 bylo provedeno nekolik zasahu. Byli pridany pull-up a pull-down rezistory pro spravne a deterministicke chovani prepinace.
-Dale byl doplne kondenzator, ktery zarizeni vyresotoval po dobu konstanty RC po pripojeni pripinace k napajeni. Tento kro byl dulezity ponevadz vsechny zarizeni marvell chce vstupy pri startu v definovene hodnote. A stavalo ze pri zapnuti prepinace se hodnoty ruznych zapnuti ruzne menili.
+Dále bylo potřeba nastavit vhodne chovani čipu Asix, aby začal fungovat rozhraní RMII, které je blíže popsané v \ref[ZPRAC].
 
-\sec zpracovani
+\secc Oživení ethernetového přepínače Marvell 88E6065
+
+K oživení a stabilnímu chování ethernetového přepínače Marvell 88E6065 bylo zapotřebí aktivovat RMII rozhraní a provést několik zásahů do zapojení čipu na desce.
+Byli doplněny chybějící blokovací kondenzátory.
+Z důvodu nestabilních vstupních hodnot na čipu.
+Byl doplněn kondenzátor, který zařízení vyresotovával čip po dobu časové konstanty RC po připojení přepínače k napájení.
+A na základě mojich požadavků byli přidány pull-up a pull-down rezistory pro správné a deterministické chováni přepínače.
+
+\sec Návrh ovladače
+
+Návrh ovladače byl založen na propojení ovladače pro Asix AX88772b a subsystému DSA \ref[DSA].
+TODO asi obrazky struktur + nejaky popis
+
+\label[ZPRAC]
+
+\sec Zpracování
+
+Sekce zpracování popisuje jednotlivé časti ovladače.
+
+Jelikož nebyl ovladač pro zařízení Asix AX88772b připraven na připojení RMII rozhraní.
+Bylo potřeba nastavit tento interface jako aktivní a však tento interface nemůže být aktivní současně s ethernet PHY, která je taktéž integrovaná na čipu \ref[ASIX].
+Implementace oladače je popsána v \ref[asixdri].
+Nastalo několik dotazů jak vytvořit připojení přepínače. Zdali ho detekovat automaticky či přez userspace API, konktrétně sysfs.
+
+Dále bylo potřeba upravit subsystém DSA, aby podporoval hotswap zařízení popsaný v \ref[dsadri].
+
+Poslední částí bylo napsat samotný ovladač pro Marvell 88E6065, aby podporoval současné zařízení popsané \ref[mvdri].
+
+\label[asixdri]
+
+\secc Ovladač zařízení Asix AX88772b
+
+Asix AX88772b má již podporu v Linuxovém jádře a však pouze na jedno z jeho rozhraní.
+Tím rozhraním je ethernet PHY \ref[ASIX].
+Bylo potřeba doplnit ovladač o aktivaci RMII rozhraní.
+A byla zvolena možnost, že aktivace RMII rozhraní proběhne přez zápis do souboru {\em dsa\_bind}, jež je součástí subsystému sysfs, a je umístěn ve složce USB zařízení.
+Po zapsání do tohoto souboru se vyvolá obslužná rutina objektu {\em struct kobj usb\_dsa\_store() }, která zavolá {\em dsa\_bind()}
+, která nastaví příslušné registry pro aktivování RMII rozhraní.
+Nadále tato rutina též otestuje zdali, je k USB kontroléru připojeno zařízení Marvell 88E6065, dle standardizovánému registrovému prostoru.
+Konkrétně vyčtením z třetího registru z \ref[miireg], která obsahuje ID a revizy zařízení.
+Tato část obslužné rutiny též vyplní strukturu {\em struct asix\_common\_private}, které ve verzi kompatibilní s jadrem verze 3.17 vypadala následovňě:
+
+\begtt
+struct asix_common_private {
+   struct asix_rx_fixup_info rx_fixup_info;
+#ifdef CONFIG_NET_DSA
+   struct kobject kobj;
+   struct mii_bus *mdio;
+   int use_embphy;
+   bool dsa_up;
+   struct usbnet *dev;
+#endif
+}
+\endtt
+
+Ve verzi linuxového jádra 3.19 subsystém DSA nevyžaduje {\em struct mii\_bus} a byl odstraněn a nahrazen {\em struct platform\_device}, aby se vyhnulo většině změn v subsystému DSA dle připomýnky v mailing listu \ref[ML].
+A proto ovladač zařízení Asix AX88772b byl doplněn o funkci {\em dsa\_create\_pdev}, která zajistí naplnění {\em struct platform\_device}.
+Tato struktura se vytváří při po kontrole zařízení ve funkci {\em dsa\_bind}.
+
+Po naplnění základních struktur ovladač Asix AX88772b zavolá {\em dsa\_probe\_netdevice()}, který vytvoří softwarové rozhrání přepínače. Změna DSA subsystému je popsaná v \ref[dsadri].
+
+\label[dsadri]
+
+\secc Úprava subsystému DSA
+
+Subsystém DSA byl rozšířen o veřejnou funkci {\em dsa\_probe\_netdevice()}, která vytváří softwarové rozhraní pro přepínač.
+Každý port přepínače je reprezentován vlastním ethernetovým rozhraním net\_device \ref[NETDEV], které mají společného rodiče stejného typu.
+
+Bylo potřeba odloučit DSA od platform\_driveru což následně zapříčiňuje rozšíření dsa\_driver \ref[mvdri].
+
+Větší rozsah změn čekala uvolňovací část ovladače.
+Jelikož se nepředpokladá, že by se tento ovladač někdy uvolňoval.
+Tato funce nebyla dodělána a proto byla upravena {\em dsa\_destroy()}, která v současné verzi podporuje uvolnění všech portů a interních struktur dsa ovladače jako je {\em struct dsa\_switch a struct dsa\_switch\_tree}.
+
+
+\label[mvdri]
+
+\secc Ovladač zařízení Marvell 88E6065
+
+% popis ovladacove struktury
+% jednotlivych funci
+% TODO
+
 
 \sec celek?
 
-\sec odezva komunity
+\sec Odezva komunity
 
-Odezva komunity byla dobra - po odeslani RFC patche (*pozn pod carou) se mi dostalo odpovedi behem pouhych par hodin po jeho odesalni.
+Odezva komunity byla velmi rychlá po odeslaní RFC patche
+\fnote{\url{http://lists.openwall.net/netdev/2015/04/21/20}}.
+se mi dostalo odpovědi během pouhých pár hodin po jeho odesalní.
+Kde Andrew Lunn se vyjádřil k mému nápadu a navrhl nějaké optimalizace k mému řešení.
+Také se strhla debata o možnostech DSA, že DSA není připravené pro podporu hotswap zařízení.
+A pravděpodobně tato změna nenastane ani v příštích verzích Linuxového jádra.
 
 \chap Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
 
 Tato kapitola se zabiva
+
+\begtt
+[11.046] Unable to handle kernel paging request at Virtual Addr 6b6b6b77
+[11.053] pgd = c0004000
+[11.055] [6b6b6b77] *pgd=00000000
+[11.059] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+[11.064] Modules linked in:
+[11.067] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 3.19.0 #298
+[11.075] Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+[11.082] task: c08ba2a8 ti: c08ae000 task.ti: c08ae000
+[11.087] PC is at get_next_timer_interrupt+0xa0/0x294
+[11.092] LR is at get_next_timer_interrupt+0x60/0x294
+[11.098] pc : [<c006f474>]    lr : [<c006f434>]    psr: 90000093
+[11.098] sp : c08aff00  ip : 6b6b6b6b  fp : 00000000
+[11.109] r10: c0927540  r9 : ffff8f21  r8 : ffff8f20
+[11.114] r7 : 00000000  r6 : 3fff8f1f  r5 : ffff8f20  r4 : ffff8f17
+[11.121] r3 : 6b6b6b6b  r2 : 00000021  r1 : 00000023  r0 : c0927674
+[11.127] Flags: NzcV IRQs off FIQs on Mode SVC_32 ISA ARM Segment kernel
+[11.135] Control: 10c5387d  Table: 1ac0404a  DAC: 00000015
+[11.140] Process swapper/0 (pid: 0, stack limit = 0xc08ae238)
+[11.146] Stack: (0xc08aff00 to 0xc08b0000)
+[11.151] ff00: c08affa4 c060ecc0 0000001d c00625f0
+    fe44010c 0000000d c08aff40 c08b7154
+[11.159] ff20: 755c2278 00000002 c08ac640 60000000
+    00000185 dbbb4280 00000000 ffff8f20
+[11.216] [<c006f474>] (get_next_timer_interrupt)
+    from [<c007e34c>] (__tick_nohz_idle_enter+0x2d4/0x41c)
+[11.226] [<c007e34c>] (__tick_nohz_idle_enter)
+    from [<c007e4e0>] (tick_nohz_idle_enter+0x30/0x6c)
+[11.235] [<c007e4e0>] (tick_nohz_idle_enter)
+    from [<c00552c4>] (cpu_startup_entry+0x18/0x278)
+[11.244] [<c00552c4>] (cpu_startup_entry)
+    from [<c0868c0c>] (start_kernel+0x360/0x3cc)
+\endtt
 
 \sec propustnost
 
