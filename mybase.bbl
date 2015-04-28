@@ -119,9 +119,10 @@ Asix Electronics Corporation.
 \newblock {\em Colibri T20 upstream Linux kernel}, 2014.
 \newblock \url{http://falstaff.agner.ch/2014/03/16/colibri-t20-upstream-linux-kernel/}.
 
-\bibitem{IX}
-\newblock {\em }, .
-\newblock \url{}.
+\bibitem{MARVELL}
+Marvell.
+\newblock {\em Link Street 88E6060}, 2008.
+\newblock \url{http://www.marvell.com/switching/assets/marvell\_linkstreet\_88E6060\_datasheet.pdf}.
 
 
 \bibitem{SIX}
