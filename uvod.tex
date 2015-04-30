@@ -1,21 +1,34 @@
 \chap Úvod
-%TODO list
-Tu se deje kupa zajimavych veci ....
-
-V kapitole pouzitech technologie \ref[pouztech] se dozvime teorii o XXX.
 
 
-\sec Aktualni stav problematiky
+Přepínače založené na bázy ethernetu, které splňují industriální teplotní rozsahy se téměř v dnešní době nevyrábějí.
+A moduly splňující tyto rozsahy, které mají integrované MII rozhraní, pro připojení fyzické vrstvy, jsou jiných cenových kategoriích.
+Proto tato práce přináší možnost připojení k ethernetového přepínače z pomocí USB sběrnice. A ovladače pro tento přepínač založené na operačím systému Linux.
+
+Tato práce se zabívá portací operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení.
+Dálé sezabívá implementací ovladače do operačního systému Linux pro zařízení na bázi přepínacího obvodu 88E6065 vyvíjené firmou Marvell, který je připojen USB kontrolérem AX88772b od firmy Asix, která splňují industriální rozsah teplot.
 
 
-%\chap Navrh
+Práce v první kapitole \ref[pouztech] popisuje použitou technologii jako je sběrnice USB \ref[USB],  MII rozhraní \ref[MII] a, rozšířená verze MII rozhraní, RMII \ref[RMIIsub].
+Konkrétně popisuje k čemu se tyto technologie používají, jaké mají omezen a způsob komunikace.
+Tato kapitole též popisuje Linuxový subsystém \ref[LINUXsub]. Konkrétně část ethernetového, usb subsystému a subsystém přepínače.
+
+V kapitole Použitý Hardware \ref[pouzhw] se můžeme dozvědět o použítém modulu a vyrobené desce ethernetového přepínače.
+A čipů použitých na této desce jako je USB kontrolér a přepínací obvod.
+
+Kapitola Implementace \ref[impl] popisuje nahraní nového Linuxového jádra a oživení desky.
+Dále pak obsahuje návrh ovladačů pro operační systém Linux a jeho následnou implementaci.
+
+V poslední kapitole Testování \ref[TEST] se popisují jednotlivé testy ovladače.
+A vyhodnocují se výsledky na těchto testů.
+
 
 \label[pouztech]
 
 \chap Použité technologie
 
 Tato kapitola je rozebírána použitá technologie.
-V první části je rozebrána sběrnice USB.
+V první části je rozebrána sběrnice USB \ref[USB].
 Další významnou sekcí je rozhraní Media Independet Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
 Ke konci této kapitoly bylo rozepsáno jak vypadájí ovladače v linuxu a tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
 
@@ -114,7 +127,7 @@ Na základě informací v deskriptorech se operační systém rozhoduje, který 
 \sec Media Independent Interface
 
 Media Independet Interface je typ rozhraní, který umožňuje připojení nezávyslého na procesoru a k fyzickém médiu.
-Media Independent Interface (MII) je specifikováno standardem IEEE 802.3 v kapitole 22 \ref[IEEE8023].
+Media Independent Interface (MII) je specifikováno standardem IEEE 802.3 v kapitole 22 \cite[IEEE8023].
 MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
 
 
@@ -144,7 +157,7 @@ Až 32 PHY jednotek může být obsluhováno jedním menežovacim MII rozhraním
 MII podporuje dva datové toky a to je 10~Mb/s a 100~Mb/s.
 Funkcionalita je identicka na obou datových tokách a liší se pouze v nominální frekvenci hodin.
 
-Fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací \ref[MIImdio].
+Fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací \ref[MDIOs].
 
 \label[MIIdat]
 
@@ -278,6 +291,8 @@ Registry 2-14 jsou částí rozšířeného regisrového prostoru \cite[IEEE8023
 %The Gigabit Media Independent Interface (GMII) is similar to the MII. The GMII uses the MII management interface and register set specified in 22.2.4. These common elements of operation allow Station Management to determine PHY capabilities for any supported speed of operation and configure the station based on those capabilities. In a station supporting both MII and GMII operation, configuration of the station would include enabling either the MII or GMII operation as appropriate for the data rate of the selected PHY. Most of the MII and GMII signals use the same names, but the width of the RXD and TXD data bundles and the semantics of the associated control signals differ between MII and GMII operation. The GMII transmit path clocking also differs significantly from MII clocking. MII operation of these signals and clocks is specified within Clause 22 and GMII operation is specified within Clause 35.
 %GMII obsahuje 3ti zakladni registr Extended status reg(15)
 
+\label[RMIIsub]
+
 \secc Reduce Media Independet Interface
 
 
@@ -314,6 +329,8 @@ Zdrojem hodinového signálu je vrstva MAC nebo je generován externími hodinam
 
 \medskip \medskip \medskip \medskip
 
+\label[LINUXsub]
+
 \sec Subsystém operačního systému Linux
 
 Tato kapitola obsahuje informace o tom, co to je ovladač. A jak je ovladač přepínače \ref[DSA] a usb zařízeních integrovaný \ref[USBst]  v operačním systému Linux.
@@ -321,12 +338,10 @@ Tato kapitola obsahuje informace o tom, co to je ovladač. A jak je ovladač př
 \secc Co je to ovladač
 
 Ovladač je kus programu (algoritmu), který zpravuje nebo kontroluje určité zařízení připojené k počítači.
-Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware aniž by uživatel věděl jak přesně funguje \ref[LDD3].
+Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware aniž by uživatel věděl jak přesně funguje \cite[LDD3].
 
 \secc device
 
-%{\em struct} 
-%\fnote{\url{Odkaz na IEEE}}}.
 
 Každé zařízní na té nejnižší úrovni je v operačním systému Linux je reprezentováno instancí struktory {\em device}.
 Struktora device obsahuje informace o tom co zařízení potřebuje aby správně fungoval v systému.
@@ -370,10 +385,21 @@ DSA podporuje i propojení mezi switchy tak jak můžete vidět na obrázku \ref
 \caption/f Obrázek ukazuje jak je možné připojit DSA přepínač k procesoru. Obrázek je převzat z~\cite[DSA].
 \medskip
 
+Na obrázku níže můžeme vidět diagram tříd důležitých struktur v subsystému DSA, které jsou důležíté pro další vývoj \ref[umlDSA].
+
+\medskip
+\clabel[umlDSA]{Diagram tříd DSA subsystému.}
+\picw=15cm \cinspic images/dsa_uml.pdf
+\caption/f Na obrázku .
+\medskip
+
+Na tomto obrázku jsou zvírazněny struktury {\em mii\_bus}, {\em net\_device} a {\em dsa\_platform\_data}.
+Tyto struktury DSA subsystém nevytváří a je potřeba tyto struktury předat.
+
 DSA je reprezentována strukturou {\em dsa\_switch\_tree}, která obsahuje reference na struktury
 \begitems
 *dsa\_platform\_data -- tato struktura informuje o tom jaká zařízení jsou připojená ke kořenovému přepínači. Obsahuju struktur {\em dsa\_chip\_data} popsanou níže.
-*net\_device -- reference na síťové zařízení \ref[NETDEV].
+*net\_device -- reference na síťové zařízení \ref[NETDEV], reprezentující hlavní síťové zařízení.
 *dsa\_switch -- data pro jednotlivé přepínače.
 \enditems
 
@@ -384,9 +410,8 @@ Struktura {\em dsa\_switch} nese data o připojeném přepínači.
 *device -- reference na hostovské zařízení, které se využívá.
 *dsa\_switch\_driver -- struktura popisující ovladač přepínaču, obsahuje funkce na menežování připojeného přepínače.
 *mii\_bus -- ovladač MII sběrnice.
-*net\_device -- popis síťových rozhraní.
+*net\_device -- reference na síťové zařízení \ref[NETDEV], reprezentující port zařízení.
 \enditems
-
 
 
 \label[NETDEV]
@@ -394,7 +419,7 @@ Struktura {\em dsa\_switch} nese data o připojeném přepínači.
 \secc net device
 
 Struktura {\em net\_device } je struktura popisující síťové rozhraní.
-Síťové rozhraní může příjímat a vysílat velké množství dat a proto je implementace podobná diskovým zařízením \ref[LDD3].
+Síťové rozhraní může příjímat a vysílat velké množství dat a proto je implementace podobná diskovým zařízením \cite[LDD3].
 Síťová zařízení přijímají data asynchroně ukládájí je do vyrovnávacích pamětí.
 
 V linuxovém jádře je síťový subsystém naimplementován tak, že je protokolově nezávyslý.
@@ -413,8 +438,15 @@ Koncové body USB jsou popsány v jádře Linuxu strukturou {\em usb\_host\_endp
 Tato struktora obsahuje informace o realném koncovém bodu v struktuře {\em usb\_endpoint\_descriptor}.
 Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí příjmutých dekriptorů.
 
+\medskip
+\clabel[USBMAP]{Za.}
+\picw=15cm \cinspic images/usbendpmap.pdf
+\caption/f Na obrázku Obrázek převzat z \cite[LDD3].
+\medskip
+
+
 USB rozhraní je složeno z několik koncových bodů, které tvoří jedno logické připojení jako je napřiklad myš, klávesnice, video atd. Některá USB zařízení mohou mít více rozhraní.
-USB repoduktory mohou mít dvě rozhraní jako je USB klávesnice pro tlačítka a USB audio stream \ref[LDD3].%TODO presunout nahoru
+USB repoduktory mohou mít dvě rozhraní jako je USB klávesnice pro tlačítka a USB audio stream \cite[LDD3].%TODO presunout nahoru
 Pro každé rozhraní Linuxové jádro používá jeden hardwarový ovladač.
 Toto rozhraní je popsáno strukturou {\em usb\_interface}.
 Tato struktura je to co USB core předává USB ovladačům.
@@ -435,7 +467,6 @@ K výše uvedené cestě k USB zařízení je na řádku níže zvírazněno USB
 
 Pro komunikaci se všemi USB zařízeními Linuxové jádro používá USB request block (urb). Urb se používá k posílaní a příjmu dat pro specifický koncový bod USB a specifické USB zařízení asynchroním způsobem.
 
-%\secc net\_device XXX
 
 \label[USBNET]
 
@@ -444,6 +475,23 @@ Pro komunikaci se všemi USB zařízeními Linuxové jádro používá USB reque
 Usbnet je subsystém Linuxového jadra, který umožňuje ovládat USB-síťové zařízení jako je ethernet, DSL, IDSN atd \ref[USBNET].
 Usbnet je to genericky USB síťový framework, který pracuje na různých rychlostech a nad různými protokoly.
 
+
+Na obrázku níže  můžeme vidět uml diagram důležitých struktur v ovladači AX88772b \ref[umlASIX].
+
+\medskip
+\clabel[umlASIX]{Diagram tříd ovladače AX88772b.}
+\picw=15cm \cinspic images/driver_asix.pdf
+\caption/f Na obrázku .
+\medskip
+
+Jam můžeme vidět na obrázku, usbnet obsahuje informace o :
+\begitems
+*net\_device -- zařízení reprezentující síťové rozhraní
+*driver\_info -- rozhraní pro ovladač usbnet zařízeních
+*usb\_device -- struktura reprezentující zařízení USB
+\enditems
+
+\label[SYSFS]
 
 \secc System Filesystem
 
@@ -483,6 +531,9 @@ Složka /sys/ může vypadat následovně:
 \endtt
 
 Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em kobj}, který obsahuje tři druhu obslužného volání na zápis, čtení a na uvolňení.
+
+\label[pouzhw]
+
 
 \chap Použitý hardware
 
@@ -532,7 +583,7 @@ AX88772b je zákaznický integrovaný obvod, který umožňuje plug-and-play Fas
 
 Jako jediný z výrobních řad dosahuje v revizi AX88772bli teplotních rozsahů od -40 stupňů Celsia až +85 stupňů Celsia.
 
-AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMII] nebo jako Reverse-RMII pro MAC-to-MAC připojení k nějakému mikrokontroléru s ethernet MAC RMII rozhraním.
+AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo jako Reverse-RMII pro MAC-to-MAC připojení k nějakému mikrokontroléru s ethernet MAC RMII rozhraním.
 
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 
@@ -595,6 +646,8 @@ Marvell 88E6065 je ethernetový přepínač, který má k sobě kromě zmíněn�
 Oba tyto čipy mají též vlastní krystal na frekvenci 25~Mhz.
 Deska je taktéž osazena regulátorem napětí a přepínači pro různá nastavení MII rozhraní(K3 a K2), resetování(K5) a externího vzbuzení(K4) jak můžete vidět na v příloze \ref[zapojeniXXX].
 
+\label[impl]
+
 \chap Implementace
 
 Tato kapitola rozebírá update systému pro modul Colibri T20 \ref[T20], který byl zapotřebí pro další implementaci ovladačů pro aktuální Linuxové jádro.
@@ -618,13 +671,127 @@ Pro tento úkol byl zvolen U-Boot, který používá již výrobce desky Colibri
 Jen byla zvolena jeho novejší verze
 \fnote{U-Boot je možný stáhnout z repozitáře \url{git://git.denx.de/u-boot.git}}.
 
-Potup nahrání nového U-Bootu je popsán v příloze \ref[UPUBOOT].
+%TODO XXX odkaz 
+
+V první řadě je potřeba stáhnout a zkompilovat nejnovější zavaděč \cite[UPLINUXT20].
+Konfigurační soubor byl zvolen {\em colibri\_t20\_iris\_config}, který odpovídá modulu Colibri T20 s vývojovou deskou iris.
+
+\begtt
+$ git clone git://git.denx.de/u-boot.git
+$ export CROSS_COMPILE=~/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
+$ export ARCH=arm
+$ make colibri_t20_iris_config
+$ make -j8
+\endtt
+
+Dalším krokem je stáhnout nástroje, které slouží k vytvoření cílového binarního souboru.
+
+\begtt
+$ git clone https://github.com/NVIDIA/cbootimage-configs.git
+$ cbootimage -gbct -t20
+		tegra20/toradex/colibri-t20/colibri-t20_512_v12_nand.bct.cfg
+ 		colibri-t20_512_v12_nand.bct
+$ cp ../u-boot/u-boot-dtb-tegra.bin u-boot.bin
+$ cbootimage -t20
+ 		tegra20/toradex/colibri-t20/colibri-t20_512_v12_nand.img.cfg
+ 		colibri-t20_512_v12_nand.img
+\endtt
+
+Poté nabootujeme z diskového souboru příkazem:
+
+\begtt
+$ tegrarcm --bct colibri-t20_512_v12_nand.bct --loadaddr=0x00108000
+ 		--bootloader=../u-boot/u-boot-dtb-tegra.bin
+\endtt
+
+Poté co nabootujem naš obraz. Můžeme vidět jak na konzoly se objeví náš zavaděč.
+A pomocí USB-ethernetového kontroléru nahrajem obraz bootloaderu do paměti modulu.
+
+\begtt
+Tegra20 (Colibri) # usb start
+(Re)start USB...
+USB1: USB EHCI 1.00
+scanning bus 1 for devices... 1 USB Device(s) found
+USB2: USB EHCI 1.00
+scanning bus 2 for devices... 2 USB Device(s) found
+ scanning usb for storage devices... 0 Storage Device(s) found
+ scanning usb for ethernet devices... 1 Ethernet Device(s) found
+Tegra20 (Colibri) # setenv ipaddr 192.168.80.90
+Tegra20 (Colibri) # setenv serverip 192.168.80.3
+Tegra20 (Colibri) # tftpboot 0x02100000 colibri-t20_512_v12_nand.img
+Waiting for Ethernet connection... done.
+TFTP from server 192.168.80.3; our IP address is 192.168.80.90
+Filename 'colibri-t20_512_v12_nand.img'.
+Load address: 0x02100000
+Loading: #################################
+         3.6 MiB/s
+done
+Bytes transferred = 729088 (b2000 hex)
+\endtt
+
+Po nahrátí obrazu do paměti přepíšem minulý zavaděč současným.
+Délka přeneseného obrazu je 0xb2000 viz. výše.
+Tato hodnota je potřeba k přepsaní NAND paměti.
+
+\begtt
+Tegra20 (Colibri) # nand erase.chip
+
+NAND erase.chip: device 0 whole chip
+Erasing at 0x3ffc0000 -- 100% complete.
+OK
+Tegra20 (Colibri) # nand write 0x02100000 0 0xb2000
+
+NAND write: device 0 offset 0x0, size 0x95000
+ 577536 bytes written: OK
+\endtt
+
+Nyní nám při resetu zařízení naběhne upstramový U-Boot, který nemůže nalézt žádné jádro.
+To přidáme v další sekce \ref[LINUXkernel].
+
+\label[LINUXkernel]
 
 \secc Linuxové jádro
 
 V dalším krokem byla instalace současné verze jádra, která byla nutná k vývoji ovladačů a komunikací s linuxovou komunitou.
-Jelokož upstreamové jádro nepodporuje NAND paměť načítání nového jádro probýhalo přez síť \ref[UPLINUX].
-Portace upstreamového jádra je popsána v \ref[UPSTREAM].
+Jelokož upstreamové jádro nepodporuje NAND paměť načítání nového jádro probýhalo přez síť \cite[UPLINUXT20].
+
+V první řadě je potřeba stáhnout a zkompilovat nejnovější verzi Linuxového jádra \cite[UPLINUXT20].
+Použije se konfigurace, {\em tegra\_defconfig}, která v jádře vybere moduly a ovladače pro běh jádra.
+
+\begtt
+$ git clone git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+$ export LOADADDR=0x408000
+$ export ARCH=arm
+$ export CROSS_COMPILE=/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
+$ make tegra_defconfig
+$ make -j8 uImage
+\endtt
+
+Po přeložení jádra můžeme nahrat obraz jádra a přeloženého DT
+\fnote{Device Tree popisuje hardwarového zapojení modulu.}
+do RAM paměti modulu za pomoci USB-ethernetového kontroléru v kozoly zavaděče U-Boot následujícími přikazy:
+
+\begtt
+Tegra20 (Colibri) # usb start
+Tegra20 (Colibri) # setenv ipaddr 192.168.80.90
+Tegra20 (Colibri) # setenv serverip 192.168.80.3
+Tegra20 (Colibri) # tftpboot ${kernel_addr_r} uImage
+Tegra20 (Colibri) # tftpboot ${fdt_addr_r} tegra20-iris-512.dtb
+\endtt
+%Load address: 0x1000000 kernel
+%Load address: 0x2000000 dbt
+Po nahrátí obrazů nastavíme parametry pro Linuxové jádro
+\fnote{\url{https://www.kernel.org/doc/Documentation/kernel-parameters.txt}}.
+V našem případě nastavení konzole, port a rychlost. Nastvaní oddílů s distribucí, jeho filesystémem a typem.
+Poté můžeme náš kernel spustit.
+
+\begtt
+Tegra20 (Colibri) # set bootargs console=ttyS0,115200n8 earlyprintk
+		root=/dev/mmcblk0p1 rootfstype=ext2 rw rootdelay=1
+Tegra20 (Colibri) # bootm ${kernel_addr_r} - ${fdt_addr_r}
+\endtt
+
+Pokud máme na SD kartě distibuci tak nám ji naše jádro zavede.
 
 
 \sec Oživení desky
@@ -681,29 +848,19 @@ A na základě mojich požadavků byli přidány pull-up a pull-down rezistory p
 
 Návrh ovladače byl založen na propojení ovladače pro Asix AX88772b a subsystému DSA \ref[DSA].
 
+Celý ovladač by měl fungovat, tak že při připojení USB zařízení se zavede ovladač pro zařízení AX88772b.
+Ta inicializuje tento ovladač do standardního stavu na zákaldě funkce usb\_probe(), která na základě ID produktu a výrobce vybere správný ovladač v našem případě je to ax88772b\_info, která je instancí stuktury driver\_info.
+Tato struktura je v současné době naimplemntováno v aktuální verzi Linuxové jádra.
+To je takové, že ovladač aktivuje PHY interface a vytvoří rozhraní pro ethernetovou komunikaci přez net\_device strukturu a ethtool\_ops a net\_device\_ops funce.
+Doplní se funkce, která vytvoří node v sysfs\ref[SYSFS].
+Za pomoci obslužné rutiny nodu v sysfs spojí usbnet zařízení s DSA subsystémem.
+Tato rutiny předá DSA subsystému instance struktur net\_device, mii\_bus a o potrech switche ve struture dsa\_platform\_data. Všechny tyto instance nebo jejich reference nese platform\_device. Tyto struktury můžeme vidět v \ref[umlDSA].
 
-Na obrázku níže můžeme vidět uml diagram důležitých struktur v subsystému DSA \ref[umlDSA].
-Na tomto obrázku jsou zvírazněny struktury {\em mii\_bus} a {\em net\_device}.
-Tyto struktury bylo potřeba v dalším řešení předat.
+Za pomocí těchto dat, se v DSA subsystému aktualizuje celý ovladač.
+Ten si nejde potřebný ovladač ke konkrétnímu přepínači a pro každý port vytvoří vlastní síťové rozhraní.
 
-\medskip
-\clabel[umlDSA]{Diagram tříd DSA subsystému.}
-\picw=15cm \cinspic images/dsa_uml.pdf
-\caption/f Na obrázku .
-\medskip
-
-Na obrázku níže  můžeme vidět uml diagram důležitých struktur v ovladači AX88772b \ref[ASIXdri].
-
-\medskip
-\clabel[umlASIX]{Diagram tříd ovladače AX88772b.}
-\picw=15cm \cinspic images/driver_asix.pdf
-\caption/f Na obrázku .
-\medskip
-
-
-
-
-TODO asi obrazky struktur + nejaky popis
+Proces uvolňování je rešen při funcí XXX ta uvolňuje celý subsystém DSA a na něm zavislé instance.
+Tato funce, nejdrive vyvolá uvolnění v subsytému DSA a poté uvolní časti v AX88772b.
 
 \label[ZPRAC]
 
@@ -712,27 +869,25 @@ TODO asi obrazky struktur + nejaky popis
 Sekce zpracování popisuje jednotlivé časti ovladače.
 
 Jelikož nebyl ovladač pro zařízení Asix AX88772b připraven na připojení RMII rozhraní.
-Bylo potřeba nastavit tento interface jako aktivní a však tento interface nemůže být aktivní současně s ethernet PHY, která je taktéž integrovaná na čipu \ref[ASIX].
+Bylo potřeba nastavit tento interface jako aktivní, ten však nemůže být aktivní současně s ethernet PHY, která je taktéž integrovaná na čipu jak je vidět \ref[ASIXRMII].
 Implementace oladače je popsána v \ref[asixdri].
-Nastalo několik dotazů jak vytvořit připojení přepínače. Zdali ho detekovat automaticky či přez userspace API, konktrétně sysfs.
 
-Dále bylo potřeba upravit subsystém DSA, aby podporoval hotswap zařízení popsaný v \ref[dsadri].
+Dále bylo potřeba upravit subsystém DSA, aby podporoval hotswap zařízení, konkrétně jeho odhlašovnání a uvolňování. Popsaný v \ref[dsadri].
 
-Poslední částí bylo napsat samotný ovladač pro Marvell 88E6065, aby podporoval současné zařízení popsané \ref[mvdri].
+Poslední částí bylo napsat samotný ovladač pro Marvell 88E6065, který řeší veškerou funkčnost samotného přepínače. Popsaném v \ref[mvdri].
 
 \label[asixdri]
 
 \secc Ovladač zařízení Asix AX88772b
 
 Asix AX88772b má již podporu v Linuxovém jádře a však pouze na jedno z jeho rozhraní.
-Tím rozhraním je ethernet PHY \ref[ASIX].
-Bylo potřeba doplnit ovladač o aktivaci RMII rozhraní.
-A byla zvolena možnost, že aktivace RMII rozhraní proběhne přez zápis do souboru {\em dsa\_bind}, jež je součástí subsystému sysfs, a je umístěn ve složce USB zařízení.
-Po zapsání do tohoto souboru se vyvolá obslužná rutina objektu {\em struct kobj usb\_dsa\_store() }, která zavolá {\em dsa\_bind()}
-, která nastaví příslušné registry pro aktivování RMII rozhraní.
-Nadále tato rutina též otestuje zdali, je k USB kontroléru připojeno zařízení Marvell 88E6065, dle standardizovánému registrovému prostoru.
+Tím rozhraním je ethernet PHY \ref[ASIX]. Bylo potřeba doplnit ovladač o aktivaci RMII rozhraní.
+A byla zvolena možnost, že aktivace RMII rozhraní proběhne přez zápis do souboru {\em dsa\_bind}, áež je součástí file systému sysfs, a je umístěn ve složce USB zařízení.
+Po zapsání do tohoto souboru se vyvolá obslužná rutina objektu {\em usb\_dsa\_store() }, která je nainicializována strukturou  kobj. Tato rutina převezme informace o tom, kdo ji zavolal a  vyvolá {\em dsa\_bind()}
+Ta nastaví příslušné registry pro aktivování RMII rozhraní, zapsaním do příslušných registrů.
+Nadále tato rutina též otestuje zdali, je k USB kontroléru připojeno zařízení Marvell 88E6065, dle standardizovánému registrovému prostoru \ref[miireg].
 Konkrétně vyčtením z třetího registru z \ref[miireg], která obsahuje ID a revizy zařízení.
-Tato část obslužné rutiny též vyplní strukturu {\em asix\_common\_private}, které ve verzi kompatibilní s jadrem verze 3.17 vypadala následovňě:
+Tato část obslužné rutiny též vyplní strukturu {\em asix\_common\_private}, které v současné verzi kompatibilní s jadrem verze 3.19 vypadá následovně:
 
 \begtt
 struct asix_common_private {
@@ -740,14 +895,16 @@ struct asix_common_private {
 #ifdef CONFIG_NET_DSA
    struct kobject kobj;
    struct mii_bus *mdio;
-   int use_embphy;
+   bool use_embphy;
    bool dsa_up;
    struct usbnet *dev;
+   struct platform_device *pdev;
 #endif
 }
 \endtt
 
-Ve verzi linuxového jádra 3.19 subsystém DSA nevyžaduje strukturu {\em mii\_bus} a byl odstraněn a je nahrazena  strukturou {\em platform\_device}, aby se vyhnulo většině změn v subsystému DSA dle připomýnky v mailing listu \ref[ML].
+%Ve verzi linuxového jádra 3.19 subsystém DSA byl upraven a nevyžaduje strukturu {\em mii\_bus} a byl odstraněn a je nahrazena  strukturou {\em platform\_device}, aby se vyhnulo většině změn v subsystému DSA dle připomýnky v mailing listu \ref[ML].
+Starší verze této struktury neobsahovala platform\_device, ten byl doplněn na základě připomýnky z komunikace mezi mnou a vývojáři Linuxového jádra \ref[ML].
 A proto ovladač zařízení Asix AX88772b byl doplněn o funkci {\em dsa\_create\_pdev}, která zajistí naplnění struktury {\em platform\_device}.
 Tato struktura se vytváří při po kontrole zařízení ve funkci {\em dsa\_bind}.
 
@@ -760,32 +917,40 @@ Po naplnění základních struktur ovladač Asix AX88772b zavolá {\em dsa\_pro
 Subsystém DSA byl rozšířen o veřejnou funkci {\em dsa\_probe\_netdevice()}, která vytváří softwarové rozhraní pro přepínač.
 Každý port přepínače je reprezentován vlastním ethernetovým rozhraním net\_device \ref[NETDEV], které mají společného rodiče stejného typu.
 
-Bylo potřeba odloučit DSA od platform\_driveru což následně zapříčiňuje rozšíření dsa\_driver \ref[mvdri].
+Bylo potřeba odloučit DSA od platform\_driveru což následně zapříčiňuje rozšíření dsa\_switch\_driver \ref[mvdri].
 
 Větší rozsah změn čekala uvolňovací část ovladače.
-Jelikož se nepředpokladá, že by se tento ovladač někdy uvolňoval.
-Tato funce nebyla dodělána a proto byla upravena {\em dsa\_destroy()}, která v současné verzi podporuje uvolnění všech portů a interních struktur dsa ovladače jako je struktura {\em dsa\_switch a dsa\_switch\_tree}.
+Jelikož se nepředpokladá, že by se tento ovladač někdy uvolňoval, které pline z debaty na \cite[ML].
+Tato funce nebyla dodělána a proto byla upravena {\em dsa\_destroy()}, která v současné verzi podporuje uvolnění všech portů a interních struktur DSA ovladače jako je struktura {\em dsa\_switch a dsa\_switch\_tree}.
 
 
 \label[mvdri]
 
 \secc Ovladač zařízení Marvell 88E6065
 
-% popis ovladacove struktury
-% jednotlivych funci
-% TODO
+Bylo zapotřebí vytvořit ovladač pro zařízení 88E6065 od firmy Marvell, který nemá žádnou podporu v Linuxovém jádře.
+
+Tento ovladač je instancí dsa\_switch\_driver jak je možné vidět na obrázku \ref[umlDSA].
+Struktura dsa\_switch\_driver obsahuje metody, které zajišťují nainicializování, uvolňení a nastavění switche jako celku a jednotlivých portů.
 
 
-\sec celek?
+
+\sec Spojení jednotlivých ovladačů
+
+
+Všechny ovladače dělají svou partikulární část. Na připojení USB a příjmutí ID se zavede ovladač AX88772b, který aktivuje PHY. Po zapisu do souboru dsa\_bind se v adresáři přislušného USB zařízení se aktivuje druhé rozhraní ovladače a nainicializuje DSA strukturu. Tato struktura vytvoří dostatek ethernetových rozhraní a připojí příslušný ovladač pro přepínací obvod.
+
+Nyní na základě příkazů pro ethtool můžeme komunikovat s ovladačem skrz uživatelský prostor.
 
 \sec Odezva komunity
 
 Odezva komunity byla velmi rychlá po odeslaní RFC patche
 \fnote{\url{http://lists.openwall.net/netdev/2015/04/21/20}}.
-se mi dostalo odpovědi během pouhých pár hodin po jeho odesalní.
+se mi dostalo odpovědi během pouhých pár hodin.
 Kde Andrew Lunn se vyjádřil k mému nápadu a navrhl nějaké optimalizace k mému řešení.
 Také se strhla debata o možnostech DSA, že DSA není připravené pro podporu hotswap zařízení.
 A pravděpodobně tato změna nenastane ani v příštích verzích Linuxového jádra.
+Další věcí o které padla řeč, je že se pravděpodobně celý subsystém DSA přepíše.
 
 \chap Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
 
