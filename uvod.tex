@@ -32,6 +32,13 @@ V první části je rozebrána sběrnice USB \ref[USB].
 Další významnou sekcí je rozhraní Media Independet Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
 Ke konci této kapitoly bylo rozepsáno jak vypadájí ovladače v linuxu a tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
 
+%LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
+%MAC podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
+
+%\label[ISO]
+%\sec Model ISO/OSI
+%Model ISO/OSI je konceptuální model, který charakterizuje komunikačních sítích. Rozdělaná do vrstev.
+
 \label[USB]
 
 \sec Univerzální Sériová Sběrnice
@@ -117,8 +124,6 @@ Též obsahuje informace o třídě a maximalní delku paketů, které může ro
 
 Na základě informací v deskriptorech se operační systém rozhoduje, který druh ovladače přiřádí danému druhu zařízení.
 
-%LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
-%MAC podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
 
 \medskip \medskip \medskip \medskip
 
@@ -126,12 +131,15 @@ Na základě informací v deskriptorech se operační systém rozhoduje, který 
 
 \sec Media Independent Interface
 
-Media Independet Interface je typ rozhraní, který umožňuje připojení nezávyslého na procesoru a k fyzickém médiu.
+Media Independent Interface je typ rozhraní, který umožňuje připojení nezávyslého na procesoru a k fyzickém médiu.
 Media Independent Interface (MII) je specifikováno standardem IEEE 802.3 v kapitole 22 \cite[IEEE8023].
-MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Medai Access Constroll (MAC) a vrstvou fyzickou (PHY).
-
-
-%popis MAC a PHY???
+MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkrétně její část Media Access Constroll (MAC)
+\fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímaní a odesílání rámců(přístup k mediu), ochranu proti chybám}
+a vrstvou fyzickou (PHY)
+\fnote{PHY převádí bitový stream na signál a definuje jeho doručení.}.
+MII rozhraní podporuje dva datové toky a těmi jsou 10~Mb/s a 100~Mb/s.
+Rozhraní Gigabite Media Independent Interface podporuje rychlost až 1~Gb/s.
+Funkcionalita MII je identicka na obou datových tokách a liší se pouze v nominální frekvenci hodin.
 
 \medskip
 \clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
@@ -139,31 +147,26 @@ MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkretne jeji cast Med
 \caption/f Obrázek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
 \medskip
 
-Na obrázku \ref[MIItoISO] můžeme vidět připojení MII na Reconsiliation Sublayer (RS) a PCS/PLS.
+Na obrázku \ref[MIItoISO] můžeme vidět připojení MII na Reconsiliation Sublayer (RS) a PCS nebo PLS.
 RS je podvrstva, která mapuje signály z MII na MAC/PLS obsluhu.
-Mapování těchto signálů můžeme vidět na obrázku \ref[RStoMII].
-PLS/PLC jsou vrstvy, které se starají o kódování a dekódování signálů.
+PLS a PCS jsou vrstvy, které se starají o kódování a dekódování signálů.
+Konkrétní mapování MII signálů můžeme vidět na obrázku \ref[RStoMII].
 
-
-%asi zbytecny detaili
 \medskip
 \clabel[RStoMII]{Mapování signálů RS to MII}
-%\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_rs.pdf
-\caption/f Obrázek popisuje mapování signalů mezi RS vstupem a výstupem a také STA na MII \cite[IEEE8023].
+\caption/f Obrázek ukazuje jak RS mapuje signály mezi MII a PLS. Take je zde vidět připojení STA \cite[IEEE8023].
 \medskip
 
-Až 32 PHY jednotek může být obsluhováno jedním menežovacim MII rozhraním.
-MII podporuje dva datové toky a to je 10~Mb/s a 100~Mb/s.
-Funkcionalita je identicka na obou datových tokách a liší se pouze v nominální frekvenci hodin.
-
-Fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací \ref[MDIOs].
+Jak můžeme vidět na obrázku \ref[RStoMII] fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací (STA) \ref[MDIOs].
+K STA může být připojeno až 32 fyzickým jednotkám. které může být obsluhováno jedním menežovacim rozhraním STA.
 
 \label[MIIdat]
 
 \secc Datová část MII rozhraní
 
-Datová část MII disponuje několika druhy signálu, které mužeme vidět na pravé straně obrázku \ref[RStoMII] popsané níže.
+Datová část MII disponuje několika druhy signálu, které mužeme vidět na pravé straně obrázku \ref[RStoMII], které jsou připojeny k přemapovací vrstvě RS.
+Druhy datových signálů jsou popsany níže:
 
 \begitems
 *TX\_CLK -- Pin vysílající refeneční hodinový signál pro synchronizaci pinů TX\_EN, TXD a TX\_ER, která vede z RS do PHY. 
@@ -188,16 +191,20 @@ Není synchroní jak na TX\_EN tak ani na RX\_EN.
 \enditems
 %Reprezentuje pokud josu data na odeslani nebo prijeti.
 
-Na obrázku \ref[transiotionMII] můžeme vidět jak může vypadat komunikace po MII rozhraní. bez chyby.
 
 \medskip
 \clabel[transiotionMII]{Komunikace po MII bez kolize.}
-%\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_miicom.pdf
 \caption/f Obrázek ukazuje jak vypada komunikace po MII bez nastání kolize \cite[IEEE8023].
 \medskip
 
-Rámec data, který je přenášen po MII rozhraní je doplněn o hlaviky a patičky popsáné  formátem:
+Na obrázku \ref[transiotionMII] můžeme vidět jak může vypadat komunikace po MII rozhraní.
+TX\_CLK je referenční hodinový signál, který se pravidelně mění.
+Při odesílání dat se nahodí signál TX\_EN a začne odesílat preambuly, tak jak je to popsáno níže.
+A jelikož začne být příjemce zaneprázněn nahodí signál CRS.
+Tato komunikace je pouze jedním směrem a též neobsahuje žádnou chybu, jak je vidět ze signálu COL.
+
+Rámec dat, který je přenášen po MII rozhraní je doplněn o hlaviky a patičky popsáné formátem:
 
 \begtt
 <vstupní rámec><preambule><sdf><data><edf>
@@ -214,7 +221,8 @@ Pravidelným střídánám jedniček a nul.
 *efd -- Konec rámce, který se provede schození signálu TX\_EN.
 \enditems
 
-Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibble. A ty jsou odeslány ve dvouc částech po datových linkách. Například po pinech TDX jak můžeme vidět na obrázku níže \ref[NIBBLE].
+Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibble. A ty jsou odeslány ve dvou částech po datových linkách TXD nebo RXD.
+Příklad odeslání oktetu po pinech TDX jak můžeme vidět na obrázku níže \ref[NIBBLE].
 
 \medskip
 \clabel[NIBBLE]{Rozdělení bytu po datových pinech}
@@ -222,8 +230,6 @@ Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibbl
 \picw=15cm \cinspic images/802_nibble.pdf
 \caption/f Obrázek popisuje jak je rozdělen byte, který je následně odeslán po TDX \cite[IEEE8023].
 \medskip
-
-
 
 
 \label[MDIOs]
@@ -274,8 +280,7 @@ Všechny PHY, které podporují MII by měli používat tuto sadu registrů \ref
 
 \medskip
 \clabel[miireg]{Registry STA rozhraní.}
-%\picw=13cm \cinspic MIItoISO.png
-\picw=15cm \cinspic images/802_miimdio.pdf
+\picw=15cm \cinspic images/802_miireg.pdf
 \caption/f Obrázek popisující registry STA rozhraní.   Obrázek je převzat z~\cite[IEEE8023].
 \medskip
 
@@ -350,7 +355,6 @@ Je velmi optížné dnes narazit na zařízení, které je reprezentováno pouze
 Místo toho  některé struktury v struktuře {\em device}, jako je kobj, obecně implementují vyšše reprezentovaná zařízení \ref[DEV].
 \fnote{Popis datové struktury {\em device} můžete najít na \url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
 
-
 \secc mii bus
 
 {\em Struct mii\_bus} je struktura, která reprezentuje MII rozhraní a umožňuje přístup k registrům popsaným \ref[miireg].
@@ -418,11 +422,22 @@ Struktura {\em dsa\_switch} nese data o připojeném přepínači.
 
 \secc net device
 
-Struktura {\em net\_device } je struktura popisující síťové rozhraní.
+Struktura {\em net\_device } je struktura popisující síťové rozhraní \cite[ULNI].
 Síťové rozhraní může příjímat a vysílat velké množství dat a proto je implementace podobná diskovým zařízením \cite[LDD3].
 Síťová zařízení přijímají data asynchroně ukládájí je do vyrovnávacích pamětí.
 
 V linuxovém jádře je síťový subsystém naimplementován tak, že je protokolově nezávyslý.
+
+Struktura {\em net\_device } může být klasifikována do několika kategorií:
+\begitems
+*Konfigurace -- Něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
+*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
+*Stav zařízení
+*Menežování přenosu -- Nastavení kvality služeb (QoS).
+*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
+\enditems
+
+
 
 \label[USBst]
 
@@ -588,7 +603,6 @@ AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připo
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 
 Blokový
-%neudelat 802.3 chap?
 
 %TODO ASIX
 \medskip
@@ -631,6 +645,13 @@ Výjmečně se může Marvell 88E6065 využívat podpory pro směrovače a vých
 Desku menežovatelného přepínače je vyrobena firmou Retia a.s. 
 \fnote{Firma zabívající se elektronickými vojeskými systémy, zaznomovými zařízeními a lokalizačních a bezpočnostních systémů. \url{www.retia.cz}}
 na základě jejich návrhu a zapojení popsaných v přílohách \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
+A zjednodušené schéma můžete vidět na obrázky \ref[deska].
+
+\medskip
+\clabel[deska]{Blokové schéma desky menežovatelného přepínače.}
+\picw=15cm \cinspic images/diagdeska.pdf
+\caption/f Obrázek popisuje blokový zapojení desky menežovatelného přepínače.
+\medskip
 
 Menežovatelný přepínače umožňuje konfiguraci ethernetoveho přepínače za pomoci USB ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět eeprom M93-C66.
 Tento kontrolér je připojen RMII rozhraním k čipu Marvell 88E6065 \ref[MARVELL], tak jak můžete vidět na obrázku níže \ref[MARVELL6065rmii].
@@ -798,7 +819,7 @@ Pokud máme na SD kartě distibuci tak nám ji naše jádro zavede.
 
 Oživení desky začalo s testovaním USB kontroleru Asix AX88772b \ref[oAX].
 Po oživení komunikačního rozhraní se pokračovalo s laděním ethernetového přepínače 88E6065 \ref[oMV].
-Posledni casti bylo testovani ethernetovych portu.
+Posledni casti bylo testovani ethernetovych portu systému celého.
 Přičemž bylo objeveno několik chyb v návrhu desky. Která byla na základě mojich připomínek opravena(XXX to zaveru).
 
 \label[oAX]
@@ -849,7 +870,8 @@ A na základě mojich požadavků byli přidány pull-up a pull-down rezistory p
 Návrh ovladače byl založen na propojení ovladače pro Asix AX88772b a subsystému DSA \ref[DSA].
 
 Celý ovladač by měl fungovat, tak že při připojení USB zařízení se zavede ovladač pro zařízení AX88772b.
-Ta inicializuje tento ovladač do standardního stavu na zákaldě funkce usb\_probe(), která na základě ID produktu a výrobce vybere správný ovladač v našem případě je to ax88772b\_info, která je instancí stuktury driver\_info.
+Ta inicializuje tento ovladač do standardního stavu na zákaldě funkce usb\_probe(), která na základě ID produktu a výrobce vybere správný ovladač.
+V našem případě je to ax88772b\_info, která je instancí stuktury driver\_info.
 Tato struktura je v současné době naimplemntováno v aktuální verzi Linuxové jádra.
 To je takové, že ovladač aktivuje PHY interface a vytvoří rozhraní pro ethernetovou komunikaci přez net\_device strukturu a ethtool\_ops a net\_device\_ops funce.
 Doplní se funkce, která vytvoří node v sysfs\ref[SYSFS].
@@ -994,7 +1016,9 @@ Tato kapitola se zabiva
 
 \sec porovnani s jinym eth interfacem
 
-\sec konfigurace 
+\sec Konfigurace
+
+Konfigurace přepínače probíhá skr konfiguraci nástroji ifconfig a vconfig
 
 co se testuje a jak se testuje(co pisu za prikazy) -> vysledky
 
