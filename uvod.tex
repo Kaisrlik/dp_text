@@ -351,26 +351,25 @@ Zdrojem hodinového signálu je vrstva MAC nebo je generován externími hodinam
 
 \sec Subsystém operačního systému Linux
 
-Tato kapitola obsahuje informace o tom, co to je ovladač. A jak je ovladač přepínače \ref[DSA] a usb zařízeních integrovaný \ref[USBst]  v operačním systému Linux.
+Tato kapitola obsahuje informace o tom, co to je ovladač, a dále popisuje základní stavební prvky naimplementováné v operačním systému Linux: device, mii\_bus, net\_device, DSA a sysfs.
 
 \secc Co je to ovladač
 
-Ovladač je kus programu (algoritmu), který zpravuje nebo kontroluje určité zařízení připojené k počítači.
-Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware aniž by uživatel věděl jak přesně funguje \cite[LDD3].
+Ovladač je část programu (algoritmu), která spravuje nebo kontroluje určité zařízení připojené k počítači.
+Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, která umožňují operačnímu systému ovládat tento hardware, aniž by uživatel věděl, jak přesně funguje \cite[LDD3].
 
 \secc device
 
-
-Každé zařízní na té nejnižší úrovni je v operačním systému Linux je reprezentováno instancí struktory {\em device}.
-Struktora device obsahuje informace o tom co zařízení potřebuje aby správně fungoval v systému.
-Mnoho subsystému uchovává informace o této struktuře, na které stavějí.
-Je velmi optížné dnes narazit na zařízení, které je reprezentováno pouze struktorou {\em device}.
-Místo toho  některé struktury v struktuře {\em device}, jako je kobj, obecně implementují vyšše reprezentovaná zařízení \ref[DEV].
-\fnote{Popis datové struktury {\em device} můžete najít na \url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
+Každé zařízení naimplementované na nejnižší úrovni je v operačním systému Linux reprezentováno instancí struktury {\em device}.
+Struktura device obsahuje informace o tom, co zařízení potřebuje, aby správně fungovalo v systému.
+Mnoho subsystémů uchovává informace o struktuře device a tyto informace využívají k dalším procesům.
+V dnešní době je velmi obtížné nalézt zařízení, které je reprezentováno pouze struktorou {\em device}.
+Místo toho  některé instance v struktuře {\em device}, jako je kobj, obecně implementují výše reprezentovaná zařízení \ref[DEV]. %XXX divny
+\fnote{Popis datové struktury {\em device} lze nalézt na \url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
 
 \secc mii bus
 
-{\em Struct mii\_bus} je struktura, která reprezentuje MII rozhraní a umožňuje přístup k registrům popsaným \ref[miireg].
+{\em Struct mii\_bus} je struktura, která reprezentuje MII rozhraní a umožňuje přístup k registrům popsaným v \ref[miireg].
 
 \label[DSA]
 
@@ -378,56 +377,57 @@ Místo toho  některé struktury v struktuře {\em device}, jako je kobj, obecn�
 
 Distributed Switch Architecture (DSA) je rozhraní pro menežování hardwarových přepínačů \cite[DSA].
 %Obsahuje MII menežovací registry, příkazy pro nastavení přepínače a formát ethernetových hlaviček, který signalizuje na kterém portu byl paket přijat nebo ktery se hodlá odeslat 
-
-Tento driver podporuje přepínače, které jsou připojeny způsobem zobrazeným na obrázku \ref[DSAcon].
+Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobrazeným na obrázku \ref[DSAcon].
 
 \medskip
 \clabel[DSAcon]{Připojení DSA k CPU.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/DSAcon.pdf
-\caption/f Obrázek ukazuje jak je možné připojit DSA přepínač k procesoru. Obrázek je převzat z~\cite[DSA].
+\caption/f Obrázek popisuje, jak je možné připojit DSA přepínač k procesoru. Obrázek je převzat z~\cite[DSA].
 \medskip
 
+Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
+Nastavování přepínače, jako je stav portů a menežment MII rozhraní, je provedeno na základě rozhraní ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení.}.
 
-Tento ovladač přepínače reprezentuje každý port jako oddělené síťove rozhraní \ref[NETDEV].
-Pollování, stav portů, MII menežment rozhraní je proveden za základě rozhraní ethtool \fnote{Ethtool je standartní utilita Linuxu pro ovládání a podporu ovladačů a zařízení.}.
-
-
-DSA podporuje i propojení mezi switchy tak jak můžete vidět na obrázku \ref[DSAcon2], které pak mužem také ovládat.
+Subsystém DSA podporuje i propojení mezi přepínači tak, jak je možno vidět na obrázku \ref[DSAcon2].
+Takto propojené přepínače lze ovládat skrz MII rozhraní.
 
 \medskip
 \clabel[DSAcon2]{Připojení více přepínačů DSA k CPU.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/DSAcon2.pdf
-\caption/f Obrázek ukazuje jak je možné připojit DSA přepínač k procesoru. Obrázek je převzat z~\cite[DSA].
+\caption/f Obrázek popisuje, jak je možné připojit DSA přepínač k procesoru. Obrázek je převzat z~\cite[DSA].
 \medskip
 
-Na obrázku níže můžeme vidět diagram tříd důležitých struktur v subsystému DSA, které jsou důležíté pro další vývoj \ref[umlDSA].
+Na obrázku \ref[umlDSA] je diagram tříd důležitých struktur v subsystému DSA, které jsou nezbytné pro funkčnost subsystému.
 
 \medskip
 \clabel[umlDSA]{Diagram tříd DSA subsystému.}
 \picw=15cm \cinspic images/dsa_uml.pdf
-\caption/f Na obrázku .
+\caption/f Na obrázku můžeme vidět popis vybraných datových struktur.
 \medskip
 
-Na tomto obrázku jsou zvírazněny struktury {\em mii\_bus}, {\em net\_device} a {\em dsa\_platform\_data}.
-Tyto struktury DSA subsystém nevytváří a je potřeba tyto struktury předat.
+Na tomto obrázku jsou zvýrazněny struktury {\em mii\_bus}, {\em net\_device} a {\em dsa\_platform\_data}.
+Tyto struktury DSA subsystém nevytváří, a proto je potřeba tyto struktury předat subsystému.
 
-DSA je reprezentována strukturou {\em dsa\_switch\_tree}, která obsahuje reference na struktury
+%XXX upravit aby to bylo více vypovídající
+Subsystém DSA je reprezentován strukturou {\em dsa\_switch\_tree}, která obsahuje odkazy na struktury:
 \begitems
-*dsa\_platform\_data -- tato struktura informuje o tom jaká zařízení jsou připojená ke kořenovému přepínači. Obsahuju struktur {\em dsa\_chip\_data} popsanou níže.
-*net\_device -- reference na síťové zařízení \ref[NETDEV], reprezentující hlavní síťové zařízení.
-*dsa\_switch -- data pro jednotlivé přepínače.
+*dsa\_platform\_data -- tato struktura informuje o tom, jaká zařízení jsou připojená ke kořenovému přepínači.
+Také obsahuju strukturu {\em dsa\_chip\_data} popsanou níže.
+*net\_device -- tato struktura odkazuje na hlavní síťové zařízení \ref[NETDEV].
+*dsa\_switch -- obsahuje data pro jednotlivé přepínače popsané níže.
 \enditems
 
-Struktura {\em dsa\_switch} nese data o připojeném přepínači.
+Struktura {\em dsa\_switch} nesoucí data o připojeném přepínači obsahuje následnující data:
 \begitems
-*dsa\_switch\_tree -- reference na rodičovskou strukturu.
-*dsa\_chip\_data -- Tato struktura obsahuje informace o fyzickém přepínači -- kolik má portů a jaké jsou jejich názvy. Též obsahuje informace o DT.
-*device -- reference na hostovské zařízení, které se využívá.
-*dsa\_switch\_driver -- struktura popisující ovladač přepínaču, obsahuje funkce na menežování připojeného přepínače.
-*mii\_bus -- ovladač MII sběrnice.
-*net\_device -- reference na síťové zařízení \ref[NETDEV], reprezentující port zařízení.
+*dsa\_switch\_tree -- je odkaz na rodičovskou strukturu.
+*dsa\_chip\_data -- struktura obsahující informace o fyzickém přepínači -- kolik má portů a jaké jsou jejich názvy.
+Navíc obsahuje informace o device tree \fnote{Device tree je popis hardwarového zařízení v kódu.}.
+*device -- je odkaz na hostovské zařízení, které se právě využívá.
+*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na menežování připojeného přepínače.
+*mii\_bus -- je ovladač MII sběrnice.
+*net\_device -- je odkaz na síťové zařízení \ref[NETDEV] reprezentující port zařízení.
 \enditems
 
 
@@ -435,87 +435,91 @@ Struktura {\em dsa\_switch} nese data o připojeném přepínači.
 
 \secc net device
 
-Struktura {\em net\_device } je struktura popisující síťové rozhraní \cite[ULNI].
-Síťové rozhraní může příjímat a vysílat velké množství dat a proto je implementace podobná diskovým zařízením \cite[LDD3].
-Síťová zařízení přijímají data asynchroně ukládájí je do vyrovnávacích pamětí.
+Struktura {\em net\_device } popisuje síťové rozhraní \cite[ULNI].
+Síťové rozhraní může přijímat a vysílat velké množství dat, a proto je implementace podobná diskovým zařízením \cite[LDD3].
+Síťová zařízení přijímají data asynchronně a ukládájí je do vyrovnávací paměti.
 
-V linuxovém jádře je síťový subsystém naimplementován tak, že je protokolově nezávyslý.
+V linuxovém jádře je síťový subsystém naimplementován tak, že je na protokolu nezávislý.
 
-Struktura {\em net\_device } může být klasifikována do několika kategorií:
-\begitems
-*Konfigurace -- Něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
-*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
-*Stav zařízení
-*Menežování přenosu -- Nastavení kvality služeb (QoS).
-*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
-\enditems
 
+%TODO XXX knizka
+%Struktura {\em net\_device } může být klasifikována do několika kategorií:
+%\begitems
+%*Konfigurace -- něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
+%*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
+%*Stav zařízení
+%*Menežování přenosu -- Nastavení kvality služeb (QoS).
+%*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
+%\enditems
 
 
 \label[USBst]
 
-\secc usb driver
+\secc usb ovladač
 
-Linuxové jádro podporuje dva druhy USB zařízení ovladače na hostovském systému a ovladače na zařízení \cite[LDD3].
-USB ovladač na hostovském systému, jak může být podle názvu jasné, běží systému ke kterému je USB zařizení připojeno.
-Ovladače na zařízení neboli \"USB gadget drivers\"  zařízení připojojené k hostovskému systému vypadá jako hostovská stanice připojena přez USB.
-Na obrázku níže mužeme vidět USB stack, kde USB muže existovat v několika různých subsystémech (net, block, char ...). USB core dává rozhraní pro USB ovladače, které chtějí kontrolovat a přistupovat k hardwaru.
-
+Linuxové jádro podporuje dva druhy USB zařízení -- ovladače na hostovském systému a ovladače na zařízení \cite[LDD3].
+USB ovladač na hostovském systému pracuje na systému, ke kterému je USB zařizení připojeno.
+Ovladač na zařízení, neboli \"USB gadget drivers\" , je připojojen k hostovskému systému a chová se jako hostovská stanice připojena přes USB. %TODO opravit vetu
+Na obrázku níže můžeme vidět USB hierarchii, kde USB může existovat v několika různých subsystémech (net, block, char ...).
+USB jádro implementuje rozhraní pro USB ovladače, které chtějí kontrolovat hardware a přistupovat k němu.
 
 Koncové body USB jsou popsány v jádře Linuxu strukturou {\em usb\_host\_endpoint}.
-Tato struktora obsahuje informace o realném koncovém bodu v struktuře {\em usb\_endpoint\_descriptor}.
-Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí příjmutých dekriptorů.
+Tato struktura obsahuje informace o reálném koncovém bodu ve struktuře {\em usb\_endpoint\_descriptor}.
+Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí přijatých deskriptorů.
 
 \medskip
-\clabel[USBMAP]{Za.}
+\clabel[USBMAP]{Hierarchie USB.}
 \picw=15cm \cinspic images/usbendpmap.pdf
-\caption/f Na obrázku Obrázek převzat z \cite[LDD3].
+\caption/f Na obrázku lze vyčíst hierarchii USB prvků. Obrázek převzat z \cite[LDD3]. %TODO popisek
 \medskip
 
 
-USB rozhraní je složeno z několik koncových bodů, které tvoří jedno logické připojení jako je napřiklad myš, klávesnice, video atd. Některá USB zařízení mohou mít více rozhraní.
-USB repoduktory mohou mít dvě rozhraní jako je USB klávesnice pro tlačítka a USB audio stream \cite[LDD3].%TODO presunout nahoru
-Pro každé rozhraní Linuxové jádro používá jeden hardwarový ovladač.
+USB rozhraní je složeno z několika koncových bodů, které tvoří jedno logické připojení jako je napřiklad myš, klávesnice, video atd.
+Některá USB zařízení však mohou mít více rozhraní.
+Například USB repoduktory mohou mít dvě rozhraní, jako je USB klávesnice pro tlačítka reproduktoru a USB audio pro jeho zvuk \cite[LDD3].%TODO presunout nahoru
+Linuxové jádro používá pro každé rozhraní právě jeden hardwarový ovladač.
 Toto rozhraní je popsáno strukturou {\em usb\_interface}.
-Tato struktura je to co USB core předává USB ovladačům.
-Každé zařízení je vázáno konfigurací a jedno USB zařízení muže mít těchto konfigurací více.
-Tyto konfigurace se mouhou v průběhu běhu zařízení měnit.
-A však Linuxové jádro nemůže obsluhovat více konfigurací v jeden čas. Linuxové jádro popisuje konfigurace v struktuře {\em usb\_host\_config} a celé USB zařízení strukturou {\em usb\_device}.
+Tato struktura je to, co USB jádro předává USB ovladačům.
+Každé zařízení je vázáno konfigurací, které je předáváno v deskriptorech.
+Linuxové jádro popisuje konfigurace ve struktuře {\em usb\_host\_config} a celé USB zařízení strukturou {\em usb\_device}.
+Jedno USB zařízení však může mít konfigurací více.
+Konfigurace se mohou v průběhu práce zařízení měnit.
+Linuxové jádro ale nemůže obsluhovat více konfigurací v jeden čas.
+
+
 Ovladače USB zařízení  obyčejně přepisují data z {\em usb\_interaface} do {\em usb\_device}.
-
-Samotné struktury {\em usb\_device} a {\em usb\_interface} jsou zobrazeny v sysfs\ref[SYSFS] jako jednotlivá soubory.
-
-Na řádce níže můžeme vidět ukázkovou cestu k struktuře {\em usb\_device} reprezentovanou pomocí sysfs:
+Samotné struktury {\em usb\_device} a {\em usb\_interface} jsou zobrazeny v sysfs\ref[SYSFS] jako jednotlivé soubory.
+Ukázková cesta ke struktuře {\em usb\_device} reprezentována pomocí sysfs \ref[SYSFS] může vypadat následovně:
 
 \begtt  /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1  \endtt
 
-K výše uvedené cestě k USB zařízení je na řádku níže zvírazněno USB rozhraní reprezentováno strukturou {\em usb\_interface} je pojmenovan podle formátu root\_hub-hub\_port:config.interface (pro hlubší stromy je schéma root\_hub-hub\_port-hub\_port:config.interface):
+K výše uvedené cestě k USB zařízení je na řádku níže zvýrazněno USB rozhraní reprezentováno strukturou {\em usb\_interface}.
+Tato struktura je pojmenována podle formátu root\_hub-hub\_port:config.interface (pro hlubší stromy je schéma root\_hub-hub\_port-hub\_port:config.interface):
 
 \begtt /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1/2-1:1.0 \endtt
 
-Pro komunikaci se všemi USB zařízeními Linuxové jádro používá USB request block (urb). Urb se používá k posílaní a příjmu dat pro specifický koncový bod USB a specifické USB zařízení asynchroním způsobem.
-
+Pro komunikaci se všemi USB zařízeními používá Linuxové jádro USB request block (urb).
+Urb je asynchronní typ komunikace, která se používá k posílaní a příjmu dat pro specifický koncový bod USB a specifické USB zařízení.
 
 \label[USBNET]
 
 \secc usbnet
 
-Usbnet je subsystém Linuxového jadra, který umožňuje ovládat USB-síťové zařízení jako je ethernet, DSL, IDSN atd \ref[USBNET].
-Usbnet je to genericky USB síťový framework, který pracuje na různých rychlostech a nad různými protokoly.
+Usbnet je subsystém Linuxového jádra, který umožňuje ovládat USB--síťová zařízení jako je ethernet, DSL, IDSN atd. \ref[USBNET]
+Usbnet je obecná USB--síťová nadstavba, která pracuje na různých rychlostech a nad různými protokoly.
 
-
-Na obrázku níže  můžeme vidět uml diagram důležitých struktur v ovladači AX88772b \ref[umlASIX].
+Na obrázku níže lze vidět uml diagram důležitých struktur v ovladači AX88772b \ref[umlASIX].
 
 \medskip
 \clabel[umlASIX]{Diagram tříd ovladače AX88772b.}
 \picw=15cm \cinspic images/driver_asix.pdf
-\caption/f Na obrázku .
+\caption/f Na obrázku můžeme vidět popis vybraných datových struktur v subsystému usbnet.
 \medskip
 
-Jam můžeme vidět na obrázku, usbnet obsahuje informace o :
+Na obrázku \ref[umlASIX] je znázorněn usbnet obsahuje informace o:
 \begitems
 *net\_device -- zařízení reprezentující síťové rozhraní
-*driver\_info -- rozhraní pro ovladač usbnet zařízeních
+*driver\_info -- rozhraní pro ovladač usbnet zařízení
 *usb\_device -- struktura reprezentující zařízení USB
 \enditems
 
@@ -523,29 +527,29 @@ Jam můžeme vidět na obrázku, usbnet obsahuje informace o :
 
 \secc System Filesystem
 
-SYstem FileSystem (Sysfs) je charakteristika Linuxového jádra od verze 2.6, která umožňuje kernelovému kódu exportovat informace do userspace za použití paměti VFS\ref[SYSFS].
-Hlavním učelem je reprezentovat objekty, jejich atributy a jejich vstahy navzájem.
-Většina atributů je reprezentována souborem jež je ve formátu ASCII a obsahuje pouze jednu hodnotu.
+System FileSystem (Sysfs) je charakteristika Linuxového jádra od verze 2.6, která umožňuje jadernému kódu exportovat informace do uživatelského prostoru za použití paměti VFS\ref[SYSFS].
+Hlavním učelem je reprezentovat objekty, jejich atributy a jejich vztahy navzájem.
+Většina atributů je reprezentována souborem, který je ve formátu ASCII a obsahuje pouze jednu hodnotu.
 Sysfs poskytuje dvě složky:
 
 \begitems
-*kernel programing interface -- Slouží k exportování a importování položek (viz níže) skrz sysfs do kernelu
-*user interface -- Slouží k vidění a manipulaci těchto položek (viz níže), které mapuje zpět na objekty v kernelu
+*kernel programming interface -- slouží k exportování a importování položek (viz níže) skrz sysfs do jádra
+*user interface -- slouží k zobrazení a manipulaci s těmito položkami (viz níže), které mapuje zpět na objekty v jádře
 \enditems
 
-Mapování mezi objekty můžeme vidět v \ref[SYSFSmap].
+Mapování objektů a atributů můžeme vidět v \ref[SYSFSmap].
 
-\midinsert \clabel[SYSFSmap]{Mapováni objektů a atributu v sysfs.}
+\midinsert \clabel[SYSFSmap]{Mapováni objektů a atributů v sysfs.}
 \ctable{ll}{
- \hfil  Interni   & Externi  \crl \tskip4pt
-        Kernelovské objekty    & Složky  \cr
+ \hfil  Interní   & Externí  \crl \tskip4pt
+        Jaderné objekty    & Složky  \cr
         Atributy objektů     & Soubory  \cr
         Vazby mezi objekty   & Symbolické odkazy  \cr
 }
-\caption/t  Tabulka prevzana z \cite[SYSFS].
+\caption/t  Tabulka převzata z \cite[SYSFS].
 \endinsert
 
-V systemu můžeme vidět tyto zařízení vidět ve složce  {\em /sys/ }.
+V systému lze vidět tato zařízení ve složce {\em /sys/ }.
 Složka /sys/ může vypadat následovně:
 \begtt
     /sys/
@@ -558,7 +562,7 @@ Složka /sys/ může vypadat následovně:
     ‘-- power
 \endtt
 
-Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em kobj}, který obsahuje tři druhu obslužného volání na zápis, čtení a na uvolňení.
+Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em kobj}, která obsahuje tři druhy obslužného volání -- na zápis, čtení a na uvolňení.
 
 \label[pouzhw]
 
