@@ -29,7 +29,7 @@ A vyhodnocují se výsledky na těchto testů.
 
 Tato kapitola je rozebírána použitá technologie.
 V první části je rozebrána sběrnice USB \ref[USB].
-Další významnou sekcí je rozhraní Media Independet Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
+Další významnou sekcí je rozhraní Media Independent Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
 Ke konci této kapitoly bylo rozepsáno jak vypadájí ovladače v linuxu a tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
@@ -131,80 +131,85 @@ Na základě informací v deskriptorech se operační systém rozhoduje, který 
 
 \sec Media Independent Interface
 
-Media Independent Interface je typ rozhraní, který umožňuje připojení nezávyslého na procesoru a k fyzickém médiu.
-Media Independent Interface (MII) je specifikováno standardem IEEE 802.3 v kapitole 22 \cite[IEEE8023].
-MII propojuje dvě vrstvy ISO/OSI a to vrstvu Data Link, konkrétně její část Media Access Constroll (MAC)
+Media Independent Interface (MII) je typ rozhraní, který umožňuje připojení nezávislé na procesoru a fyzickém médiu.
+Tento typ rozhraní je specifikován standardem IEEE 802.3, který je popsán v kapitole 22 \cite[IEEE8023].
+MII propojuje dvě vrstvy modelu ISO/OSI, a to vrstvu spojovou, konkrétně její část Media Access Constroll (MAC),
 \fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímaní a odesílání rámců(přístup k mediu), ochranu proti chybám}
-a vrstvou fyzickou (PHY)
+s vrstvou fyzickou (PHY)
 \fnote{PHY převádí bitový stream na signál a definuje jeho doručení.}.
-MII rozhraní podporuje dva datové toky a těmi jsou 10~Mb/s a 100~Mb/s.
-Rozhraní Gigabite Media Independent Interface podporuje rychlost až 1~Gb/s.
-Funkcionalita MII je identicka na obou datových tokách a liší se pouze v nominální frekvenci hodin.
+MII rozhraní podporuje dva datové toky - 10~Mb/s a 100~Mb/s.
+Na obou datových tocích je funkcionalita MII identická, liší se pouze v nominální frekvenci hodin.
+Vyšší rychlosti přenosu je možno dosáhnout změnou rozhraní na Gigabite Media Independent Interface, které podporuje rychlost až 1~Gb/s.
 
 \medskip
 \clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
 \picw=16cm \cinspic images/802_iso.pdf
-\caption/f Obrázek popisuje spojistost mezi rozhranim MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
+\caption/f Obrázek popisuje spojitost mezi rozhraním MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
 \medskip
 
-Na obrázku \ref[MIItoISO] můžeme vidět připojení MII na Reconsiliation Sublayer (RS) a PCS nebo PLS.
+Na obrázku \ref[MIItoISO] je vidět připojení MII na Reconsiliation Sublayer (RS) a PCS nebo PLS.%rozepsat zkratky
 RS je podvrstva, která mapuje signály z MII na MAC/PLS obsluhu.
 PLS a PCS jsou vrstvy, které se starají o kódování a dekódování signálů.
-Konkrétní mapování MII signálů můžeme vidět na obrázku \ref[RStoMII].
+Konkrétní mapování MII signálů znázorňuje obrázek \ref[RStoMII].
 
 \medskip
-\clabel[RStoMII]{Mapování signálů RS to MII}
+\clabel[RStoMII]{Mapování signálů RS na MII}
 \picw=15cm \cinspic images/802_rs.pdf
-\caption/f Obrázek ukazuje jak RS mapuje signály mezi MII a PLS. Take je zde vidět připojení STA \cite[IEEE8023].
+\caption/f Obrázek popisuje, jak RS mapuje signály mezi MII a PLS. Také lze vidět připojení STA \cite[IEEE8023].
 \medskip
 
-Jak můžeme vidět na obrázku \ref[RStoMII] fyzické rozhraní MII se skládá ze dvou druhů sběrnic a to datové \ref[MIIdat] a menežovací (STA) \ref[MDIOs].
-K STA může být připojeno až 32 fyzickým jednotkám. které může být obsluhováno jedním menežovacim rozhraním STA.
+Jak můžeme vidět na obrázku \ref[RStoMII], fyzické rozhraní MII se skládá ze dvou druhů sběrnic, a to datové \ref[MIIdat] a menežovací (STA) \ref[MDIOs].
+STA může být připojeno až k 32 fyzickým jednotkám. které obsluhuje.
 
 \label[MIIdat]
 
 \secc Datová část MII rozhraní
 
-Datová část MII disponuje několika druhy signálu, které mužeme vidět na pravé straně obrázku \ref[RStoMII], které jsou připojeny k přemapovací vrstvě RS.
-Druhy datových signálů jsou popsany níže:
+Datová část MII disponuje několika druhy signálů, které lze vidět na pravé straně obrázku \ref[RStoMII]. 
+Tyto signály jsou připojeny k přemapovací vrstvě RS.
+Druhy datových signálů:
 
 \begitems
-*TX\_CLK -- Pin vysílající refeneční hodinový signál pro synchronizaci pinů TX\_EN, TXD a TX\_ER, která vede z RS do PHY. 
-Zdrojem TX\_CLK je PHY. 
-Frekvence tohoto signálu by měl být 20\% z nominální hodnoty přenosu dat +- 100ppm.
-*RX\_CLK -- Pin vysílající refeneční hodinový signál pro synchronizaci pinů RX\_DV, RXD a RX\_ER, která vede z PHY do RS.
-Zdrojem RX\_CLK je PHY. 
-RX\_CLK může mít referenční hodnotu z přijímaných dat nebo muže být odvozena z nominální hodnoty tak jako u TX\_CLK.
-*TX\_EN -- Pin indikující, že RS je připravena odesílat data.
-*TDX -- Čtveřice datových pinů (TDX[3:0]) ovládána RS, která přenáší data synchroně na základě TX\_CLK. 
-TDX[0] je nejméně významný bit.
-Pokud je TX\_EN fyzicky odpojen TDX nemá žádný efekt na PHY.
-*TX\_ER -- Pokud PHY vysílá jeden či více symbolů, která nejsou součástí dat nebo předčasně dojde k přerušení rámce, tak tento pin synchroně na základě hodinového signálu TX\_CLK a nastaveného signálu TX\_EN vyhodí chybu.
-*RX\_DV -- Pin označující, že přijatá data jsou validní. Tento pin je řizen PHY a je synchroní s RX\_CLK.
-*RXD -- Čtveřice datových pinů (RDX[3:0]) ovladané PHY, které slouží k přenosu dat z PHY do RS. RXD[0] přenáší nejméně významný bit.
-*RX\_ER -- Pin řízený RHY, který indikuje RS, že nastal error detekovaný někde v průběhu přijímaní rámce.
-Pokud je RX\_DV odpojen nemá žadný vliv na RS.
-*CRS -- Tento pin je aktivní pokud příjemce nebo odesilatel je zaneprázdněn a neaktivní pokud jsou idle.
-Není synchroní jak na TX\_EN tak ani na RX\_EN.
-*COL -- Tento pin vyvolán PHY pokud na mediu nastane kolize.
-*CRS a COL -- Piny jous neaktivní pokud ve stavu idle. Nejsou synchroní na TX\_CLK tak ani na RX\_CLK. Nedefinované chování COL a CRS pokud bit 0.8 je aktivní.
+*TX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech TX\_EN, TXD a TX\_ER.
+Zdrojem signálu TX\_CLK je PHY. 
+Frekvence tohoto signálu by měla být 20\% z nominální hodnoty přenosu dat +- 100ppm. %TODO plus minus
+*RX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech RX\_DV, RXD a RX\_ER.
+Zdrojem signálu RX\_CLK je RS. %XXX kouknout na manuál
+RX\_CLK může odvodit referenční hodnotu z přijímaných dat nebo z nominální hodnoty jako u signálu pinu TX\_CLK.
+*TX\_EN -- pin vysílající signál, který indikuje, že je RS připravena odesílat data.
+*TDX -- čtveřice datových pinů vysílající signál (TDX[3:0]) ovládaná podvrstvou RS, která přenáší data synchronně na základě signálu z pinu TX\_CLK. 
+TDX[0]  přenáší nejméně významný bit.
+Pokud je TX\_EN fyzicky odpojen, TDX nemá žádný efekt na činnost PHY.
+*TX\_ER -- pin vysílající signál řízený podvrstvou RS, který indikuje. že PHY začala vysílat jeden či více symbolů, které nejsou součástí dat, nebo že předčasně došlo k přerušení rámce.
+Signál na tomto  pinu je synchronní s hodinovým signálem z pinu TX\_CLK.
+*RX\_DV -- pin vysílající signál, který značí, že přijatá data jsou validní. Tento signál je řízen PHY a je synchronní se signálem z pinu RX\_CLK.
+*RXD -- čtveřice datových pinů vysílající signál (RDX[3:0]) ovládaná vrstvou PHY, která slouží k přenosu dat z vrstvy PHY do podvrstvy RS.
+RXD[0] přenáší nejméně významný bit.
+*RX\_ER -- pin vysílající signál řízený vrstvou PHY, který indikuje, že nastala chyba detekovaná v průběhu přijímání rámce.
+Pokud je pin RX\_DV odpojen, nemá žadný vliv na činnost podvrstvy RS.
+*CRS -- pin vysílající signál indikující, zda je příjemce nebo odesílatel zaneprázdněn, nebo je ve stavu idle.
+Signál z pinu není synchronizován se signálem z pinů TX\_CLK,  RX\_CLK.
+Pokud je bit z registru \ref[miireg] 0.8 aktivní, signál na pinu má nedefinované chování. %XXX asi smazat
+*COL -- pin vysílající signál, který je vyvolán vrstvou PHY, indikující kolize, které nastaly na médiu.
+Signál z pinu není synchronizován se signálem z pinů TX\_CLK,  RX\_CLK.
+Pokud je bit z registru \ref[miireg] 0.8 aktivní, signál na pinu má nedefinované chování.
 \enditems
 %Reprezentuje pokud josu data na odeslani nebo prijeti.
-
 
 \medskip
 \clabel[transiotionMII]{Komunikace po MII bez kolize.}
 \picw=15cm \cinspic images/802_miicom.pdf
-\caption/f Obrázek ukazuje jak vypada komunikace po MII bez nastání kolize \cite[IEEE8023].
+\caption/f Obrázek znázorňuje, jak vypadá bezchybná komunikace po MII \cite[IEEE8023].
 \medskip
 
-Na obrázku \ref[transiotionMII] můžeme vidět jak může vypadat komunikace po MII rozhraní.
-TX\_CLK je referenční hodinový signál, který se pravidelně mění.
-Při odesílání dat se nahodí signál TX\_EN a začne odesílat preambuly, tak jak je to popsáno níže.
-A jelikož začne být příjemce zaneprázněn nahodí signál CRS.
-Tato komunikace je pouze jedním směrem a též neobsahuje žádnou chybu, jak je vidět ze signálu COL.
+Na obrázku \ref[transiotionMII] lze vidět, jak vypadá komunikace po MII rozhraní.
+Pin TX\_CLK přenáší referenční hodinový signál, který se pravidelně mění.
+Při odesílání dat se nahodí signál z pinu TX\_EN, který začne odesílat preambuly.
+Přenos těchto dat je popsán níže.
+S přijímaním signálu začne být příjemce zaneprázdněn, a proto nahodí signál z pinu CRS.
+Celá komunikace probíhá pouze jedním směrem a neobsahuje žádnou chybu, jak je možno vidět ze signálu na pinu COL.
 
-Rámec dat, který je přenášen po MII rozhraní je doplněn o hlaviky a patičky popsáné formátem:
+Rámec dat, který je přenášen po MII rozhraní, je doplněn o hlavičky a patičky popsáné formátem:
 
 \begtt
 <vstupní rámec><preambule><sdf><data><edf>
@@ -213,22 +218,23 @@ Rámec dat, který je přenášen po MII rozhraní je doplněn o hlaviky a pati�
 Kde jednotlivé položky mají následující význam:
 
 \begitems
-*vstupní rámec -- Perioda mezi rámci při která není specifikovaná, během kterého nesmí dojít k činosti na MII.
-*preambule -- Definovaná posloupnost vstupních dat, která se skládá ze 7 oktetů (bytů).
-Pravidelným střídánám jedniček a nul.
-*sdf -- Oktet, který oznamuje začátek rámce.
-*data -- Přenesená data.
-*efd -- Konec rámce, který se provede schození signálu TX\_EN.
+*vstupní rámec -- je perioda mezi rámci, při které nesmí dojít k žádné činnosti na rozhraní MII.
+Tato perioda není přesně specifikována.
+*preambule -- je definovaná posloupnost dat, která se skládá ze 7 oktetů (bytů) a je přenášena ve formě pravidelného střídání jedniček a nul.
+*sdf -- oktet, který oznamuje začátek rámce.
+*data -- značí přenesená data.
+*efd -- konec rámce, který provede shození signálu na pinu TX\_EN.
 \enditems
 
-Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibble. A ty jsou odeslány ve dvou částech po datových linkách TXD nebo RXD.
-Příklad odeslání oktetu po pinech TDX jak můžeme vidět na obrázku níže \ref[NIBBLE].
+Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibbles.
+Tyto poloviny jsou odeslány po datových linkách TXD nebo RXD.
+Příklad odeslání oktetu po pinech TDX je znázorněn na obrázku níže \ref[NIBBLE].
 
 \medskip
-\clabel[NIBBLE]{Rozdělení bytu po datových pinech}
+\clabel[NIBBLE]{Rozdělení oktetu po datových pinech}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_nibble.pdf
-\caption/f Obrázek popisuje jak je rozdělen byte, který je následně odeslán po TDX \cite[IEEE8023].
+\caption/f Obrázek popisuje, jak je rozdělen byte, který je následně odeslán po pinech TDX \cite[IEEE8023].
 \medskip
 
 
@@ -236,58 +242,67 @@ Příklad odeslání oktetu po pinech TDX jak můžeme vidět na obrázku níže
 
 \secc Menežovací rozhraní a příslušný registrový prostor
 
-Menežovací čast sběrnice označena STA používá k nastavování a čtením hodnot mezi MAC a PHY.
-Toto rozhraní je specifikovano dvou linkovym seriovym rozhraním.
-Toto rozhraní obsahuje dva datové vodiče:
+Menežovací část sběrnice, která se značí STA, se používá k nastavování a čtení hodnot mezi vrstvamy MAC a PHY.
+Toto rozhraní je dvoulinkové sériové a obsahuje dva datové vodiče:
 \begitems
-*MDC -- Pin určující časovou základnu pro MDIO signal. MDC je aperiodický signál, který nemá žádnou minimální ani maximální frekvenci, avšak by se měl pohybovat v rozmezí od 160 ns do 400 ns.
-*MDIO -- Pin, který je vstupně výstupní a posílají se po něm signály oboumi směry je proveden třístavovým obvodem mezi PHY a STA.
-Používá se k přenosu kontrolních zpráv mezi těmito zařizeními. MDIO je synchroní s MDC a informace jsou řizeny z PHY.
+*MDC -- pin vysílající signál určující časovou základnu pro signál vysílaný pinem MDIO.
+Signál z pinu MDC je aperiodický, nemá žádnou minimální ani maximální frekvenci, měl by se však pohybovat v rozmezí od 160~ns do 400~ns.
+*MDIO -- pin vysílající signál. Tento pin je vstupně výstupní a jsou po něm posílány signály oběma směry.
+Je tvořen třístavovým obvodem mezi vrstvami PHY a STA.
+Pin se používá k přenosu kontrolních zpráv mezi zařizeními.
+Přenos je řízen z vrstvy PHY.
+Signál z pinu MDIO je synchronizovaný se signálem z pinu MDC.
 \enditems
 
-Formát menežovacích rámců je popsán tabulkou \ref[MDIOframe]. A data jsou odesílána po MDIO z levé strany tabulky do pravé.
+Formát menežovacích rámců je popsán v tabulce \ref[MDIOframe].
+Data z této tabulky jsou odesílána po pinu MDIO ve směru z levé strany tabulky do pravé.
 
 \midinsert \clabel[MDIOframe]{Formát menežovacích rámců.}
 \ctable{lllllllll}{
- \hfil   operace  & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip4pt
-          cteni   & 1...1 & 01 & 10 & AAAAA & RRRRR & Z0 & D...D & Z \cr
-          zapis   & 1...1 & 01 & 01 & AAAAA & RRRRR & 10 & D...D & Z \cr
+ \hfil            & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip4pt
+          čtení   & 1...1 & 01 & 10 & AAAAA & RRRRR & Z0 & D...D & Z \cr
+          zápis   & 1...1 & 01 & 01 & AAAAA & RRRRR & 10 & D...D & Z \cr
 }
-\caption/t Format menezovacich zprav odesilany z leva do prava \cite[IEEE8023] (Tabulka 22-12).
+\caption/t Tabulka popisuje formát menežovacích zpráv \cite[IEEE8023] (Tabulka 22-12).
 \endinsert
 
-V tabulce \ref[MDIOframe] mužeme vidět hodnotu preambule (PRE), která je posloupnost 32 bitu hodnoty logické 1 sloužící k synchronizaci s MDC.
-Začátek rámce označný ST je 01.
-Poté následuje OPerační kód (OP), který určuje druh operace, čtení nebo zápis.
-PHYAD je fyzická adresa zařízení o délce 5 bitu tj. až 32 zařízení, které můžeme naadresovat.
+V tabulce \ref[MDIOframe] lze vidět hodnotu preambule (PRE), což je posloupnost 32 bitů skládajících se z hodnot logických jedniček.
+Preambule slouží k synchronizaci signálu z pinu MDC.
+Začátek rámce je označený ST a má hodnotu 01.
+Poté jsou odesílána data popisující operační kód (OP), která určují druh operace: čtení nebo zápis.
+PHYAD je zkratka pro fyzickou adresu zařízení o délce 5 bitů.
+Tím dokážeme naadresovat až 32 zařízení.
 První bit adresy je nejvíce významný.
-Další položkou je adresa registru (REGAD) číslovaná jako níže uvedene registry. Dalším blokem je TA.
-Při čteni hodnota vysoké impedance slouží k prohození odesilatele, kdy se aktivní odesilatel přehodí do stavu vysoké impedance a nechá vysílat PHY, tak jak můžeme vidět na obrázku \ref[mdioread].
-Pri zápisu zde není místo, na prohození odesílatelů a odesílá se logická 1.
-Data jsou 16 bitová hodnota, jako je velikost registrů.
+Další položkou je adresa registru (REGAD) číslovaná podle níže uvedených registrů.
+Dalším blokem je TA.
+Při operaci čtení hodnota TA obsahuje stav vysoké impedance (Z) sloužící k prohození příjemce za odesílatele, jak lze vidět na obrázku \ref[mdioread].
+Prohození  probíhá z důvodu požadavku odpovědi na operaci čtení tj. hodnoty z registru.
+Při operaci zápis tato změna není potřeba a stav vysoké impedance je nahrazen logickou jedničkou.
+Odesílaná data mají 16 bitová hodnotu, tedy stejnou jako je velikost registrů.
 
 \medskip
 \clabel[mdioread]{Čtení registru po STA.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_miimdio.pdf
-\caption/f Obrázek ukazuje čtení z registru po komunikaci po seriové lince STA \cite[IEEE8023].
+\caption/f Obrázek ukazuje čtení z registru při komunikaci po sériové lince STA \cite[IEEE8023].
 \medskip
 
-Za pomoci STA, MAC může vyčítat z registrového prostoru PHY. Část registrového prostoru je definována tež standardem 802.3.
-Registrový prostor obsahuje dva základní sety registrů kontrolní a stavový.
-Všechny PHY, které podporují MII by měli používat tuto sadu registrů \ref[miireg].
+Operacemi čtení a zápis může vrstva MAC přistupovat k registrovému prostrou na PHY, který tak může měnit.
+Část tohoto registrového prostoru je definována standardem 802.3.
+Registrový prostor obsahuje dva základní sety registrů -- kontrolní a stavový.
+Všechny PHY, které podporují MII, by měly používat právě tuto sadu registrů \ref[miireg].
 
 
 \medskip
 \clabel[miireg]{Registry STA rozhraní.}
 \picw=15cm \cinspic images/802_miireg.pdf
-\caption/f Obrázek popisující registry STA rozhraní.   Obrázek je převzat z~\cite[IEEE8023].
+\caption/f Obrázek popisující registry STA rozhraní. Obrázek je převzat z~\cite[IEEE8023].
 \medskip
 
 
-Stavový a kontrolní registrové prostory můžeme vidět v příloze \ref[MIIcntr] a \ref[MIIstat].
-Tyto registry specifikují základní vlastnosti pro 100Mb/s a 1Gb/s PHYs.
-Registry 2-14 jsou částí rozšířeného regisrového prostoru \cite[IEEE8023] (22.2.4).
+Tyto registry specifikují základní vlastnosti PHY pro MII rozhraní o rychlostech 100~Mb/s a 1~Gb/s.
+Registry 2 -- 14 jsou částí rozšířeného registrového prostoru \cite[IEEE8023] (22.2.4).
+Bližší popis stavového a kontrolního registru je uveden v příloze \ref[MIIcntr] a \ref[MIIstat].
 
 
 % Ne do DP
@@ -298,26 +313,24 @@ Registry 2-14 jsou částí rozšířeného regisrového prostoru \cite[IEEE8023
 
 \label[RMIIsub]
 
-\secc Reduce Media Independet Interface
+\secc Reduce Media Independent Interface
 
+Reduce Media Independent Interface (RMII) je obdoba rozhraní MII, která má ale snížený počet pinů z 16 na 8 \cite[RMII].
+RMII přidává pouze reconciliation layer (RS), a to buď jako novou, která je připojena za stávající RS, nebo jako náhradu aktualní RS v MII \cite[RMIIcon].
 
-Reduce Media Independet Interface (RMII) je obdoba MII, která má snížený počet pinů z 16 na 8 \cite[RMII].
-RMII je nízkonákladova obdoba MII, která přidává pouze reconciliation layer (RS) na oboch stranách MII či náhradu aktualního RS v MII \cite[RMIIcon].
-
-Rozšířenou RS můžeme vidět na obrázku \ref[RMIIRS]
-
+Rozšířenou RS lze vidět na obrázku \ref[RMIIRS].
 
 \medskip
 \clabel[RMIIRS]{Rozšíření MII o další RS.}
-%\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/rmiirs.pdf
-\caption/f Obrázek, který ukazuje jak rozšíření MII o další vrstvu RS vypadá.  Obrázek je převzat z~\cite[RMII].
+\caption/f Obrázek, který znázorňuje rozšíření MII o další vrstvu RS.  Obrázek je převzat z~\cite[RMII].
 \medskip
 
-RMII používá stejné menežovací rozhraní jako MII definované IEEE 802.3u \cite[IEEE8023] popsané \ref[MDIOs].
-Datové vodiče RMII jsou pouze 2 bity široké.
-Dále je jsou sjednoceny signály COL a CRS do jednoho signálu CRS\_DV.
-Detekce kolizí na MAC je logický součin signálů TX\_EN a CRS\_DV.
+RMII používá stejné menežovací rozhraní jako MII definované standardem IEEE 802.3u \cite[IEEE8023], který je popsán v sekci \ref[MDIOs].
+
+Hlavními rozdíly RMII oproti MII jsou datové piny TXD a RXD. které jsou v RMII pouze 2 bity široké.
+Dále signály z pinů COL a CRS jsou zde sjednoceny do jednoho signálu na pinu CRS\_DV.
+Dalším rozdílem je detekce kolizí, která je na vrstvě MAC provedena jako logický součin signálů TX\_EN a CRS\_DV.
 Zdrojem hodinového signálu je vrstva MAC nebo je generován externími hodinami.
 
 
