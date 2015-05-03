@@ -1,27 +1,33 @@
 \chap Úvod
 
-
 Přepínače založené na bázy ethernetu, které splňují industriální teplotní rozsahy se téměř v dnešní době nevyrábějí.
-A moduly splňující tyto rozsahy, které mají integrované MII rozhraní, pro připojení fyzické vrstvy, jsou jiných cenových kategoriích.
+A moduly splňující tyto rozsahy, které mají integrované MII rozhraní, pro připojení fyzické vrstvy, jsou v jiných cenových kategoriích.
 Proto tato práce přináší možnost připojení k ethernetového přepínače z pomocí USB sběrnice. A ovladače pro tento přepínač založené na operačím systému Linux.
 
-Tato práce se zabívá portací operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení.
-Dálé sezabívá implementací ovladače do operačního systému Linux pro zařízení na bázi přepínacího obvodu 88E6065 vyvíjené firmou Marvell, který je připojen USB kontrolérem AX88772b od firmy Asix, která splňují industriální rozsah teplot.
+Tato práce se zabívá portací operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a spňuje industriální teplotní rozsahy.
+Dálé se zabívá implementací ovladače do operačního systému Linux pro zařízení na bázy přepínacího obvodu s možností inicializace za běhu zařízení do současné verze Linuxového jádra s pokusem zařadit ovladač do hlavní větve Linuxového jádra.
+Přepínač je založen na přepínacím obvodu 88E6065 vyvíjený firmou Marvell, který je připojen USB kontrolérem AX88772b vyraběný firmou Asix.
+Obě tyto zařízení též splňují industriální rozsahy teplot.
 
+\medskip
 
-Práce v první kapitole \ref[pouztech] popisuje použitou technologii jako je sběrnice USB \ref[USB],  MII rozhraní \ref[MII] a, rozšířená verze MII rozhraní, RMII \ref[RMIIsub].
-Konkrétně popisuje k čemu se tyto technologie používají, jaké mají omezen a způsob komunikace.
-Tato kapitole též popisuje Linuxový subsystém \ref[LINUXsub]. Konkrétně část ethernetového, usb subsystému a subsystém přepínače.
+Tato práce v první kapitole \ref[pouztech] popisuje použitou technologii jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
+U nichž se dozvíme jak tyto technologie fungují a jak jsou definovány.
+Dále se dozvíme jaká mají omezení a jak vypadá jejich hgarwarová implemntace.
+Též se dozvíme o rozšíření rozhraní MII \ref[RMIIsub].
+Tato kapitole též věnuje popisu mechanismus ovladačů a příslušných Linuxový subsystém \ref[LINUXsub].
+Konkrétně část síťového subsystémui, usb subsystému a subsystému přepínače.
 
-V kapitole Použitý Hardware \ref[pouzhw] se můžeme dozvědět o použítém modulu a vyrobené desce ethernetového přepínače.
-A čipů použitých na této desce jako je USB kontrolér a přepínací obvod.
+V kapitole Použitý Hardware \ref[pouzhw] se dozvíme o zvoleném modulu Colibri T20 a vyrobené desce ethernetového přepínače.
+Konrétně čipů použitých na této desce, jako je USB kontrolér AX88772b a přepínací obvod 88E6065.
 
-Kapitola Implementace \ref[impl] popisuje nahraní nového Linuxového jádra a oživení desky.
-Dále pak obsahuje návrh ovladačů pro operační systém Linux a jeho následnou implementaci.
+V další kapitole zvaná Implementace \ref[impl] popisuje nahraní nového Linuxového jádra a postup při oživování desky.
+Dále pak popisuje architektonický návrh ovladače pro operační systém Linux.
+A následuje sekce o ipmlementaci tohoto návrhu ovladače pro přepínací obvod.
 
-V poslední kapitole Testování \ref[TEST] se popisují jednotlivé testy ovladače.
-A vyhodnocují se výsledky na těchto testů.
-
+V poslední kapitole, kterou je Testování \ref[TEST] je popisáno jak probíhá nastavení přepínacího obvodu.
+Dále se popisují spuštěné testy ovladače přepínacího obvodu.
+a nakonec se vyhodnocutí výsledky těchto testů.
 
 \label[pouztech]
 
@@ -387,7 +393,7 @@ Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobraz
 \medskip
 
 Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
-Nastavování přepínače, jako je stav portů a menežment MII rozhraní, je provedeno na základě rozhraní ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení.}.
+Nastavování přepínače, jako je stav portů a menežování MII rozhraní, je provedeno na základě rozhraní ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení.}.
 
 Subsystém DSA podporuje i propojení mezi přepínači tak, jak je možno vidět na obrázku \ref[DSAcon2].
 Takto propojené přepínače lze ovládat skrz MII rozhraní.
@@ -442,15 +448,14 @@ Síťová zařízení přijímají data asynchronně a ukládájí je do vyrovn�
 V linuxovém jádře je síťový subsystém naimplementován tak, že je na protokolu nezávislý.
 
 
-%TODO XXX knizka
-%Struktura {\em net\_device } může být klasifikována do několika kategorií:
-%\begitems
-%*Konfigurace -- něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
-%*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
-%*Stav zařízení
-%*Menežování přenosu -- Nastavení kvality služeb (QoS).
-%*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
-%\enditems
+JEdnotlivé složky struktury {\em net\_device } může být klasifikována do několika kategorií:
+\begitems
+*Konfigurace -- něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
+*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
+*Stav zařízení
+*Menežování přenosu -- Nastavení kvality služeb (QoS).
+*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
+\enditems
 
 
 \label[USBst]
@@ -569,15 +574,15 @@ Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em kobj}, která 
 
 \chap Použitý hardware
 
+
+%TODO neajky uvod
+
 \label[T20]
 
 \sec Colibri T20
 
-Colibri T20 je počítačový modul postaven na základě NVIDIA Tegra 2 embeded systému na čipu (SOC) \cite[SOC].
-SOC modul Tegra 2 je založen na dvoujádrovém procesoru Cortex A9 se symetrickým procesorovým jádrem od firmy ARM s rychlostí okolo 1 Ghz.
-Jelikož se jedná o SOC obsahuje tento čip také mnoho bluků jako je například Audio/Video rekordér.
-Grafický čip s podporou 2D rendrovaní a 3D pixel a vektor shadrem.
-
+Colibri T20, vyráběný firnou Toradex \ref[TODADEX], je počítačový modul postaven na základě NVIDIA Tegra 2 vestavěném systému na čipu \cite[SOC].
+%Popsat modul vice TODO 
 Čip obsahuje periferie popsané na blokovém diagramu na obrázku \ref[SOC].
 
 \medskip
@@ -586,24 +591,27 @@ Grafický čip s podporou 2D rendrovaní a 3D pixel a vektor shadrem.
 \caption/f Obrázek popisuje části integrované na modulu Colibri T20 \cite[SOC].
 \medskip
 
-Toradex dodává podporu BSP pro Linuxové jádro 3.1.
+Toradex dodává k tomuto modulu podporu BSP pro Linuxové jádro 3.1.
 
-%chtelo by to swap Colibri a ARM ci spojit...
 \sec NVIDIA Tegra 2
 
-Dvoujadrový procesor ARM Cortex A9 symmetric MPCore je jeden z aplikačních procesorů vyvíjený firmou ARM.
-Tento ARM je 32-bitová RISC architektura vyvíjená společností ARM Holding věnující se vývoji procesorových jader.
-Tento procesor porporuje out-of-order a spekulativní provádění instrukcí.
+Systém na čipu NVIDIA Tegra 2 je založen na dvoujádrovém procesoru Cortex A9 se symetrickým procesorovým jádrem od firmy ARM s frekvencí procesoru okolo 1~GHz \cite[TEGRA2].
+Jelikož se jedná o systém na čipu, obsahuje tento čip mnoho bloků, jako je například Audio/Video rekordér, grafický procesor s podporou 2D rendrovaní a 3D pixel a vektor shadrem.
+
+Procesor A9 má 32-bitovou RISC
+\fnote{Architektura RISC označuje procesory s redukovanou instrukční sadou \cite[RISC].}
+architekturu vyvíjenou společností ARM Holding věnující se vývoji procesorových jader.
+Tento procesor podporuje out--of--order a spekulativní provádění instrukcí.
 Má plnou podporu koherence pamětí pro symetrické procesory.
-Toto jádro dosahuje vysokého grafického výkonu, ale také výpočetního výkonu viz. \cite[BENCH].
+Procesor A9 dosahuje vysokého grafického i výpočetního výkonu, viz \cite[BENCH].
 Procesor též obsahuje jednotku pro výpočty s plovoucí řádovou čárkou.
 
-Popis jádra NVIDIA Tegra 2 můžeme vidět na obrázky níže \ref[TEGRA].
+Popis jádra NVIDIA Tegra 2 lze vidět na obrázku níže \ref[TEGRA].
 
 \medskip
 \clabel[TEGRA]{Popis jádra NVIDIA Tegra 2.}
 \picw=15cm \cinspic images/tegra2.pdf
-\caption/f Obrázek popisuje vnitřek proceosru NVIDIA Tegra 2 \cite[TEGRA].
+\caption/f Obrázek popisuje architekturu procesoru NVIDIA Tegra 2 \cite[TEGRA].
 \medskip
 
 \label[ASIX]
@@ -611,108 +619,110 @@ Popis jádra NVIDIA Tegra 2 můžeme vidět na obrázky níže \ref[TEGRA].
 \sec Asix AX88772b
 
 
-AX88772b je zákaznický integrovaný obvod, který umožňuje plug-and-play Fast Ethernet internetové připojení pro zařizení používající stantardizované USB verze 1.1 a verze 2.0 \ref[USB].
+AX88772b je zákaznický integrovaný obvod vyráběný firmou Asix, který umožňuje plug--and--play Fast Ethernet internetové připojení pro zařízení využívající stantardizované USB verze 1.1 a verze 2.0 \ref[USB].
 
-Jako jediný z výrobních řad dosahuje v revizi AX88772bli teplotních rozsahů od -40 stupňů Celsia až +85 stupňů Celsia.
 
-AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo jako Reverse-RMII pro MAC-to-MAC připojení k nějakému mikrokontroléru s ethernet MAC RMII rozhraním.
-
+Jako jediný z výraběných modelů dosahuje v revizi AX88772bli teplotních rozsahů od -40 stupňů Celsia až +85 stupňů Celsia.
+%x^{\circ}
+AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo Reverse-RMII způsobem MAC--to--MAC k mikrokontroléru s Ethernet MAC RMII rozhraním.
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
-
-Blokový
 
 %TODO ASIX
 \medskip
 \clabel[ASIXcip]{Blokový diagram AX88772b.}
 \picw=15cm \cinspic images/asix_conn.pdf
-\caption/f Obrázek popisuje blokový digram architektury čipu AX88772b od firmy Asix. Obrázek je převzat z \cite[ASIX].
+\caption/f Obrázek popisuje blokový diagram architektury čipu AX88772b od firmy Asix. Obrázek je převzat z \cite[ASIX].
 \medskip
 %jake umoznuje propojeni po rmii?
 
-Jak je vidět na obrázku \ref[ASIXcip] čip AX88772b obsahuje ethernetovou PHY, která nemůže být aktivní současně s RMII rozhraním.
+Jak je vidět na obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrstvu PHY, která nemůže být aktivní současně s RMII rozhraním.
+%TODO jeste neco k obrazku
 
 \label[MARVELL]
 
 \sec Marvell 88E6065
 
-Marvell 88E6065 je 5+1 portový ethernetový přepínač integrovaný na jednom čipu.
-Obsahuje  pět portů na fyzicke vrstvě 10~BASE-T/100~BASE-TX, znichž dva porty můžou být použity pro optickou linku 100~BASE-FX.
-Šestým portem je nezávyslí Fast ethernet MAC.
-Zařízení má high-speed, non-blocking čtyřúrovňový QoS.
-PHY podporuje plag-n-play s možností Auto-Crossoer, Auto-polarity a Auto-nogotiation.
-Zařízení dále odporuje 64 z 4096 802.1Q WLAN s 3 úrovňovou ochranou.
-Má dva RMII/MII/SNI rozhraní, která mohou být připojena k menežovacímu rozhraní nebo ke kontroleru s integrovanou MAC.
+Marvell 88E6065 je 5~+~1 portový ethernetový přepínač integrovaný na čipu.
+Obsahuje  pět portů na fyzické vrstvě 10~BASE-T/100~BASE-TX, z nichž dva porty mohou být využity pro optickou linku 100~BASE-FX,
+Navíc obsahuje port, který je nezávislý Fast ethernet MAC. %TODO divné
+Zařízení má vysokorychlostní neblokující čtyřúrovňový QoS
+\fnote{QoS je kontrolní mechanismus, který garantuje přenosovou kapacitu.}. %TODO 
+Vrstva PHY tohoto zařízení podporuje plug-and-play s možností automatického určení směru, automatického určení polarity a automatického určení rychlosti.
+Zařízení dále podporuje 64 z 4096 802.1Q WLAN s 3 úrovňovou ochranou.
+Obsahuje dvě RMII/MII/SNI rozhraní, která mohou být připojena k menežovacímu rozhraní nebo ke kontroleru s integrovanou MAC.
 
 MAC a PHY rozhraní jsou plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
-Zařízení může být konfigurováno přez STA nebo může nastavení načítat z EEPROM paměti.
+Zařízení může být konfigurováno přes menežovací rozhraní nebo může načítat nastavení z EEPROM paměti.
 
-Výjmečně se může Marvell 88E6065 využívat podpory pro směrovače a výchozí brány.
+Výjimečně se Marvell 88E6065 může využívat jako směrovač či výchozí brána.
 %jake umoznuje porjojeni RMII
 \medskip
 \clabel[MARVELL6060]{Blokový diagram 88E6060.}
 \picw=15cm \cinspic images/6060conn.pdf
-\caption/f Obrázek popisuje blokový zapojení čipu 88E6060 od firmy Marvell, která je velmi podobná 88E6065. Obrázek je převzat z \cite[MARVELL].
+\caption/f Obrázek popisuje blokové zapojení čipu 88E6060 od firmy Marvell, které je velmi podobné zapojení čipu 88E6065. Obrázek je převzat z \cite[MARVELL].
 \medskip
+
+%TODO jak lze videt na obrazku \ref[MARVELL6060] ...
 
 \label[SWITCH]
 
-\sec Deska menežovatelného přepínače
+\sec Deska konfigurovatelného přepínače
 
 
-Desku menežovatelného přepínače je vyrobena firmou Retia a.s. 
-\fnote{Firma zabívající se elektronickými vojeskými systémy, zaznomovými zařízeními a lokalizačních a bezpočnostních systémů. \url{www.retia.cz}}
-na základě jejich návrhu a zapojení popsaných v přílohách \ref[zapojeni] \ref[zapojeni2] \ref[zapojeni3].
-A zjednodušené schéma můžete vidět na obrázky \ref[deska].
+Deska konfigurovatelného přepínače byla vyrobena firmou Retia a.s.
+\fnote{Firma zabývající se elektronickými vojenskými systémy, záznamovými zařízeními a lokalizačními a bezpečnostními systémy. \url{www.retia.cz}}
+na základě jejich návrhu a zapojení, ktará jsou popsaná v přílohách \ref[zapojeni], \ref[zapojeni2], \ref[zapojeni3].
+
+Tato deska byla vyrobena za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
+
+Zjednodušené schéma této desky je znázorněno na obrázku \ref[deska].
 
 \medskip
-\clabel[deska]{Blokové schéma desky menežovatelného přepínače.}
+\clabel[deska]{Blokové schéma desky konfigurovatelného přepínače.}
 \picw=15cm \cinspic images/diagdeska.pdf
-\caption/f Obrázek popisuje blokový zapojení desky menežovatelného přepínače.
+\caption/f Obrázek popisuje blokové zapojení desky konfigurovatelného přepínače.
 \medskip
 
-Menežovatelný přepínače umožňuje konfiguraci ethernetoveho přepínače za pomoci USB ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět eeprom M93-C66.
-Tento kontrolér je připojen RMII rozhraním k čipu Marvell 88E6065 \ref[MARVELL], tak jak můžete vidět na obrázku níže \ref[MARVELL6065rmii].
-
+Konfigurovatelný přepínač umožňuje nastavení ethernetoveho přepínače za pomoci USB Ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět EEPROM M93-C66 \fnote{ Odkaz na pamet TODO}.
+Tento kontrolér je připojen přes RMII rozhraní k čipu Marvell 88E6065 \ref[MARVELL] tak, jak lze vidět na obrázku níže \ref[MARVELL6065rmii].
 
 \medskip
-\clabel[MARVELL6065rmii]{Zapojení RMII.}
+\clabel[MARVELL6065rmii]{Zapojení RMII k čipu Marvell 88E6065.}
 \picw=10cm \cinspic images/rmii.pdf
-\caption/f Obrázek popisuje připojení RMII rozhraní zařízení 88E6065. Obrázek je převzat z \cite[MARVELL].
+\caption/f Obrázek popisuje připojení RMII rozhraní k zařízení Marvell 88E6065. Obrázek je převzat z \cite[MARVELL].
 \medskip
 
-Marvell 88E6065 je ethernetový přepínač, který má k sobě kromě zmíněného RMII portu připojeno pět ethernetových portů a taktéž je kněmu připojena externí pamět eeprom.
-Oba tyto čipy mají též vlastní krystal na frekvenci 25~Mhz.
-Deska je taktéž osazena regulátorem napětí a přepínači pro různá nastavení MII rozhraní(K3 a K2), resetování(K5) a externího vzbuzení(K4) jak můžete vidět na v příloze \ref[zapojeniXXX].
+K tomuto čipu je také připojena externí pamět eeprom.
+
+Oba čipy Asix AX88772b a Marvell 88E6065 mají vlastní krystal s frekvencí 25~MHz.
+Deska je navíc osazena regulátorem napětí a přepínači pro různá nastavení MII rozhraní(K3 a K2), resetování(K5) a externí vzbuzení(K4), jak je možno vidět v příloze \ref[zapojeniXXX].
 
 \label[impl]
 
 \chap Implementace
 
-Tato kapitola rozebírá update systému pro modul Colibri T20 \ref[T20], který byl zapotřebí pro další implementaci ovladačů pro aktuální Linuxové jádro.
-Dále se zabívá způsobem oživení desky \ref[SWITCH] a následným popisem tvorby ovladače pro menežovatelný přepínač.
+Tato kapitola rozebírá portaci aktuálního Linuxového jádra pro modul Colibri T20 \ref[T20], která byla zapotřebí pro další implementaci ovladačů.
+Dále se zabývá způsobem oživení desky konfigurovatelného přepínače \ref[SWITCH] a následným popisem tvorby ovladače pro tento přepínač \ref[ARCH] a jeho implementace \ref[ZPRAC].
 
-Vývoj probíhal na vývojovém kitu s modulem Colibri T20.
-Pro vývoj ovladače bylo zvoleno jádro z upstreamové větve kernelu
-\fnote{Linuxové jádro je možná stáhnout na \url{http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git}}
-konkrétně se začlo s verzí 3.17 a následně došlo až k přeportování ovladače na verzi 3.19.
+Vývoj byl prováděn na vývojovém kitu s modulem Colibri T20.
+Pro vývoj ovladače bylo zvoleno jádro z upstreamové větve Linuxového jádra
+\fnote{Linuxové jádro je možné stáhnout na \url{http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git}}.
+Práce byla započata s verzí Linuxového jádra 3.17, a vzhledem k aktualizacím jádra byla přeportována na verzi 3.19.
 
 \label[UPSTREAM]
 
-\sec Portace upstreamové linuxové jádro a zavaděče
+\sec Portace upstreamového Linuxového jádra a zavaděče
 
-Portace upstramového jádra vyžaduje několik nástrojů a programů pro překlad kódu, linkování a přehrátí paměti.
+Pro portaci upstreamového Linuxového jádra bylo vyžadováno několik nástrojů a programů pro překlad kódu, linkování a nahrání do paměti.
 
 \secc U-Boot
 
-V první řadě je potřeba naistalovat zavaděč, který se postará o zavedení Linuxové jádra.
-Pro tento úkol byl zvolen U-Boot, který používá již výrobce desky Colibri T20.
-Jen byla zvolena jeho novejší verze
+Jako první krok bylo potřeba nainstalovat zavaděč, který by se postaral o zavedení Linuxového jádra na modul Colibri T20.
+Pro tento úkol byl zvolen zavaděč U-Boot, který je využíván i výrobcem modulu Colibri T20, avšak byla zvolena jeho novejší verze
 \fnote{U-Boot je možný stáhnout z repozitáře \url{git://git.denx.de/u-boot.git}}.
 
-%TODO XXX odkaz 
-
-V první řadě je potřeba stáhnout a zkompilovat nejnovější zavaděč \cite[UPLINUXT20].
-Konfigurační soubor byl zvolen {\em colibri\_t20\_iris\_config}, který odpovídá modulu Colibri T20 s vývojovou deskou iris.
+V následujícím kroku bylo nutné stáhnout a zkompilovat tento nejnovější zavaděč \cite[UPLINUXT20].
+Jako konfigurační soubor byl zvolen {\em colibri\_t20\_iris\_config}, který popisuje modul Colibri T20 s vývojovou deskou Iris.
 
 \begtt
 $ git clone git://git.denx.de/u-boot.git
@@ -722,7 +732,7 @@ $ make colibri_t20_iris_config
 $ make -j8
 \endtt
 
-Dalším krokem je stáhnout nástroje, které slouží k vytvoření cílového binarního souboru.
+Dále bylo potřeba stáhnout nástroje, které by sloužily k vytvoření cílového binarního souboru zavaděče U-Boot.
 
 \begtt
 $ git clone https://github.com/NVIDIA/cbootimage-configs.git
@@ -735,15 +745,15 @@ $ cbootimage -t20
  		colibri-t20_512_v12_nand.img
 \endtt
 
-Poté nabootujeme z diskového souboru příkazem:
+Poté byl zaveden zavaděč z diskového souboru  následujícím příkazem:
 
 \begtt
 $ tegrarcm --bct colibri-t20_512_v12_nand.bct --loadaddr=0x00108000
  		--bootloader=../u-boot/u-boot-dtb-tegra.bin
 \endtt
 
-Poté co nabootujem naš obraz. Můžeme vidět jak na konzoly se objeví náš zavaděč.
-A pomocí USB-ethernetového kontroléru nahrajem obraz bootloaderu do paměti modulu.
+Po zavedení tohoto zavaděče bylo možné sledovat, jak se na konzoli modulu Colibri T20 zobrazil výpis tohoto zavaděče.
+A za pomoci USB-ethernetového kontroléru, který je integrovaný na modulu, byl nahrán obraz zavaděče do paměti modulu.
 
 \begtt
 Tegra20 (Colibri) # usb start
@@ -767,9 +777,9 @@ done
 Bytes transferred = 729088 (b2000 hex)
 \endtt
 
-Po nahrátí obrazu do paměti přepíšem minulý zavaděč současným.
-Délka přeneseného obrazu je 0xb2000 viz. výše.
-Tato hodnota je potřeba k přepsaní NAND paměti.
+Bylo nutné nahrát obraz zavaděče do paměti a přepsat původní zavaděč současným.
+Délka přeneseného obrazu byla 0xb2000, viz výše.
+Tato hodnota byla potřeba k určení délky přepisovaného úseku NAND paměti.
 
 \begtt
 Tegra20 (Colibri) # nand erase.chip
@@ -783,18 +793,18 @@ NAND write: device 0 offset 0x0, size 0x95000
  577536 bytes written: OK
 \endtt
 
-Nyní nám při resetu zařízení naběhne upstramový U-Boot, který nemůže nalézt žádné jádro.
-To přidáme v další sekce \ref[LINUXkernel].
+Při resetu zařízení bylo možno vyčíst z konzole náběh nového upstramového zavaděče U-Boot, který ale v tento moment nebyl schopen nalézt žádné jádro operačního systému.
+Jádro bylo přidáno v dalším kroku popsaného v sekci \ref[LINUXkernel].
 
 \label[LINUXkernel]
 
 \secc Linuxové jádro
 
-V dalším krokem byla instalace současné verze jádra, která byla nutná k vývoji ovladačů a komunikací s linuxovou komunitou.
-Jelokož upstreamové jádro nepodporuje NAND paměť načítání nového jádro probýhalo přez síť \cite[UPLINUXT20].
+Následujícím krokem  byla instalace aktuální verze jádra, která byla nutná k vývoji ovladačů a komunikaci s linuxovou komunitou.
+Jelikož upstreamové jádro nepodporuje NAND paměť, načítání tohoto jádra bylo realizováno přes ethernetovou síť \cite[UPLINUXT20].
 
-V první řadě je potřeba stáhnout a zkompilovat nejnovější verzi Linuxového jádra \cite[UPLINUXT20].
-Použije se konfigurace, {\em tegra\_defconfig}, která v jádře vybere moduly a ovladače pro běh jádra.
+Pro instalace linuxového jádra bylo potřeba stáhnout a přeložit nejnovější verzi \cite[UPLINUXT20].
+Pro nastavení jádra byla zvolena konfigurace {\em tegra\_defconfig}, která v jádře vybere moduly a ovladače pro jeho běh.
 
 \begtt
 $ git clone git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
@@ -805,9 +815,9 @@ $ make tegra_defconfig
 $ make -j8 uImage
 \endtt
 
-Po přeložení jádra můžeme nahrat obraz jádra a přeloženého DT
+Po přeložení nejnovější verze bylo možno nahrát obraz jádra a přeloženého device tree
 \fnote{Device Tree popisuje hardwarového zapojení modulu.}
-do RAM paměti modulu za pomoci USB-ethernetového kontroléru v kozoly zavaděče U-Boot následujícími přikazy:
+do RAM paměti modulu za pomoci USB-ethernetového kontroléru v konzoli zavaděče U-Boot následujícími příkazy:
 
 \begtt
 Tegra20 (Colibri) # usb start
@@ -818,10 +828,12 @@ Tegra20 (Colibri) # tftpboot ${fdt_addr_r} tegra20-iris-512.dtb
 \endtt
 %Load address: 0x1000000 kernel
 %Load address: 0x2000000 dbt
-Po nahrátí obrazů nastavíme parametry pro Linuxové jádro
-\fnote{\url{https://www.kernel.org/doc/Documentation/kernel-parameters.txt}}.
-V našem případě nastavení konzole, port a rychlost. Nastvaní oddílů s distribucí, jeho filesystémem a typem.
-Poté můžeme náš kernel spustit.
+
+Po nahrátí obrazů  byly nastaveny parametry pro Linuxové jádro
+\fnote{\url{https://www.kernel.org/doc/Documentation/kernel-parameters.txt}},
+tedy nastavení konzole, jejího portu a rychlosti, dále pak nastavení oddílu s distribucí a jejího typu filesystému.
+Pokud v nastaveném oddílu bude nahrána distribuce se správným formátem, jádro tuto distribuci zavede.
+Poté je možno spustit přeložené Linuxové jádro.
 
 \begtt
 Tegra20 (Colibri) # set bootargs console=ttyS0,115200n8 earlyprintk
@@ -829,58 +841,63 @@ Tegra20 (Colibri) # set bootargs console=ttyS0,115200n8 earlyprintk
 Tegra20 (Colibri) # bootm ${kernel_addr_r} - ${fdt_addr_r}
 \endtt
 
-Pokud máme na SD kartě distibuci tak nám ji naše jádro zavede.
 
 
 \sec Oživení desky
 
-Oživení desky začalo s testovaním USB kontroleru Asix AX88772b \ref[oAX].
-Po oživení komunikačního rozhraní se pokračovalo s laděním ethernetového přepínače 88E6065 \ref[oMV].
-Posledni casti bylo testovani ethernetovych portu systému celého.
-Přičemž bylo objeveno několik chyb v návrhu desky. Která byla na základě mojich připomínek opravena(XXX to zaveru).
+Pro oživení desky byl nejprve testován USB kontrolér Asix AX88772b \ref[oAX].
+Po oživení komunikačního rozhraní tohoto kontroléru bylo dalším krokem ladění ethernetového přepínače Marvell 88E6065 \ref[oMV].
+Nakonec bylo provedeno testování ethernetových portů celého systému.
+V průběhu tohoto testování bylo objeveno několik chyb v návrhu desky. která byla na základě mých připomínek opravena(XXX to zaveru).
 
 \label[oAX]
 
 \secc Oživení Asix AX88772b
 
-Při oživování USB kontroléru byla objevena zavada na jeho připojení na desce.
+%jak jsi oživoval Asix?
+V průběhu oživování USB kontroléru byla objevena závada v jeho připojení na desce konfigurovatelného přepínače.
 Tato závada se projevovala chybnou komunikací na USB sběrnici, která byla objevena při použití modulu Colibri T20.
-Tu to chybnou komunikaci můžete vidět na obrázku \ref[usbbuserr].
-Kde je znatelně vidět, že pakety, které dochazili hostovskému zařízení příjímal poškozené.
+Tato chybná komunikace je znázorněna na obrázku \ref[usbbuserr].
+Je zde znatelné, že pakety, které dorazily k hostovskému zařízení, modul příjímal poškozené.
 
 \medskip
 \clabel[usbbuserr]{Chybná komunikace na USB sběrnici.}
 \picw=15cm \cinspic images/wrong_com_wire.pdf
-\caption/f Na obrázku můžeme vidět chybnou komunikaci na usb sběrnici mezi PC a USB kontrolerem Asix AX88772b zaviněnou nepřipojením blokovacího kondenzatoru.
+\caption/f Na obrázku je znázorněna chybná komunikace na USB sběrnici mezi PC a USB kontrolérem Asix AX88772b, která byla zaviněna nepřipojením blokovacího kondenzátoru.
 \medskip
 
-Po úpravě zapojení kontroléru. Začal USB kontroler odpovídat na dotazy současného ovladače v operačním systému Linux.
+Po úpravě zapojení kontroléru začal USB kontrolér odpovídat na dotazy aktuálního ovladače v operačním systému Linux.
 
 
 \medskip
-\clabel[ASIXRMII]{Chybna komunikace na usb sbernici.}
+\clabel[ASIXRMII]{Připojení RMII k USB kontroléru Asix AX88772b.}
 \picw=15cm \cinspic images/asix_rmii.pdf
-\caption/f Na obrázku .
+\caption/f Obrázek zobrazuje připojení vrstvy PHY nebo rozhraní RMII.
 \medskip
 
-Na obrázku \ref[ASIXRMII] je možné vidět, že AX88772b nemůže komunikovat po rozhraních PHY a RMII zároveň.
-Zápisem do registru XXX se aktivuje jeden z těchto dvou rozhraní a spojkou K2 \ref[zapojeni3] se nastavil AX88772b do režimu MAC.
+Na obrázku \ref[ASIXRMII] lze vidět, že kontrolér AX88772b není schopen komunikovat po rozhraní PHY a RMII současně.
+Zápisem do registru číslo 0 \cite[ASIXman] je aktivován právě jeden z daných dvou rozhraní a následně pomocí spojky K2 \ref[zapojeni3] je kontrolér nastaven do režimu MAC.
 
-Dále bylo potřeba nastavit vhodne chovani čipu Asix, aby začal fungovat rozhraní RMII, které je blíže popsané v \ref[ZPRAC].
+Posledním krokem k oživení USB kontroléru Asix AX88772b bylo nastavení vhodného chování tak, aby bylo zprovozněno rozhraní RMII, které je blíže popsané v \ref[ZPRAC].
+%TODO popsat vhodné chování
 
 \label[oMV]
 
 \secc Oživení ethernetového přepínače Marvell 88E6065
 
 K oživení a stabilnímu chování ethernetového přepínače Marvell 88E6065 bylo zapotřebí aktivovat RMII rozhraní a provést několik zásahů do zapojení čipu na desce.
-Taktéž bylo zapotřebí funkční komunikaci přez Asix AX88772b \ref[oAX], terý na základě USB příkazů posílá zprávy na RMII rozhraní.
-Též bylo potřeba vyřešit, kdo bude v jakém módu, nakonec se zvolilo připojení MAC-MAC. Ve kterém hodiny pro MDIO vysílá zařízení AX88772b a hodiny o frekvenci 50 Mhz pro RMII zařízení Marvell. Zapojení vypadá tak jak můžete vidět na obrázku \ref[MARVELL6065rmii].
+Taktéž bylo zapotřebí aktivovat funkční komunikaci přes Asix AX88772b \ref[oAX], který na základě USB příkazů je schopen posílat menežovací zprávy přes RMII rozhraní.
+Navíc bylo potřeba vyřešit, v jakém módu bude tento ethernetový přepináč, na kterém bylo zvoleno připojení MAC--to--MAC, ve kterém hodiny pro MDIO vysílá zařízení AX88772b a hodiny o frekvenci 50~MHz pro RMII rozhraní ethernetový přepínač Marvell 88E6065. Zapojení je znázorněno na obrázku \ref[MARVELL6065rmii].
 
-Byli doplněny chybějící blokovací kondenzátory.
-A z důvodu nestabilních vstupních hodnot na čipu byl doplněn kondenzátor, který zařízení vyresotovával čip po dobu časové konstanty RC po připojení přepínače k napájení.
-A na základě mojich požadavků byli přidány pull-up a pull-down rezistory pro správné a deterministické chováni přepínače.
+Protože i na tomto čipu byla nalezena chyba v komunikaci, byly doplněny chybějící blokovací kondenzátory.
+Navíc byl objeven problém, že  tento čip se po každém zapnutí nastavil do odlišných nastavení.
+Pro vyřešení tohoto problému byl k čipu doplněn kondenzátor, který zařízení opakovaně resetoval po dobu časové konstanty RC. 
+Deska tak měla během této doby možnost, aby vstupní hodnoty na všech pinech se ustálily ve správném stavu.
+Pro zajištění správného a deterministického chováni přepínače byly přidány pull-up a pull-down rezistory.
 \begitems
 \enditems
+
+\label[ARCH]
 
 \sec Návrh ovladače
 
