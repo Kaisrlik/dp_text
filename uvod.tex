@@ -1,42 +1,46 @@
 \chap Úvod
 
-Přepínače založené na bázy ethernetu, které splňují industriální teplotní rozsahy se téměř v dnešní době nevyrábějí.
-A moduly splňující tyto rozsahy, které mají integrované MII rozhraní, pro připojení fyzické vrstvy, jsou v jiných cenových kategoriích.
-Proto tato práce přináší možnost připojení k ethernetového přepínače z pomocí USB sběrnice. A ovladače pro tento přepínač založené na operačím systému Linux.
+Cílem mé diplomové práce je vytvoření ovladače do operačního systému Linux pro přepínač založený na bázi Ethernetu, který by splňoval industriální teplotní rozsahy.
+Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní pro připojení fyzické vrstvy, jsou finančně velmi nákladné. 
+Proto se tato práce zabývá možností připojení ethernetového přepínače pomocí USB sběrnice.
+Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích. 
+Tato firma se zabývá tvorbou elektronických vojenských systémů, záznamových zařízení a lokalizačních a bezpečnostních systémů.
+Zadání bylo za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
+Firma poskytla pro tuto práci modul Colibri T20 a konfigurovatelný přepínač i s návrhem.
+Přepínač je založen na přepínacím obvodu 88E6065 a je vyvinut firmou Marvell.
+Deska konfigurovatelného přepínače je připojena USB-ethernetovým kontrolérem AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
 
-Tato práce se zabívá portací operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a spňuje industriální teplotní rozsahy.
-Dálé se zabívá implementací ovladače do operačního systému Linux pro zařízení na bázy přepínacího obvodu s možností inicializace za běhu zařízení do současné verze Linuxového jádra s pokusem zařadit ovladač do hlavní větve Linuxového jádra.
-Přepínač je založen na přepínacím obvodu 88E6065 vyvíjený firmou Marvell, který je připojen USB kontrolérem AX88772b vyraběný firmou Asix.
-Obě tyto zařízení též splňují industriální rozsahy teplot.
+Pro vytvoření ovladače bylo potřeba provést portaci operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a splňuje industriální teplotní rozsahy.
+Dálé bylo nutné implementovat ovladače do operačního systému Linux pro zařízení na bázi přepínacího obvodu s možností inicializace za běhu zařízení.
+Implementace byla provedena na současné verzi Linuxového jádra se snahou zařadit ovladač do hlavní větve Linuxového jádra.
 
 \medskip
 
-Tato práce v první kapitole \ref[pouztech] popisuje použitou technologii jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
-U nichž se dozvíme jak tyto technologie fungují a jak jsou definovány.
-Dále se dozvíme jaká mají omezení a jak vypadá jejich hgarwarová implemntace.
-Též se dozvíme o rozšíření rozhraní MII \ref[RMIIsub].
-Tato kapitole též věnuje popisu mechanismus ovladačů a příslušných Linuxový subsystém \ref[LINUXsub].
-Konkrétně část síťového subsystémui, usb subsystému a subsystému přepínače.
+Ve druhé kapitole této práce \ref[pouztech] je popsána použitá technologie, jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
+Technologie jsou definovány, je vysvětleno, jak fungují, jaká mají omezení a jak vypadá jejich hardwarová implemementace.
+Tyto informace se dozvíme i o rozšířeném rozhraní RMII \ref[RMIIsub].
+Tato kapitole se také věnuje popisu mechanismu ovladačů a příslušných Linuxových subsystémů \ref[LINUXsub].
+Konkrétně se jedná o části síťového subsystému, USB subsystému a subsystému přepínače.
 
-V kapitole Použitý Hardware \ref[pouzhw] se dozvíme o zvoleném modulu Colibri T20 a vyrobené desce ethernetového přepínače.
-Konrétně čipů použitých na této desce, jako je USB kontrolér AX88772b a přepínací obvod 88E6065.
+V kapitole Použitý Hardware \ref[pouzhw] je popsán zvolený modul Colibri T20 a vyrobená deska konfigurovatelného ethernetového přepínače.
+Zvláštní důraz je kladen na popis čipů použitých na této desce -- USB kontrolér Asix AX88772b a přepínací obvod Marvell 88E6065.
 
-V další kapitole zvaná Implementace \ref[impl] popisuje nahraní nového Linuxového jádra a postup při oživování desky.
+V následující kapitole s názvem Implementace \ref[impl] je popsán postup nahrátí nového Linuxového jádra a navazující postup při oživování desky.
 Dále pak popisuje architektonický návrh ovladače pro operační systém Linux.
-A následuje sekce o ipmlementaci tohoto návrhu ovladače pro přepínací obvod.
+Následující část kapitoly rozebírá implementaci tohoto návrhu.
 
-V poslední kapitole, kterou je Testování \ref[TEST] je popisáno jak probíhá nastavení přepínacího obvodu.
-Dále se popisují spuštěné testy ovladače přepínacího obvodu.
-a nakonec se vyhodnocutí výsledky těchto testů.
+V kapitole s názvem Testování \ref[TEST] je popsáno, jak probíhá nastavení přepínacího obvodu.
+Dále se zde popisují proběhlé testy ovladače přepínacího obvodu.
+Na závěr kapitoly jsou výsledky těchto testů vyhodnoceny.
 
 \label[pouztech]
 
 \chap Použité technologie
 
-Tato kapitola je rozebírána použitá technologie.
-V první části je rozebrána sběrnice USB \ref[USB].
-Další významnou sekcí je rozhraní Media Independent Interface, který předpokládá znalost modelu OSI, který je tu též uveden.
-Ke konci této kapitoly bylo rozepsáno jak vypadájí ovladače v linuxu a tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
+V této kapitole je rozebírána použitá technologie.
+V první části je popsána sběrnice USB \ref[USB].
+V další významné části je popsáno rozhraní Media Independent Interface, které předpokládá znalost modelu ISO/OSI.
+Ke konci této kapitoly je pojednáváno o tom, jak vypadají ovladače v operačním systému Linux a jak vypadá tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
 %MAC podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
