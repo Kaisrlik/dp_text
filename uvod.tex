@@ -445,20 +445,21 @@ Navíc obsahuje informace o device tree \fnote{Device tree je popis hardwarovéh
 
 \secc net device
 
-Struktura {\em net\_device } popisuje síťové rozhraní \cite[ULNI].
+Struktura {\em net\_device } popisuje síťové rozhraní jak fyzické tak virtuální (jako jsou VLAN)\cite[ULNI].
 Síťové rozhraní může přijímat a vysílat velké množství dat, a proto je implementace podobná diskovým zařízením \cite[LDD3].
 Síťová zařízení přijímají data asynchronně a ukládájí je do vyrovnávací paměti.
 
 V linuxovém jádře je síťový subsystém naimplementován tak, že je na protokolu nezávislý.
 
 
-JEdnotlivé složky struktury {\em net\_device } může být klasifikována do několika kategorií:
+Jednotlivé složky struktury {\em net\_device } může být klasifikována do několika kategorií:
+%TODO divne nejsou v DSA implementovany jako vitualni porty???
 \begitems
 *Konfigurace -- něterá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programamy z uživatelského rozhraní jako je ifconfig a ip.
-*Statistiky -- Statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
+*Statistiky -- statistyky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
 *Stav zařízení
-*Menežování přenosu -- Nastavení kvality služeb (QoS).
-*Odkazy na funkce -- Tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
+*Menežování přenosu -- nastavení kvality služeb (QoS).
+*Tabulka virtuálních funkcí -- tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je nahození portů, shození portů, nastavení adres a mnohé další popsané v dokumentaci Linuxového jádra nebo \cite[ULNI].
 \enditems
 
 
