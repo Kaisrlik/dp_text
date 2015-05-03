@@ -3,6 +3,7 @@
 Cílem mé diplomové práce je vytvoření ovladače do operačního systému Linux pro přepínač založený na bázi Ethernetu, který by splňoval industriální teplotní rozsahy.
 Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní pro připojení fyzické vrstvy, jsou finančně velmi nákladné. 
 Proto se tato práce zabývá možností připojení ethernetového přepínače pomocí USB sběrnice.
+
 Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích. 
 Tato firma se zabývá tvorbou elektronických vojenských systémů, záznamových zařízení a lokalizačních a bezpečnostních systémů.
 Zadání bylo za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
@@ -16,7 +17,7 @@ Implementace byla provedena na současné verzi Linuxového jádra se snahou za�
 
 \medskip
 
-Ve druhé kapitole této práce \ref[pouztech] je popsána použitá technologie, jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
+Po úvodu následuje druhá kapitola \ref[pouztech], kde je popsána použitá technologie, jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
 Technologie jsou definovány, je vysvětleno, jak fungují, jaká mají omezení a jak vypadá jejich hardwarová implemementace.
 Tyto informace se dozvíme i o rozšířeném rozhraní RMII \ref[RMIIsub].
 Tato kapitole se také věnuje popisu mechanismu ovladačů a příslušných Linuxových subsystémů \ref[LINUXsub].
@@ -51,88 +52,84 @@ Ke konci této kapitoly je pojednáváno o tom, jak vypadají ovladače v opera�
 
 \label[USB]
 
-\sec Univerzální Sériová Sběrnice
+\sec Univerzální sériová sběrnice
 
-Univerzální Sériová Sběrnice je technický standard vyvíjený od roku 1994 pro připojení periferií k počítači.
-Tato sběrnice měla nahradit pomalé sběrnice (jako jsou seriová linka, paralelní port, PS2 a mnohé další) jednou sběrnicí \cite[LDD3].
+Univerzální sériová sběrnice (USB) je technický standard vyvíjený od roku 1994 pro připojení periferií k počítači.
+Tato sběrnice měla nahradit pomalé sběrnice (jako jsou sériová linka, paralelní port, PS2 a mnohé další) jednou sběrnicí \cite[LDD3].
 V dnešní době USB umožňuje přenášet velké množství dat s rychlostí až 640 MB/s u USB zařízení verze 3.0.
-Díky tomu se použití USB rozšířilo a nyní podporuje skoro každý druh zařízení, která umožňují přenašet video, audio a dokonce i ethernetové rámce a pakety.
-Podporovaná zařízení jsou rozdělena do tříd z důvodu sjednocení funkcionality a chovaní zařízení.
+Díky tomu se použití USB rozšířilo a nyní podporuje skoro každý druh zařízení, které umožňuje přenašet video, audio a dokonce i ethernetové rámce a pakety.
+Podporovaná zařízení jsou rozdělena do tříd z důvodu sjednocení funkcionality a chování zařízení.
 Nejznámějšími třídami jsou HID, Printer a Mass Storage, které jsou více popsány ve vývojářské dokumentaci \ref[USB].
-Toto sjednocené chování má za důsledek společných ovladačů, která tato zařízení mohou využívat.
+Toto sjednocené chování má za důsledek využívání společných ovladačů, které tato zařízení mohou využívat.
 Problém s některými druhy zařízení je takový, že je nejde do daných tříd zařadit, popřípadě mají rozšířené chování a potřebují speciální přístup.
 
 \secc Rysy USB zařízení
 
-USB je deterministická sběrnice (Master/Slave), která podporuje detekci připojeného zařízení za běhu (plug\&play) a následnou automatickou konfiguraci (hotswap).
-USB síť se zkládá ze třech druhů zařízení \cite[USB]:
+USB je deterministická sběrnice (Master/Slave), která podporuje detekci připojeného zařízení za běhu (plug--and--play) a následnou automatickou konfiguraci (hotswap).
+USB síť se skládá ze tří druhů zařízení \cite[USB]:
 \begitems
 *Hostitel -- je zařízení typu Master a je jako jediný v systému, řídí komunikaci a obvykle integruje rozbočovač označen jako kořenový.
 Přiděluje zařízením unikátní adresu v síti.
 *Rozbočovač -- distribuuje datové toky a identifikuje připojení a odpojení dalších zařízení.
-*Zařízení -- Pojmem zařízení je míňeno koncové zařízení s požadovanou funkcionalitou, které odpovídá na kontrolní zprávy.
+*Zařízení -- pojmem zařízení je míňeno koncové zařízení s požadovanou funkcionalitou, které odpovídá na kontrolní zprávy.
 \enditems
 
-USB je asymetrická sběrnice s jedním zařízením typu Master, která spíše vypadá jako strom složený z linek bod-bod.
-Přičemž USB huby vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
-Linky USB sběrnice jsou 4 vodičové obsahující diferenciální pár datových linek, napěťový a zemnící vodič, které připojují zařízení a USB huby.
-USB umožňuje připojit až 127 zařízení v rámci jedné USB sítě o hloubce maximálně pěti rozbočovaču.
-
-
-USB je asymetrická sběrnice, kterou lze popsat jako strom složený z linek bod-bod.
-USB huby vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
-USB umožňuje připojit až 127 zařízení v rámci jedné USB sítě o hloubce maximálně pěti rozbočovačů, tak jak můžeme vidět na obrázku \ref[USBhub].
+USB je asymetrická sběrnice s jedním zařízením typu Master, která spíše vypadá jako strom složený z linek bod-bod, přičemž USB huby vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
+Linky USB sběrnice jsou 4--vodičové skládající se z diferenciálního páru datových linek, napěťového a zemnícího vodiče, které jsou připojeny k zařízení a USB rozbočovačům.
+USB umožňuje připojit až 127 zařízení v rámci jedné USB sítě o hloubce maximálně pěti rozbočovačů tak, jak můžeme vidět na obrázku \ref[USBhub].
 
 \medskip
 \clabel[USBhub]{USB tier.}
 \picw=13cm \cinspic images/technet.microsoft.com.jpg
-\caption/f Obrázek popisuje jak lze USB zapojit \cite[MSTECH].
+\caption/f Obrázek popisuje, jak lze USB zapojit \cite[MSTECH].
 \medskip
 
-Linky USB sběrnice jsou 4 vodičové vedení obsahující diferenciální pár datových linek, napěťový a zemnící vodič, která připojují zařízení a USB huby.
 
-Díky tomu USB umožňuje jednoduchý mechanismus detekce a enumerace, neboli průběhu konfigurace (více informací níže \ref[USBkom]), za běhu systému, který je řízen a konfigurován automaticky hostitelem.
+Díky tomu, že sběrnice USB je typu Master/Slave, umožňuje jednoduchý mechanismus detekce a enumerace, nebo-li průběhu konfigurace (více informací níže \ref[USBkom]), za běhu systému.
+Průběh enumerace je řízen a konfigurován automaticky hostitelem.
 
 
 \label[USBkom]
 
 \secc Komunikace
 
-USB komunikace je založena na logických kanálech tzv. rourách. Každému výstupnímu kanálu by měl odpovídat právě jeden vstupní.
+USB komunikace je založena na logických kanálech, tzv. rourách.
+Každému výstupnímu kanálu by měl odpovídat právě jeden vstupní.
 Koncový bod obsahuje rouru s definovaným směrem.
 
-USB muže mít maximalně 30 koncových bodů. Koncový bod je roura s definovaným směrem.
+USB může mít maximalně 30 koncových bodů. Koncový bod je roura s definovaným směrem.
 Tyto koncové body jsou inicializovány v průběhu enumarace USB zařízení, které probíhá po kontrolní rouře označené číslem 0, kterou mají všechna zařízení společnou.
 Každý koncový bod obsahuje rouru s předem definovaným typem přenosu:
 
 \begitems
-*Řídící -- Obousměrná roura sloužící ke konfiguraci zařízení. Každé zařízení disponuje tímto druhem roury. Má rezervovanou určitou přenosovou kapacitu.
-*Izochronní - Jednosměrná roura sloužící ke stálému přenosu většího objemu dat. Má garantovanou latenci, přenos však není spolehlivý. Tento typ roury je vhodný pro audio a video.
-*Přerušovací - Jednosměrná roura sloužící pro časté přenosy malého množství dat. Má garantovanou šířku pásma. A přenos dat je spolehlivý. V případě chyby se přenos opakuje.
-*Blokový - Jednosměrná roura sloužící k přenosu velkého množství dat. Nemá rezervovanou žádnou přenosovou kapacitu ani dobu odezvy. Komunikace po této rouře je spolehlivá a v případě chyby se přenos opakuje.
+*Řídící -- obousměrná roura sloužící ke konfiguraci zařízení. Každé zařízení disponuje tímto druhem roury. Má rezervovanou určitou přenosovou kapacitu.
+*Izochronní -- jednosměrná roura sloužící ke stálému přenosu většího objemu dat. Má garantovanou latenci, přenos však není spolehlivý. Tento typ roury je vhodný pro audio a video.
+*Přerušovací -- jednosměrná roura sloužící pro časté přenosy malého množství dat. Má garantovanou šířku pásma. A přenos dat je spolehlivý. V případě chyby se přenos opakuje.
+*Blokový -- jednosměrná roura sloužící k přenosu velkého množství dat. Nemá rezervovanou žádnou přenosovou kapacitu ani dobu odezvy. Komunikace po této rouře je spolehlivá a v případě chyby se přenos opakuje.
 \enditems
 
 Enumerace je posloupnost standardizovaných příkazů, kterou započal hostitel.
 V průběhu enumerace se předávají deskriptory, které obsahují důležité informace o zařízení.
-Hierarchiji deskriptorů můžeme vidět na obrázku \ref[USBhier].
+Hierarchii deskriptorů lze vidět na obrázku \ref[USBhier].
 
 \medskip
 \clabel[USBhier]{Hierarchije USB deskriptorů.}
 \picw=13cm \cinspic images/IMG019.pdf
-\caption/f Obrázek popisuje jak lze USB zapojit \cite[LUSB].
+\caption/f Obrázek popisuje, jak lze USB hierarchii deskriptorů interpretovat \cite[LUSB].
 \medskip
 
 
 \begitems
-*Dekriptor zařízení -- Obsahuje informace jako je ID vyrobce a produktu.
-Též obsahuje informace o třídě a maximalní delku paketů, které může roura 0 přijmout.
-*Konfigurační deskriptor -- Oznamují jak mají být napájeni, maximální proud, počet rozhraní. Těchto dekriptorů může být více.
-*Deskriptor rozhraní -- Tento dekriptor informuje o funkcionalitě celého celku jako je třídá koncových zařízení a počet koncových bodů.
-*Deskriptor koncového bodu --Používá se k přesnémuj popisu koncového bodu.
-*Textový dekriptor -- Tento dekriptor přenáší pouze čitelné informace o zařízeních kódované v Unicodu
+*Dekriptor zařízení -- obsahuje informace jako je ID výrobce a produktu.
+Též obsahuje informace o třídě a maximální délce paketů, které může roura 0 přijmout.
+*Konfigurační deskriptor -- oznamuje, jak má být zařízení napájeno, jaký má zařízení maximální odběr proudu a počet rozhraní.
+Těchto dekriptorů může být více.
+*Deskriptor rozhraní -- tento deskriptor informuje o funkcionalitě celku, jako je třída koncových zařízení a počet koncových bodů.
+*Deskriptor koncového bodu -- používá se k přesnému popisu koncového bodu.
+*Textový deskriptor -- tento deskriptor přenáší pouze čitelné informace o zařízeních kódované v Unicodu.
 \enditems
 
-Na základě informací v deskriptorech se operační systém rozhoduje, který druh ovladače přiřádí danému druhu zařízení.
+Na základě informací v deskriptorech se operační systém rozhoduje, který druh ovladače přiřadí danému druhu zařízení.
 
 
 \medskip \medskip \medskip \medskip
@@ -141,10 +138,10 @@ Na základě informací v deskriptorech se operační systém rozhoduje, který 
 
 \sec Media Independent Interface
 
-Media Independent Interface (MII) je typ rozhraní, který umožňuje připojení nezávislé na procesoru a fyzickém médiu.
+Media Independent Interface (MII) je typ rozhraní, které umožňuje připojení nezávislé na procesoru a fyzickém médiu.
 Tento typ rozhraní je specifikován standardem IEEE 802.3, který je popsán v kapitole 22 \cite[IEEE8023].
 MII propojuje dvě vrstvy modelu ISO/OSI, a to vrstvu spojovou, konkrétně její část Media Access Constroll (MAC),
-\fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímaní a odesílání rámců(přístup k mediu), ochranu proti chybám}
+\fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímání a odesílání rámců (přístup k médiu), ochranu proti chybám.}
 s vrstvou fyzickou (PHY)
 \fnote{PHY převádí bitový stream na signál a definuje jeho doručení.}.
 MII rozhraní podporuje dva datové toky - 10~Mb/s a 100~Mb/s.
@@ -152,12 +149,12 @@ Na obou datových tocích je funkcionalita MII identická, liší se pouze v nom
 Vyšší rychlosti přenosu je možno dosáhnout změnou rozhraní na Gigabite Media Independent Interface, které podporuje rychlost až 1~Gb/s.
 
 \medskip
-\clabel[MIItoISO]{Spojitost mezi MII a OSI/OSI}
+\clabel[MIItoISO]{Spojitost mezi MII a ISO/OSI}
 \picw=16cm \cinspic images/802_iso.pdf
-\caption/f Obrázek popisuje spojitost mezi rozhraním MII, modelem OSO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
+\caption/f Obrázek popisuje spojitost mezi rozhraním MII, modelem ISO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
 \medskip
 
-Na obrázku \ref[MIItoISO] je vidět připojení MII na Reconsiliation Sublayer (RS) a PCS nebo PLS.%rozepsat zkratky
+Na obrázku \ref[MIItoISO] je vidět připojení MII na Reconsiliation Sublayer (RS) a Physical Coding Sublayer (PCS) nebo Physical Layer Signaling (PLS). %rozepsat zkratky
 RS je podvrstva, která mapuje signály z MII na MAC/PLS obsluhu.
 PLS a PCS jsou vrstvy, které se starají o kódování a dekódování signálů.
 Konkrétní mapování MII signálů znázorňuje obrázek \ref[RStoMII].
@@ -368,6 +365,9 @@ Tato kapitola obsahuje informace o tom, co to je ovladač, a dále popisuje zák
 Ovladač je část programu (algoritmu), která spravuje nebo kontroluje určité zařízení připojené k počítači.
 Ovladače vytvářejí softwarové rozhraní pro hardwarové zařízení, která umožňují operačnímu systému ovládat tento hardware, aniž by uživatel věděl, jak přesně funguje \cite[LDD3].
 
+Linuxové jádro je monolitivký operační systém a proto ovladače zařízení jsou nahrány ve stejném prostoru jako samotné jádro.
+Avšak umožňuje zavádět tyto ovladače za běhu systému nebo při jeho kompilaci.
+
 \secc device
 
 Každé zařízení naimplementované na nejnižší úrovni je v operačním systému Linux reprezentováno instancí struktury {\em device}.
@@ -423,9 +423,9 @@ Tyto struktury DSA subsystém nevytváří, a proto je potřeba tyto struktury p
 %XXX upravit aby to bylo více vypovídající
 Subsystém DSA je reprezentován strukturou {\em dsa\_switch\_tree}, která obsahuje odkazy na struktury:
 \begitems
-*dsa\_platform\_data -- tato struktura informuje o tom, jaká zařízení jsou připojená ke kořenovému přepínači.
+*dsa\_platform\_data -- tato struktura obsahuje informace o kořeovém zařízení.
 Také obsahuju strukturu {\em dsa\_chip\_data} popsanou níže.
-*net\_device -- tato struktura odkazuje na hlavní síťové zařízení \ref[NETDEV].
+*net\_device -- tato struktura odkazuje na hlavní síťové zařízení \ref[NETDEV], za učelem znalosti protokolu.
 *dsa\_switch -- obsahuje data pro jednotlivé přepínače popsané níže.
 \enditems
 
@@ -434,8 +434,8 @@ Struktura {\em dsa\_switch} nesoucí data o připojeném přepínači obsahuje n
 *dsa\_switch\_tree -- je odkaz na rodičovskou strukturu.
 *dsa\_chip\_data -- struktura obsahující informace o fyzickém přepínači -- kolik má portů a jaké jsou jejich názvy.
 Navíc obsahuje informace o device tree \fnote{Device tree je popis hardwarového zařízení v kódu.}.
-*device -- je odkaz na hostovské zařízení, které se právě využívá.
-*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na menežování připojeného přepínače.
+*device -- je odkaz na hostovské zařízení přepínače.
+*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na menežování připojeného přepínače, v jádře se tato struktura někdy označuje jako tabulka virtuálních funcí \cite[ULNI].
 *mii\_bus -- je ovladač MII sběrnice.
 *net\_device -- je odkaz na síťové zařízení \ref[NETDEV] reprezentující port zařízení.
 \enditems
@@ -479,7 +479,8 @@ Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí přijatých desk
 \medskip
 \clabel[USBMAP]{Hierarchie USB.}
 \picw=15cm \cinspic images/usbendpmap.pdf
-\caption/f Na obrázku lze vyčíst hierarchii USB prvků. Obrázek převzat z \cite[LDD3]. %TODO popisek
+\caption/f Na obrázku lze vyčíst hierarchii USB prvků. Obrázek převzat z \cite[LDD3]. 
+%TODO popisek
 \medskip
 
 
@@ -578,15 +579,17 @@ Sysfs je reprezentováno v Linuxovém jádře jako struktura {\em kobj}, která 
 
 \chap Použitý hardware
 
-
-%TODO neajky uvod
+Tato kapitola popisuje použitý modul na kterém byl provaděn vývoj ovladačů.
+Také popisuje desku konfigurovatelného přepínače a čipy, které jsou na této desce použity.
 
 \label[T20]
 
 \sec Colibri T20
 
 Colibri T20, vyráběný firnou Toradex \ref[TODADEX], je počítačový modul postaven na základě NVIDIA Tegra 2 vestavěném systému na čipu \cite[SOC].
-%Popsat modul vice TODO 
+Tento modul dále obsahuje 256~MB DDR2 paměti a 512~MB NAND flash paměti.
+Má velké množství komunikačních rozhraní jako je I2C, SPI, UART, MMC, USB, ethernet a PWM.
+Také obsahuje výstup na video a audio.
 Čip obsahuje periferie popsané na blokovém diagramu na obrázku \ref[SOC].
 
 \medskip
@@ -639,8 +642,11 @@ MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 \medskip
 %jake umoznuje propojeni po rmii?
 
-Jak je vidět na obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrstvu PHY, která nemůže být aktivní současně s RMII rozhraním.
-%TODO jeste neco k obrazku
+Jak je vidět na obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrstvu PHY, která však nemůže být aktivní současně s RMII rozhraním.
+Dále obsahuje periferii pro připojení EEPROM paměti a nastavitelné piny nejčastěji používáné pro světelnou signaliaci.
+Tento čip též obsahuje regulátor napětí z 3,3~V na 1,8~V.
+
+
 
 \label[MARVELL]
 
@@ -648,7 +654,8 @@ Jak je vidět na obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrs
 
 Marvell 88E6065 je 5~+~1 portový ethernetový přepínač integrovaný na čipu.
 Obsahuje  pět portů na fyzické vrstvě 10~BASE-T/100~BASE-TX, z nichž dva porty mohou být využity pro optickou linku 100~BASE-FX,
-Navíc obsahuje port, který je nezávislý Fast ethernet MAC. %TODO divné
+Navíc obsahuje port, pro připojení MAC vrstvy za pomoci RMII nebo MII rozhraní.
+Též jde připojit pouze přez menežovací rozhraní z MII.
 Zařízení má vysokorychlostní neblokující čtyřúrovňový QoS
 \fnote{QoS je kontrolní mechanismus, který garantuje přenosovou kapacitu.}. %TODO 
 Vrstva PHY tohoto zařízení podporuje plug-and-play s možností automatického určení směru, automatického určení polarity a automatického určení rychlosti.
@@ -666,7 +673,8 @@ Výjimečně se Marvell 88E6065 může využívat jako směrovač či výchozí 
 \caption/f Obrázek popisuje blokové zapojení čipu 88E6060 od firmy Marvell, které je velmi podobné zapojení čipu 88E6065. Obrázek je převzat z \cite[MARVELL].
 \medskip
 
-%TODO jak lze videt na obrazku \ref[MARVELL6060] ...
+Jak lze videt na obrázku \ref[MARVELL6060], který popisuje Marvell 88E6060, který je velmi podobný zařízení Marvell 88E6065 obsahuje tento přepínač pouze 4~+~1 portů.
+Avšak jako jako nevější model potřebuje externí hodinový krystal a zdroj napětí.
 
 \label[SWITCH]
 
@@ -852,7 +860,7 @@ Tegra20 (Colibri) # bootm ${kernel_addr_r} - ${fdt_addr_r}
 Pro oživení desky byl nejprve testován USB kontrolér Asix AX88772b \ref[oAX].
 Po oživení komunikačního rozhraní tohoto kontroléru bylo dalším krokem ladění ethernetového přepínače Marvell 88E6065 \ref[oMV].
 Nakonec bylo provedeno testování ethernetových portů celého systému.
-V průběhu tohoto testování bylo objeveno několik chyb v návrhu desky. která byla na základě mých připomínek opravena(XXX to zaveru).
+V průběhu tohoto testování bylo objeveno několik chyb v návrhu desky. která byla na základě mých připomínek opravena.
 
 \label[oAX]
 
@@ -871,6 +879,10 @@ Je zde znatelné, že pakety, které dorazily k hostovskému zařízení, modul 
 \medskip
 
 Po úpravě zapojení kontroléru začal USB kontrolér odpovídat na dotazy aktuálního ovladače v operačním systému Linux.
+Také jej bylo možné objevit z uživatelského prostoru příkazem:
+\begtt
+lsusb
+\endtt
 
 
 \medskip
