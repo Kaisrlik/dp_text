@@ -901,49 +901,49 @@ Pro zajištění správného a deterministického chováni přepínače byly př
 
 \sec Návrh ovladače
 
-Návrh ovladače byl založen na propojení ovladače pro Asix AX88772b a subsystému DSA \ref[DSA].
+Ovladač byl navržen tak, aby propojoval ovladač pro Asix AX88772b se subsystémem DSA \ref[DSA].
 
-Celý ovladač by měl fungovat, tak že při připojení USB zařízení se zavede ovladač pro zařízení AX88772b.
-Ta inicializuje tento ovladač do standardního stavu na zákaldě funkce usb\_probe(), která na základě ID produktu a výrobce vybere správný ovladač.
-V našem případě je to ax88772b\_info, která je instancí stuktury driver\_info.
-Tato struktura je v současné době naimplemntováno v aktuální verzi Linuxové jádra.
-To je takové, že ovladač aktivuje PHY interface a vytvoří rozhraní pro ethernetovou komunikaci přez net\_device strukturu a ethtool\_ops a net\_device\_ops funce.
-Doplní se funkce, která vytvoří node v sysfs\ref[SYSFS].
-Za pomoci obslužné rutiny nodu v sysfs spojí usbnet zařízení s DSA subsystémem.
-Tato rutiny předá DSA subsystému instance struktur net\_device, mii\_bus a o potrech switche ve struture dsa\_platform\_data. Všechny tyto instance nebo jejich reference nese platform\_device. Tyto struktury můžeme vidět v \ref[umlDSA].
+Celý ovladač by měl podle návrhu fungovat tak, že při připojení USB zařízení se zavede ovladač pro zařízení AX88772b.
+Toto zařízaní inicializuje daný ovladač do standardního stavu na základě funkce usb\_probe(), která podle ID produktu a výrobce vybere správný ovladač.
+V tomto případě je to ovladač specifikovaný strukturou driver\_info a konkrétní instance se nazývá ax88772b\_info. 
+Tato instance je v současné době naimplementována v aktuální verzi Linuxové jádra.
+Instance pomocí funkce asix88772\_bind nainicializuje ovladač tak, že ten aktivuje PHY rozhraní a vytvoří nové rozhraní pro ethernetovou komunikaci přes net\_device strukturu a ethtool\_ops a net\_device\_ops funkce.
 
-Za pomocí těchto dat, se v DSA subsystému aktualizuje celý ovladač.
-Ten si nejde potřebný ovladač ke konkrétnímu přepínači a pro každý port vytvoří vlastní síťové rozhraní.
+Do návrhu byla doplněna funkce, která by měla vytvořit soubor v systému sysfs\ref[SYSFS].
+Za pomoci obslužné rutiny vytvořeného souboru by měl být ovladač zařízení spojen s DSA subsystémem.
+Tato rutina by měla předat DSA subsystému instance struktur net\_device, mii\_bus a informace o portech přepínače ve strutuře dsa\_platform\_data.
+Všechny tyto instance nebo jejich odkazy by měla předat struktura platform\_device. Zmíněné struktury lze vidět v \ref[umlDSA].
 
-Proces uvolňování je rešen při funcí XXX ta uvolňuje celý subsystém DSA a na něm zavislé instance.
-Tato funce, nejdrive vyvolá uvolnění v subsytému DSA a poté uvolní časti v AX88772b.
+Za pomoci těchto dat by se v DSA subsystému měl vytvořit ovladač pro přepínač.
+Ovladač by si pak měl najít potřebné funkce pro konkrétní přepínač specifikované strukturou dsa\_switch\_driver a pro každý port by měl vytvořit nové vlastní síťové rozhraní.
+
+Proces uvolňování ovladače z paměti by měl být řešen funkcí dsa\_remove. Ta by měla uvolnit celý subsystém DSA i na něm závislé instance, jako jsou síťová rozhraní.
+Při odpojení desky od modulu by mělo toto uvolnění poskytovat USB ovladač Asix AX88772b.
 
 \label[ZPRAC]
 
 \sec Zpracování
 
-Sekce zpracování popisuje jednotlivé časti ovladače.
+Sekce zpracování popisuje provedení jednotlivých částí ovladače podle návrhu \ref[ARCH].
 
-Jelikož nebyl ovladač pro zařízení Asix AX88772b připraven na připojení RMII rozhraní.
-Bylo potřeba nastavit tento interface jako aktivní, ten však nemůže být aktivní současně s ethernet PHY, která je taktéž integrovaná na čipu jak je vidět \ref[ASIXRMII].
-Implementace oladače je popsána v \ref[asixdri].
-
-Dále bylo potřeba upravit subsystém DSA, aby podporoval hotswap zařízení, konkrétně jeho odhlašovnání a uvolňování. Popsaný v \ref[dsadri].
-
-Poslední částí bylo napsat samotný ovladač pro Marvell 88E6065, který řeší veškerou funkčnost samotného přepínače. Popsaném v \ref[mvdri].
+Jelikož nebyl ovladač pro zařízení Asix AX88772b připraven na připojení RMII rozhraní, bylo zapotřebí nastavit toto rozhraní jako aktivní.
+To však nemůže být aktivní současně s rozhraním ethernet PHY, které je taktéž integrováno na čipu, jak je zobrazeno \ref[ASIXRMII].
+Dále bylo potřeba upravit subsystém DSA tak, aby podporoval inicializace zařízení za běhu, konkrétně jeho odhlašování a uvolňování. 
+Posledním krokem bylo vytvořit samotný ovladač pro zařízení ethernetového přepínače Marvell 88E6065, které řeší jeho funkčnost.
 
 \label[asixdri]
 
 \secc Ovladač zařízení Asix AX88772b
 
-Asix AX88772b má již podporu v Linuxovém jádře a však pouze na jedno z jeho rozhraní.
-Tím rozhraním je ethernet PHY \ref[ASIX]. Bylo potřeba doplnit ovladač o aktivaci RMII rozhraní.
-A byla zvolena možnost, že aktivace RMII rozhraní proběhne přez zápis do souboru {\em dsa\_bind}, áež je součástí file systému sysfs, a je umístěn ve složce USB zařízení.
-Po zapsání do tohoto souboru se vyvolá obslužná rutina objektu {\em usb\_dsa\_store() }, která je nainicializována strukturou  kobj. Tato rutina převezme informace o tom, kdo ji zavolal a  vyvolá {\em dsa\_bind()}
-Ta nastaví příslušné registry pro aktivování RMII rozhraní, zapsaním do příslušných registrů.
-Nadále tato rutina též otestuje zdali, je k USB kontroléru připojeno zařízení Marvell 88E6065, dle standardizovánému registrovému prostoru \ref[miireg].
-Konkrétně vyčtením z třetího registru z \ref[miireg], která obsahuje ID a revizy zařízení.
-Tato část obslužné rutiny též vyplní strukturu {\em asix\_common\_private}, které v současné verzi kompatibilní s jadrem verze 3.19 vypadá následovně:
+Ovladač zařízení Asix AX88772b je již podporován v Linuxovém jádře.
+Protože toto zařízení nebylo schopno mít aktivováno více komunikačních rozhraní najednou, bylo potřeba doplnit ovladač o aktivaci RMII rozhraní. 
+Byla zvolena možnost, že aktivace RMII rozhraní bude provedena přes zápis do souboru {\em dsa\_bind}, který je součástí filesystému sysfs a je umístěn ve složce USB zařízení.
+Po zápisu do tohoto souboru byla vyvolána obslužná rutina {\em usb\_dsa\_store()}, která byla nainicializována instancí struktury kobj.
+Tato rutina převzala informace o tom, kdo ji zavolal, a následně vyvolala funkci {\em dsa\_bind()}.
+Příslušné registry pro aktivování RMII rozhraní byly nastaveny touto funkcí.
+%TODO vyjmenovat příslušné registry
+Další funkcí dané rutiny bylo testování, zda bylo k USB kontroléru připojeno zařízení Marvell 88E6065 dle standardizováného registrového prostoru \ref[miireg], konkrétně vyčtením z třetího registru z \ref[miireg], který obsahuje ID a revizi zařízení.
+Tato rutina navíc vyplnila strukturu {\em asix\_common\_private}, která v současné verzi je kompatibilní s jádrem verze 3.19 a vypadá následovně:
 
 \begtt
 struct asix_common_private {
@@ -960,57 +960,61 @@ struct asix_common_private {
 \endtt
 
 %Ve verzi linuxového jádra 3.19 subsystém DSA byl upraven a nevyžaduje strukturu {\em mii\_bus} a byl odstraněn a je nahrazena  strukturou {\em platform\_device}, aby se vyhnulo většině změn v subsystému DSA dle připomýnky v mailing listu \ref[ML].
-Starší verze této struktury neobsahovala platform\_device, ten byl doplněn na základě připomýnky z komunikace mezi mnou a vývojáři Linuxového jádra \ref[ML].
-A proto ovladač zařízení Asix AX88772b byl doplněn o funkci {\em dsa\_create\_pdev}, která zajistí naplnění struktury {\em platform\_device}.
-Tato struktura se vytváří při po kontrole zařízení ve funkci {\em dsa\_bind}.
+Starší verze této struktury neobsahovala položku platform\_device. Ta byla doplněna až na základě připomínky, vyplývající z komunikace s vývojáři Linuxového jádra \ref[ML].
+A proto byl ovladač zařízení Asix AX88772b doplněn o funkci {\em dsa\_create\_pdev}, která je schopna naplnit strukturu {\em platform\_device}.
+Tato struktura byla vytvořena po kontrole zařízení ve funkci {\em dsa\_bind}.
 
-Po naplnění základních struktur ovladač Asix AX88772b zavolá {\em dsa\_probe\_netdevice()}, který vytvoří softwarové rozhrání přepínače. Změna DSA subsystému je popsaná v \ref[dsadri].
+Po naplnění základních struktur ovladač Asix AX88772b zavolal funkci {\em dsa\_probe\_netdevice()}, která tvořila softwarové rozhraní přepínače. Změna DSA subsystému je popsaná v \ref[dsadri].
 
 \label[dsadri]
 
 \secc Úprava subsystému DSA
 
 Subsystém DSA byl rozšířen o veřejnou funkci {\em dsa\_probe\_netdevice()}, která vytváří softwarové rozhraní pro přepínač.
-Každý port přepínače je reprezentován vlastním ethernetovým rozhraním net\_device \ref[NETDEV], které mají společného rodiče stejného typu.
+Každý port přepínače byl reprezentován vlastním ethernetovým rozhraním net\_device \ref[NETDEV], které mají společného rodiče stejného typu. %TODO uhladit
 
-Bylo potřeba odloučit DSA od platform\_driveru což následně zapříčiňuje rozšíření dsa\_switch\_driver \ref[mvdri].
+Z důvodu problému v komunikaci bylo potřeba odloučit datovou strukturu DSA od platform\_driveru, což následně způsobilo rozšíření dsa\_switch\_driver \ref[mvdri].
 
-Větší rozsah změn čekala uvolňovací část ovladače.
-Jelikož se nepředpokladá, že by se tento ovladač někdy uvolňoval, které pline z debaty na \cite[ML].
-Tato funce nebyla dodělána a proto byla upravena {\em dsa\_destroy()}, která v současné verzi podporuje uvolnění všech portů a interních struktur DSA ovladače jako je struktura {\em dsa\_switch a dsa\_switch\_tree}.
+V uvolňovací části ovladače bylo potřeba provést několik změn, jelikož v původním provedení se nepředpokládalo, že by se tento ovladač někdy uvolňoval. To plyne z debaty na \cite[ML].
+Funkce na uvo'nování ovladače nebyla v původní verzi dokončena, a proto byla teď upravena část uvolňovací rutiny {\em dsa\_destroy()}, která v současné verzi podporuje uvolnění všech portů interpretovaných strukturou net\_device a interních struktur DSA ovladače, jako je struktura {\em dsa\_switch a dsa\_switch\_tree}.
 
 
 \label[mvdri]
 
 \secc Ovladač zařízení Marvell 88E6065
 
-Bylo zapotřebí vytvořit ovladač pro zařízení 88E6065 od firmy Marvell, který nemá žádnou podporu v Linuxovém jádře.
+Pro kontrolu zařízení Marvell 88E6065 bylo zapotřebí vytvořit ovladač, který není v současné době naimplementován v Linuxovém jádře.
 
-Tento ovladač je instancí dsa\_switch\_driver jak je možné vidět na obrázku \ref[umlDSA].
-Struktura dsa\_switch\_driver obsahuje metody, které zajišťují nainicializování, uvolňení a nastavění switche jako celku a jednotlivých portů.
-
+Tento ovladač je instancí dsa\_switch\_driver, jak je vidět na obrázku \ref[umlDSA].
+Struktura dsa\_switch\_driver obsahuje metody, které zajišťují nainicializování, uvolňení a nastavení přepínače jako celku i jeho jednotlivých portů.
+%TODO rozepsat
 
 
 \sec Spojení jednotlivých ovladačů
 
 
-Všechny ovladače dělají svou partikulární část. Na připojení USB a příjmutí ID se zavede ovladač AX88772b, který aktivuje PHY. Po zapisu do souboru dsa\_bind se v adresáři přislušného USB zařízení se aktivuje druhé rozhraní ovladače a nainicializuje DSA strukturu. Tato struktura vytvoří dostatek ethernetových rozhraní a připojí příslušný ovladač pro přepínací obvod.
+Všechny ovladače jsou implementovány tak, aby vykonávaly svou část.
 
-Nyní na základě příkazů pro ethtool můžeme komunikovat s ovladačem skrz uživatelský prostor.
+Na připojení USB a přijetí ID byl zaveden ovladač AX88772b, který aktivuje vrstvu PHY. 
+Po zápisu dat do souboru dsa\_bind bylo v adresáři příslušného USB zařízení aktivováno druhé rozhraní, kterým je RMII, a provedeno nainicializování DSA subsystému.
+Tento subsystém je schopen vytvořit dostatek ethernetových rozhraní a připojit příslušný ovladač pro přepínací obvod.
+
+Po úspěšném spojení jednotlivých ovladačů je nyní na základě příkazů pro ethtool možné komunikovat s ovladačem skrz uživatelský prostor.
 
 \sec Odezva komunity
 
-Odezva komunity byla velmi rychlá po odeslaní RFC patche
+Odezva komunity byla po odeslání RFC patche velmi rychlá,
 \fnote{\url{http://lists.openwall.net/netdev/2015/04/21/20}}.
-se mi dostalo odpovědi během pouhých pár hodin.
-Kde Andrew Lunn se vyjádřil k mému nápadu a navrhl nějaké optimalizace k mému řešení.
-Také se strhla debata o možnostech DSA, že DSA není připravené pro podporu hotswap zařízení.
-A pravděpodobně tato změna nenastane ani v příštích verzích Linuxového jádra.
-Další věcí o které padla řeč, je že se pravděpodobně celý subsystém DSA přepíše.
+odpovědi se mi dostalo během pouhých pár hodin.
+Uživatel Andrew Lunn se vyjádřil k mému nápadu a navrhl několik optimalizací.
+
+Můj příspěvek strhl debatu o možnostech DSA v Linuxovém jádře -- DSA prý není připravené pro podporu připojování a odpojování zařízení za běhu systému.
+Pravděpodobně však změna DSA nenastane ani v příštích verzích Linuxového jádra.
+Z diskuze vyplynulo, že se pravděpodobně celý subsystém DSA přepíše.
 
 \chap Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
 
-Tato kapitola se zabiva
+Tato kapitola se zabýva
 
 \begtt
 [11.046] Unable to handle kernel paging request at Virtual Addr 6b6b6b77
