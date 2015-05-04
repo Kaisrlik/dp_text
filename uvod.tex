@@ -1033,6 +1033,46 @@ Z diskuze vyplynulo, že se pravděpodobně celý subsystém DSA přepíše.
 
 Tato kapitola se zabýva
 
+\sec Testování uvolňování paměti
+
+Uvolňování paměti proběhlo několika způsoby.
+
+Prvním způsobem bylo testování pomocí utility v Linuxovém jádře a tou je Kernel Memory Leak Detektor
+\fnote{Kernel Memory Leak Detektor je utilita v Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
+
+\begtt
+unreferenced object 0xdaafbfc0 (size 64):
+  comm "kworker/0:1", pid 29, jiffies 4294949812 (age 272.380s)
+  hex dump (first 32 bytes):
+    64 73 61 5f 62 69 6e 64 00 5a 5a 5a 5a 5a 5a 5a  dsa_bind.ZZZZZZZ
+    5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+  backtrace:
+    [<c00b6ee0>] kstrdup+0x2c/0x54
+    [<c01359f4>] __kernfs_new_node+0x28/0xc4
+    [<c013691c>] kernfs_new_node+0x1c/0x38
+    [<c0136c40>] kernfs_create_dir_ns+0x18/0x60
+    [<c0138a60>] sysfs_create_dir_ns+0x48/0x94
+    [<c0215cb0>] kobject_add_internal+0x9c/0x2d0
+    [<c0216034>] kobject_init_and_add+0x48/0x70
+    [<c0369184>] ax88772_bind+0x174/0x220
+    [<c03741b0>] usbnet_probe+0x208/0x6b4
+    [<c038a9ac>] usb_probe_interface+0x164/0x1f4
+    [<c02f54c8>] driver_probe_device+0x10c/0x22c
+    [<c02f3c64>] bus_for_each_drv+0x44/0x8c
+    [<c02f5384>] device_attach+0x70/0x88
+    [<c02f4adc>] bus_probe_device+0x84/0xa8
+    [<c02f3034>] device_add+0x2ec/0x4e0
+    [<c0388818>] usb_set_configuration+0x530/0x75c
+\endtt
+
+Tento výpis utility Kernel Memory Leak Detektoru drží informace ke každé alokované instaci objektu a ukladá, kdo ji alokoval.
+Z tohoto výpisu můžeme nadále vyhledat o jaký objekt se jedna a pokusit se ho uvolnit.
+
+Tato chyba nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj.
+Po opravení této chyby další neočekavané neuvolňení paměti tato utilita neobjevila.
+
+Dalším způsobem bylo testování skriptem XXX.sh, který opakovaně registruje a odregistrovává usb ovladač.
+
 \begtt
 [11.046] Unable to handle kernel paging request at Virtual Addr 6b6b6b77
 [11.053] pgd = c0004000
