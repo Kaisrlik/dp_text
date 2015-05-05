@@ -635,7 +635,6 @@ AX88772b je zákaznický integrovaný obvod vyráběný firmou Asix, který umo�
 
 
 Jako jediný z vyráběných modelů dosahuje v revizi AX88772bli teplotních rozsahů od $ -40^{\circ}C  až +85^{\circ}C $. Což odpovídá industriálním teplotním rozsahům.
-%x^{\circ} XXX
 AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo Reverse-RMII způsobem MAC--to--MAC k mikrokontroléru s Ethernet MAC RMII rozhraním.
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 
@@ -921,9 +920,10 @@ $$ T(s) = R (\Omega) * C(F)  $$
 
 Deska tak měla během této doby možnost, aby se vstupní hodnoty na všech pinech ustálily ve správném stavu.
 
-Pro zajištění správného a deterministického chování přepínače byly přidány pull-up a pull-down rezistory.
+Pro zajištění správného a deterministického chování přepínače byly přidány pull-up a pull-down rezistory \ref[zapojeni2].
 \begitems
-%TODO XXX
+*pull up rezistor -- pin SW\_MODE, ADDR4, P5\_MODE0, P5\_MODE1 a P5\_MODE3
+*pull dwon rezistor -- pin P5\_MODE2
 \enditems
 
 \label[ARCH]
@@ -1041,22 +1041,25 @@ Po úspěšném spojení jednotlivých ovladačů je nyní na základě příkaz
 Odezva komunity byla po odeslání RFC patche velmi rychlá
 \fnote{\url{http://lists.openwall.net/netdev/2015/04/21/20}},
 odpovědi se mi dostalo během pouhých pár hodin.
-Uživatel Andrew Lunn se vyjádřil k mému nápadu a navrhl několik optimalizací. %TODO XXX reepsat optimalizace
+Uživatel Andrew Lunn se vyjádřil k mému nápadu a navrhl několik optimalizací.
+Vyhnout se změnám v DSA subsystému a vytvořit zaobalovací ovladač pro ovladač kontroléru AX88772b.
 
 Můj příspěvek strhl debatu o možnostech subsystému DSA v Linuxovém jádře -- subsystém DSA prý není připravené pro podporu připojování a odpojování zařízení za běhu systému.
 Pravděpodobně však tato změna subsystému DSA nenastane ani v příštích verzích Linuxového jádra.
 Z diskuze však vyplynulo, že se pravděpodobně celý subsystém DSA v budoucnu přepíše.
 
-\chap Otestujte implementované řešení zejména s ohledem na propustnost sítě a stabilitu
+\chap Testování
 
-Tato kapitola se zabýva
+Tato kapitola se zabývá testováním implementovaného řešíní zejména na propustnost a stabilitu sítě.
+Jelikož se jedná o systém s podporou inicializace za běhu, je také důležité aby se v řešení neobjevovali žádné neuvolňené bloky paměti nebo aby v systém nespotřeboval paměť celou.
 
 \sec Testování uvolňování paměti
 
 Uvolňování paměti proběhlo několika způsoby.
 
-Prvním způsobem bylo testování pomocí utility v Linuxovém jádře a tou je Kernel Memory Leak Detektor
+Prvním způsobem bylo testování pomocí utility v Linuxovém jádře, kterou je Kernel Memory Leak Detektor
 \fnote{Kernel Memory Leak Detektor je utilita v Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
+Díky tomu objeví naalokocané bloky, které už ztratili všechny ukazatele na tuto paměť.
 
 \begtt
 unreferenced object 0xdaafbfc0 (size 64):
@@ -1083,17 +1086,79 @@ unreferenced object 0xdaafbfc0 (size 64):
     [<c0388818>] usb_set_configuration+0x530/0x75c
 \endtt
 
-Tento výpis utility Kernel Memory Leak Detektoru drží informace ke každé alokované instaci objektu a ukladá, kdo ji alokoval.
-Z tohoto výpisu můžeme nadále vyhledat o jaký objekt se jedna a pokusit se ho uvolnit.
+Jak lze vidět z tohoto výpisu utility Kernel Memory Leak Detektoru, který drží informace ke každé alokované instaci objektu a ukladá o ni informace jako trasování -- zásobník, popisující volání funkcí až k zmíněné alokaci objektu.
+Z tohoto trasování můžeme nadále vyhledat .
 
 Tato chyba nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj.
-Po opravení této chyby další neočekavané neuvolňení paměti tato utilita neobjevila.
+Po opravení této chyby, další neočekavané neuvolňení paměti tato utilita neobjevila.
 
-Dalším způsobem bylo testování skriptem XXX.sh, který opakovaně registruje a odregistrovává usb ovladač.
+Dalším způsobem bylo testování skriptem test.sh, který opakovaně registruje a odregistrovává ovladač.
 
-V DSA subsystém obsahuje vlastní systém volání funkce poll, která při odpojení odpojení ovladače může zpanikařit jádro.
-Poněvadž tato funkce přistupuje ke zdílenému prostředku jako funkce uvolňovací stalo se, že při přístupu k datům, mohla tato data být uvolňěna. A poté se již přistupovalo k nenevalidní paměti, což zapříčinilo zpanikaření jádra.
+Ten objevil chybu v přístupu ke sdílenému objektu.
+Konkrétně v DSA subsystému, ten obsahuje periodickou rutinu {\em poll}, která je vyvolána časovačem.
+Tato rutina periodicky vyčítá zařízení a dotazuje se ho, zdali něco nepotřebuje.
 
+Stalo se, že během zpracovávání funkce {\em poll} mohla být tato data uvolňena, což zapříčinilo zpanikaření jádra a systém spadl.
+
+Po uzmčení sdílených dat, tento problém již nenastal.
+
+\sec Inicializace zařízení
+
+Po připojení zařízení je důležité toto zařízení nastavit, to v rámci testování probíhalo Linuxovou utilitou ifconfig a ip.
+Prvním krokem po připojení zařízení je nastavení rodičovského uzlu, kde {\em eth1} specifikuje tento uzel.
+
+\begtt
+ifconfig eth1 up
+\endtt
+
+Po nastavení rodičovského zařízení připojíme DSA subsystém, abychom mohli ovládat celý přepínač.
+A to zapsaním do souboru {\em usb\_dsa\_bind}, který se nachází ve složce patřící k příslušnému USB zařízení v našem případě je tato cesta {\em /sys/devices/soc0/c5008000.usb/usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind}.
+Pak tento příkaz vypadá následovně.
+
+\begtt
+echo 1 > /sys/devices/soc0/c5008000.usb/
+     usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind
+\endtt
+
+Po tomto příkazu se ovladač přepínače inicializuje a nyní je připraven na práci.
+
+Například zapnutí portu probíhá následovně, kde název rozhraní portu je {\em port1}.
+
+\begtt
+ifconfig port1 up
+\endtt
+
+Tento příkaz zapne port.
+
+\sec Testování zařízení a výkonu
+
+V první řádě je potřeba je potřeba se ujistit, že přepínač je dobře nastaven a fyzická vrstva je připojena.
+Po připojení UTP kabelu mezi přepínač, který má zaplé porty a počítač.
+Je možné vidět, že přepínač má nastaveny následující vlastnosti.
+
+\begtt
+$ ethtool eth0
+Settings for eth0:
+	Supported ports: [ TP MII ]
+	Supported pause frame use: No
+	Supports auto-negotiation: Yes
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full 
+	                                     100baseT/Half 100baseT/Full 
+	Link partner advertised pause frame use: No
+	Link partner advertised auto-negotiation: Yes
+	Speed: 100Mb/s
+	Duplex: Full
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Auto-negotiation: on
+	Link detected: yes
+\endtt
+
+Nyní, když připojíme další zařízení k přepínači, kterému tak jistě nastavíme port můžeme otestovat, že tyto dvě zařízení komunikují.
+A to nejlépe příkazem ping, který je jeden z kontrolních zpráv ICMP protokolu.
 
 \begtt
 $ ping 192.168.202.222
@@ -1105,13 +1170,27 @@ PING 192.168.202.222 (192.168.202.222) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.368/0.424/0.466/0.042 ms
 \endtt
 
+Jak je vidět, zařízení na sebe vidí a komunikují spolu.
+Nyní však otestujeme reálnou komunikaci na zkutečných datech.
+
+Na jednom ze dvouch počítačů zapnememe server, který bude poslouchat na portu např. 4242:
+
 \begtt
-$ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 2112
+$nc -lk -z 4242 > /dev/null
+\endtt
+
+A na druhém z počítačů zapneme přenos dat na druhý počítač s danou IP adresou a daným portem:
+A budeme sledovat jak se data liší na různých velikostech dat.
+
+\begtt
+$ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 4242
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 10000000 bytes (10 MB) copied, 0.877273 s, 11.4 MB/s
 \endtt
+
+Na tomto příkaldě bylo odesláno 10~MB dat v 625 paketech, která byla přenesena rychlostí 11.4~MB/s.
 
 \begtt
 $ dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
@@ -1126,6 +1205,7 @@ $ dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
 1000000000 bytes (1.0 GB) copied, 85.9629 s, 11.6 MB/s
 \endtt
 
+Tyto testy také byla prováděny na různých velikostech a rychlost přenosu se pohybovala mezi 11.3~MB/s až 12.1~MB/s
 
 
 \begtt
@@ -1162,17 +1242,9 @@ $ dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
     from [<c0868c0c>] (start_kernel+0x360/0x3cc)
 \endtt
 
-\sec propustnost
+\sec Cíle
 
-\sec porovnani s jinym eth interfacem
-
-\sec Konfigurace
-
-Konfigurace přepínače probíhá skr konfiguraci nástroji ifconfig a vconfig
-
-co se testuje a jak se testuje(co pisu za prikazy) -> vysledky
-
-\sec logterm
+\sec Zhodnocení
 
 \chap Zaver
 
