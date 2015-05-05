@@ -76,6 +76,10 @@ Patrick Mochel
 \newblock {\em The Sysfs Filesystem}, 2005.
 \newblock \url{https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf}.
 
+\bibitem{EMBKERNEL}
+\newblock {\em Embedded Linux}.
+\newblock \url{http://www.embeddedlinux.org.cn/linux\_net/0596002556/understandlni-CHP-8-SECT-13.html#understandlni-CHP-8-SECT-13.1}.
+
 \bibitem{KERNEL}
 \newblock {\em Linux Documentation}.
 \newblock \url{http://lxr.free-electrons.com/source/Documentation/}.
@@ -128,6 +132,11 @@ Asix Electronics Corporation.
 Marvell.
 \newblock {\em Link Street 88E6060}, 2008.
 \newblock \url{http://www.marvell.com/switching/assets/marvell\_linkstreet\_88E6060\_datasheet.pdf}.
+
+\bibitem{CISCO}
+Cisco.
+\newblock {\em QoS Policing}, 2008.
+\newblock \url{http://www.cisco.com/c/en/us/support/docs/quality-of-service-qos/qos-policing/22833-qos-faq.html}.
 
 
 \bibitem{SIX}

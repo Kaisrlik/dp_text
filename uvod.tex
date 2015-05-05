@@ -179,7 +179,7 @@ Piny vysílající datové signály jsou: %TODO mozna lepsi popisek
 \begitems
 *TX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech TX\_EN, TXD a TX\_ER.
 Zdrojem signálu TX\_CLK je vrstva PHY.
-Frekvence tohoto signálu by měla být 20\% z nominální hodnoty přenosu dat, tedy +- 100ppm. %TODO plus minus
+Frekvence tohoto signálu by měla být 20\% z nominální hodnoty přenosu dat, tedy $\pm 100ppm $.
 *RX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech RX\_DV, RXD a RX\_ER.
 Zdrojem signálu RX\_CLK je podvrstva RS. %XXX kouknout na manuál
 RX\_CLK může odvodit referenční hodnotu frekvence z přijímaných dat nebo z nominální hodnoty jako u signálu pinu TX\_CLK.
@@ -375,7 +375,7 @@ Každé zařízení naimplementované na nejnižší úrovni je v operačním sy
 Struktura device obsahuje informace o tom, co zařízení potřebuje, aby správně fungovalo v systému.
 Mnoho subsystémů uchovává informace o struktuře device a tyto informace využívá k dalším procesům.
 V dnešní době je velmi obtížné nalézt zařízení, které by bylo reprezentováno pouze strukturou {\em device}.
-Místo toho  některé instance ve struktuře {\em device}, jako je kobj, obecně implementují výše reprezentovaná zařízení \ref[DEV]. % TODO XXX divny kobj moc brzo XXX
+Místo toho některé instance ve struktuře {\em device}, jako je kobj, obecně implementují zařízení, která jsou nadřazená struktuře {\em device} \ref[DEV].
 \fnote{Popis datové struktury {\em device} lze nalézt na \url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
 
 \label[NETDEV]
@@ -389,8 +389,7 @@ Síťová zařízení přijímají data asynchronně a ukládájí je do vyrovn�
 V linuxovém jádře je síťový subsystém naimplementován tak, že je na protokolu nezávislý.
 
 
-Jednotlivé složky struktury {\em net\_device } mohou být klasifikovány do několika kategorií:
-%TODO divne nejsou v DSA implementovany jako vitualni porty??? XXX
+Jednotlivé složky struktury {\em net\_device } mohou být klasifikovány do několika kategorií \cite[ULNI]:
 \begitems
 *Konfigurace -- některá konfigurace je dána Linuxovým jádrem a nějaké jsou možné nastavit programy z uživatelského rozhraní, jako je ifconfig a ip.
 *Statistiky -- statistiky jako počet odeslaných paketů a paketů přiajtých, popsané v struktuře, která se jmenuje priv.
@@ -493,7 +492,7 @@ Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobraz
 \medskip
 
 Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
-Nastavování přepínače, jako je nastavení portů a menežování MII rozhraní, je provedeno na základě rozhraní ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení.}.
+Nastavování přepínače, jako je nastavení portů a menežování MII rozhraní, je provedeno na základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení \ref[EMBLINUX].}.
 
 Subsystém DSA podporuje i propojení mezi přepínači tak, jak je možno vidět na obrázku \ref[DSAcon2].
 Takto propojené přepínače lze ovládat skrz MII rozhraní.
@@ -513,7 +512,7 @@ Na obrázku \ref[umlDSA] je diagram tříd důležitých struktur v subsystému 
 \caption/f Na obrázku jsou popsány vybrané datové struktury.
 \medskip
 
-Na tomto obrázku jsou zvýrazněny struktury {\em mii\_bus}, {\em net\_device} a {\em dsa\_platform\_data}. %TODO opravit obrazek zviraznit dsa platform data
+Na tomto obrázku jsou zvýrazněny struktury {\em mii\_bus}, {\em net\_device} a {\em dsa\_platform\_data}.
 Tyto struktury DSA subsystém nevytváří, a proto je potřeba je předat subsystému způsobem, který je popsán v kapitole Implementace \ref[ARCH].
 
 %XXX upravit aby to bylo více vypovídající
@@ -609,7 +608,7 @@ Firma Toradex dodává k tomuto modulu podporu pro Linuxové jádro verze 3.1.10
 \sec Systém na čipu NVIDIA Tegra 2
 
 Systém na čipu NVIDIA Tegra 2 od firmy ARM je založen na dvoujádrovém procesoru Cortex A9 se symetrickým procesorovým jádrem s frekvencí procesoru okolo 1~GHz \cite[TEGRA2].
-Jelikož se jedná o systém na čipu, obsahuje tento čip mnoho bloků, jako je například Audio/Video rekordér, grafický procesor s podporou 2D rendrovaní a 3D pixel a vektor shadrem. %cesky ekvivalent by byl nejlepsi XXX
+Jelikož se jedná o systém na čipu, obsahuje tento čip mnoho bloků, jako je například Audio/Video rekordér, grafický procesor s podporou 2D rendrovaní a 3D pixelové a vektorové shadery.
 
 Procesor Cortex A9 má 32-bitovou RISC
 \fnote{Architektura RISC označuje procesory s redukovanou instrukční sadou \cite[RISC].}
@@ -635,7 +634,7 @@ Popis jádra NVIDIA Tegra 2 lze vidět na obrázku níže \ref[TEGRA].
 AX88772b je zákaznický integrovaný obvod vyráběný firmou Asix, který umožňuje plug--and--play Fast Ethernet internetové připojení pro zařízení využívající standardizované USB verze 1.1 a verze 2.0 popsané v \ref[USB].
 
 
-Jako jediný z vyráběných modelů dosahuje v revizi AX88772bli teplotních rozsahů od -40 stupňů Celsia až +85 stupňů Celsia. Což odpovídá industriálním teplotním rozsahům.
+Jako jediný z vyráběných modelů dosahuje v revizi AX88772bli teplotních rozsahů od $ -40^{\circ}C  až +85^{\circ}C $. Což odpovídá industriálním teplotním rozsahům.
 %x^{\circ} XXX
 AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo Reverse-RMII způsobem MAC--to--MAC k mikrokontroléru s Ethernet MAC RMII rozhraním.
 MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
@@ -663,7 +662,7 @@ Obsahuje  pět portů na fyzické vrstvě 10~BASE-T/100~BASE-TX, z nichž dva po
 Navíc obsahuje port, pro připojení MAC vrstvy za pomoci RMII nebo MII rozhraní.
 Též jde připojit pouze přez menežovací rozhraní z MII.
 Zařízení má vysokorychlostní neblokující čtyřúrovňový QoS
-\fnote{QoS je kontrolní mechanismus, který garantuje přenosovou kapacitu.}. %TODO XXX
+\fnote{QoS umožňuje síti, garantovat lepší kvalitu služeb. A umožňuje aplikacím požadovat a přijímat předvídatelné úrovně těchto služeb, aby zvýšili průtok sítě a její odezvu. \cite[CISCO].}.
 
 Vrstva PHY tohoto zařízení podporuje plug--and--play s možností automatického určení směru, automatického určení polarity a automatického určení rychlosti.
 Zařízení dále podporuje 64 z 4096 802.1Q WLAN s 3 úrovňovou ochranou.
@@ -690,7 +689,7 @@ Avšak jako jako nevější model potřebuje externí hodinový krystal a zdroj 
 
 Deska konfigurovatelného přepínače byla vyrobena firmou Retia a.s.
 \fnote{Firma zabývající se elektronickými vojenskými systémy, záznamovými zařízeními a lokalizačními a bezpečnostními systémy. \url{www.retia.cz}}
-na základě jejich návrhu a zapojení, ktará jsou popsaná v přílohách \ref[zapojeni], \ref[zapojeni2], \ref[zapojeni3].
+na základě jejich návrhu a zapojení, ktará jsou popsaná v přílohách \ref[zapojeni1], \ref[zapojeni2].
 
 Tato deska byla vyrobena za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
 
@@ -702,7 +701,7 @@ Zjednodušené schéma této desky je znázorněno na obrázku \ref[deska].
 \caption/f Obrázek popisuje blokové schéma zapojení desky konfigurovatelného přepínače.
 \medskip
 
-Konfigurovatelný přepínač umožňuje nastavení ethernetového přepínače za pomoci USB Ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět EEPROM M93-C66 \fnote{ Odkaz na pamet TODO XXX}.
+Konfigurovatelný přepínač umožňuje nastavení ethernetového přepínače za pomoci USB Ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je připojena externí pamět EEPROM M93-C66 \fnote{Popsané na \url{http://www.st.com/web/catalog/mmc/FM76/CL1276/SC112/PF63995?referrer=70071840}}.
 Tento kontrolér je připojen přes RMII rozhraní k čipu Marvell 88E6065 \ref[MARVELL] tak, jak lze vidět na obrázku níže \ref[MARVELL6065rmii].
 
 \medskip
@@ -714,7 +713,7 @@ Tento kontrolér je připojen přes RMII rozhraní k čipu Marvell 88E6065 \ref[
 I k tomuto čipu je připojena externí pamět EEPROM.
 
 Oba čipy Asix AX88772b a Marvell 88E6065 mají vlastní krystal s frekvencí 25~MHz.
-Deska je navíc osazena regulátorem napětí a přepínači pro různá nastavení MII rozhraní (K3 a K2), resetování (K5) a externí vzbuzení (K4), jak je možno vidět v příloze \ref[zapojeniXXX].
+Deska je navíc osazena regulátorem napětí a přepínači pro různá nastavení MII rozhraní (K3 a K2), resetování (K5) a externí vzbuzení (K4), jak je možno vidět v příloze \ref[zapojeni1].
 
 \label[impl]
 
@@ -899,7 +898,7 @@ lsusb
 \medskip
 
 Z obrázku \ref[ASIXRMII] lze vyčíst, že kontrolér AX88772b není schopen komunikovat po rozhraní PHY a RMII současně.
-Zápisem do registru číslo 0 \cite[ASIXman] je aktivován právě jeden z daných dvou rozhraní a následně pomocí spojky K2 \ref[zapojeni3] je kontrolér nastaven do režimu MAC.
+Zápisem do registru číslo 0 \cite[ASIXman] je aktivován právě jeden z daných dvou rozhraní a následně pomocí spojky K2 \ref[zapojeni1] je kontrolér nastaven do režimu MAC.
 
 Posledním krokem k oživení USB kontroléru Asix AX88772b bylo nastavení vhodného chování tak, aby bylo zprovozněno rozhraní RMII, které je blíže popsané v \ref[ZPRAC].
 %TODO popsat vhodné chování
@@ -916,8 +915,10 @@ Zapojení je znázorněno na obrázku \ref[MARVELL6065rmii].
 
 Protože i na tomto čipu byla nalezena chyba v komunikaci, byly doplněny chybějící blokovací kondenzátory.
 Navíc byl objeven problém, že  tento čip se po každém zapnutí nastavil do odlišných nastavení.
-Pro vyřešení tohoto problému byl k čipu doplněn kondenzátor, který zařízení opakovaně resetoval po dobu časové konstanty RC
-\fnote{Co je RC TODO XXX}.
+Pro vyřešení tohoto problému byl k čipu doplněn kondenzátor, který zařízení opakovaně resetoval po dobu časové konstanty RC.
+
+$$ T(s) = R (\Omega) * C(F)  $$
+
 Deska tak měla během této doby možnost, aby se vstupní hodnoty na všech pinech ustálily ve správném stavu.
 
 Pro zajištění správného a deterministického chování přepínače byly přidány pull-up a pull-down rezistory.
@@ -1093,57 +1094,37 @@ Dalším způsobem bylo testování skriptem XXX.sh, který opakovaně registruj
 V DSA subsystém obsahuje vlastní systém volání funkce poll, která při odpojení odpojení ovladače může zpanikařit jádro.
 Poněvadž tato funkce přistupuje ke zdílenému prostředku jako funkce uvolňovací stalo se, že při přístupu k datům, mohla tato data být uvolňěna. A poté se již přistupovalo k nenevalidní paměti, což zapříčinilo zpanikaření jádra.
 
+
+\begtt
+$ ping 192.168.202.222
 PING 192.168.202.222 (192.168.202.222) 56(84) bytes of data.
 64 bytes from 192.168.202.222: icmp_seq=1 ttl=64 time=0.368 ms
-64 bytes from 192.168.202.222: icmp_seq=2 ttl=64 time=0.427 ms
-64 bytes from 192.168.202.222: icmp_seq=3 ttl=64 time=0.466 ms
-64 bytes from 192.168.202.222: icmp_seq=4 ttl=64 time=0.462 ms
-64 bytes from 192.168.202.222: icmp_seq=5 ttl=64 time=0.432 ms
-64 bytes from 192.168.202.222: icmp_seq=6 ttl=64 time=0.393 ms
-64 bytes from 192.168.202.222: icmp_seq=7 ttl=64 time=0.466 ms
-64 bytes from 192.168.202.222: icmp_seq=8 ttl=64 time=0.410 ms
-64 bytes from 192.168.202.222: icmp_seq=10 ttl=64 time=0.399 ms
-^C
+...
 --- 192.168.202.222 ping statistics ---
 11 packets transmitted, 9 received, 18% packet loss, time 9997ms
 rtt min/avg/max/mdev = 0.368/0.424/0.466/0.042 ms
+\endtt
 
-
-kajza ~/dp/main_linux/linux_build $ scp ~/Downloads/The.Avengers.2012.1080p.BR.2GB.ShAaNiG.com.mkv aolad@192.168.202.222:~/
-aolad@192.168.202.222's password: 
-The.Avengers.2012.1080p.BR.2GB.ShAaNiG.com.mkv                                                       100% 2044MB   9.9MB/s   03:26    
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 2112
+\begtt
+$ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 2112
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 10000000 bytes (10 MB) copied, 0.877273 s, 11.4 MB/s
+\endtt
 
-^CExiting.
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
-192.168.202.222 2112 (idonix-metanet): Connection refused
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
+\begtt
+$ dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 100000000 bytes (100 MB) copied, 8.49099 s, 11.8 MB/s
-^CExiting.
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
+$ dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 1000000000 bytes (1.0 GB) copied, 85.9629 s, 11.6 MB/s
-^CExiting.
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=160000 count=6250 | nc -v 192.168.202.222 2112
-192.168.202.222 2112 (idonix-metanet) open
-6250+0 records in
-6250+0 records out
-1000000000 bytes (1.0 GB) copied, 85.9921 s, 11.6 MB/s
-kajza ~/dp/main_linux/linux_build $ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 2112
-192.168.202.222 2112 (idonix-metanet) open
-625+0 records in
-625+0 records out
-10000000 bytes (10 MB) copied, 0.874124 s, 11.4 MB/s
-kajza ~/dp/main_linux/linux_build $ 
+\endtt
 
 
 
