@@ -1,4 +1,5 @@
 \chap Úvod
+%citace
 
 Cílem mé diplomové práce je vytvoření ovladače do operačního systému Linux pro přepínač založený na bázi Ethernetu, který by splňoval industriální teplotní rozsahy.
 Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní pro připojení fyzické vrstvy, jsou finančně velmi nákladné. 
@@ -403,9 +404,9 @@ Jednotlivé složky struktury {\em net\_device } mohou být klasifikovány do n�
 
 \secc USB subsystém
 
-Linuxové jádro podporuje dva druhy USB ovladačů -- ovladače na hostovském systému a ovladače na zařízení \cite[LDD3].
+Linuxové jádro podporuje dva druhy USB ovladačů -- ovladače na hostovském systému a ovladače na peroferním zařízení \cite[LDD3].
 USB ovladač na hostovském systému pracuje na systému, ke kterému je USB zařizení připojeno.
-Ovladač na zařízení, neboli \"USB gadget drivers\", je připojen k hostovskému systému a chová se jako hostovská stanice připojená přes USB. %TODO opravit vetu
+Ovladač v periferních zařízeních, neboli \"USB gadget drivers\", je připojen k hostovskému systému ale chová se jako hostovská stanice připojená přes USB.
 Na obrázku níže můžeme vidět USB hierarchii, kde USB může existovat v několika různých subsystémech (net, block, char ...). %chybí obrázek TODO XXX
 USB jádro implementuje rozhraní pro USB ovladače, které chtějí kontrolovat hardware a přistupovat k němu.
 
@@ -528,8 +529,9 @@ Struktura {\em dsa\_switch} nesoucí data o připojeném přepínači obsahuje n
 \begitems
 *dsa\_switch\_tree -- je odkaz na rodičovskou strukturu.
 *dsa\_chip\_data -- struktura obsahující informace o fyzickém přepínači -- kolik má portů a jaké jsou jejich názvy.
-Navíc obsahuje informace o popisu hardwaru ve zkompilovaném device tree \fnote{Device tree je popis hardwarového zařízení ve speciálním formátu \cite[DT].}.
-*device -- je odkaz na hostovské zařízení přepínače. %TODO neni na obrazku UML diagramu
+Navíc obsahuje informace o popisu hardwaru ve zkompilovaném device tree
+\fnote{Device tree je struktura, která popisuje hardwarového zařízení. A odlehčuje kódu, který by popisoval každý detail. \cite[DT].}.
+*device -- je odkaz na hostovské zařízení přepínače.
 *dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na menežování připojeného přepínače, v jádře se tato struktura někdy označuje jako tabulka virtuálních funcí \cite[ULNI].
 *mii\_bus -- je ovladač MII sběrnice.
 *net\_device -- je odkaz na síťové zařízení \ref[NETDEV] reprezentující port zařízení.
@@ -833,7 +835,7 @@ Pro nastavení jádra byla zvolena konfigurace {\em tegra\_defconfig}, která v 
 \endtt
 
 Po přeložení nejnovější verze bylo možno nahrát obraz jádra a přeloženého device tree
-\fnote{Device Tree popisuje hardwarového zapojení modulu.}
+\fnote{Device tree je struktura, která popisuje hardwarového zařízení. A odlehčuje kódu, který by popisoval každý detail. \cite[DT].}.
 do RAM paměti modulu za pomoci USB-ethernetového kontroléru v konzoli zavaděče U-Boot následujícími příkazy:
 
 \begtt
@@ -900,7 +902,6 @@ Z obrázku \ref[ASIXRMII] lze vyčíst, že kontrolér AX88772b není schopen ko
 Zápisem do registru číslo 0 \cite[ASIXman] je aktivován právě jeden z daných dvou rozhraní a následně pomocí spojky K2 \ref[zapojeni1] je kontrolér nastaven do režimu MAC.
 
 Posledním krokem k oživení USB kontroléru Asix AX88772b bylo nastavení vhodného chování tak, aby bylo zprovozněno rozhraní RMII, které je blíže popsané v \ref[ZPRAC].
-%TODO popsat vhodné chování
 
 \label[oMV]
 
@@ -958,7 +959,10 @@ Sekce zpracování popisuje provedení jednotlivých částí ovladače podle n�
 
 Jelikož nebyl ovladač pro zařízení Asix AX88772b připraven na připojení RMII rozhraní, bylo zapotřebí nastavit toto rozhraní jako aktivní.
 To však nemůže být aktivní současně s rozhraním ethernet PHY, které je taktéž integrováno na čipu, jak je zobrazeno na obrázku \ref[ASIXRMII].
-Dále bylo potřeba upravit subsystém DSA tak, aby podporoval inicializace zařízení za běhu, konkrétně jeho odhlašování a uvolňování. 
+To bylo provedeno zapsáním dat do registru označeném SW\_PHY\_SELECT, který aktivoval druhé rozhraní.
+Dále bylo potřeba zaregistrovat strukturu mii\_bus, která bude tunelovat komunikaci skrz tento kontrolér.
+
+Poté bylo potřeba upravit subsystém DSA tak, aby podporoval inicializace zařízení za běhu, konkrétně jeho odhlašování a uvolňování. 
 Posledním krokem bylo vytvořit samotný ovladač pro zařízení ethernetového přepínače Marvell 88E6065, které řeší jeho funkčnost.
 
 \label[asixdri]
@@ -1005,7 +1009,7 @@ Následná změna DSA subsystému je popsaná v \ref[dsadri].
 \secc Úprava subsystému DSA
 
 Subsystém DSA byl rozšířen o veřejnou funkci {\em dsa\_probe\_netdevice()}, která vytváří softwarové rozhraní pro přepínač.
-Každý port přepínače byl reprezentován vlastním ethernetovým rozhraním net\_device \ref[NETDEV], které mají společného rodiče stejného typu. %TODO uhladit
+Každý port přepínače byl reprezentován vlastním virtuálním ethernetovým rozhraním net\_device \ref[NETDEV], která mají společného rodiče stejného typu.
 
 Kvůli problému v komunikaci bylo potřeba odloučit datovou strukturu DSA od platform\_driveru, což následně způsobilo rozšíření dsa\_switch\_driver \ref[mvdri].
 
@@ -1021,8 +1025,7 @@ Funkce na uvolňování ovladače nebyla v původní verzi dokončena, a proto b
 Pro kontrolu zařízení Marvell 88E6065 bylo zapotřebí vytvořit ovladač, který není v současné době naimplementován v Linuxovém jádře.
 
 Tento ovladač je instancí dsa\_switch\_driver, jak je vidět na obrázku \ref[umlDSA].
-Struktura dsa\_switch\_driver obsahuje metody, které zajišťují nainicializování, uvolňení a nastavení přepínače jako celku i jeho jednotlivých portů.
-%TODO rozepsat
+Struktura dsa\_switch\_driver obsahuje metody, které zajišťují nainicializování, uvolňení a nastavení přepínače jako celku i jeho jednotlivých portů. Též obsahuje metody pro zápis na médium, které je v našem případě tunelován přes USB-ethernet kontrolér.
 
 
 \sec Spojení jednotlivých ovladačů
@@ -1061,8 +1064,8 @@ Uvolňování paměti proběhlo několika způsoby.
 
 Prvním způsobem bylo testování pomocí utility v Linuxovém jádře, kterou je Kernel Memory Leak Detektor
 \fnote{Kernel Memory Leak Detektor je utilita v Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
-Tato utilita sleduje naalokocané bloky a ukladá si o nich informace.
-A vyhlasí chybovou hlášku, kterou můžeme vidět níže, pokud systém vymaže všechny ukazatele na tento objekt.
+Tato utilita sleduje naalokocané bloky a ukladá si o nich informace
+Pokud nalezne neuvolňený blok paměti, který nemá reference vyhlasí chybovou hlášku, kterou můžeme vidět níže.
 
 \begtt
 unreferenced object 0xdaafbfc0 (size 64):
@@ -1089,19 +1092,19 @@ unreferenced object 0xdaafbfc0 (size 64):
     [<c0388818>] usb_set_configuration+0x530/0x75c
 \endtt
 
-Jak lze vidět z tohoto výpisu utility Kernel Memory Leak Detektoru -- ten drží informace ke každé alokované instaci objektu a ukladá o ni informace jako trasování tj. zásobník, popisující volání funkce při alokaci objektu na který jsem zpratili reference.
+Jak lze vidět z tohoto výpisu utility Kernel Memory Leak Detektoru -- ten drží informace ke každé alokované instaci objektu a ukladá o ni informace jako je její velikost, stráří a trasování tj. zásobník, popisující volání funkce při alokaci objektu na které byla zpracena reference.
 Z tohoto trasování můžeme nadále vyhledat jaká funkce alokovala pamět a na základě toho opravit kód.
 
-Chyba zmíněná výše nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj.
+Chyba zmíněná výše nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj subsystému sysfs.
+
 Po opravení této chyby, další neočekavané neuvolňení paměti tato utilita neobjevila.
 
 Dalším způsobem bylo testování skriptem test.sh, který opakovaně registruje a odregistrovává ovladač.
-
 Ten objevil chybu v přístupu ke sdílenému objektu.
-Konkrétně v DSA subsystému, ten obsahuje periodickou rutinu {\em poll}, která je vyvolána časovačem.
-Tato rutina periodicky vyčítá zařízení a dotazuje se ho, zdali nepotřebuje nějakou interakci.
+Konkrétně v DSA subsystému, který obsahuje periodickou rutinu {\em poll}, která je vyvolána časovačem.
+Tato rutina periodicky vyčítá ze zařízení a dotazuje se ho, zdali nepotřebuje nějakou interakci.
 
-Několikrát se stalo, že během zpracovávání funkce {\em poll} byla data se kterými pracuje funkce {\em poll}, uvolňena.
+Několikrát nastalo, že během zpracovávání funkce {\em poll} byla data, snimiž funkce {\em poll} pracovala, uvolňena.
 To zapříčinilo zpanikaření jádra a následný pád systému.
 
 Po uzamčení sdílených dat, tento problém již nenastal.
@@ -1110,14 +1113,17 @@ Po uzamčení sdílených dat, tento problém již nenastal.
 
 \sec Inicializace zařízení
 
-Po připojení zařízení je důležité toto zařízení nastavit, to v rámci testování probíhalo Linuxovou utilitou ifconfig a ip.
-Prvním krokem po připojení zařízení je nastavení rodičovského uzlu jako aktivní, kde {\em eth1} specifikuje tento uzel.
+Po připojení zařízení systém zaregistruje připojené zařízení na základě ID produktu a vyrobce, a přídělí ovladač zařízení AX88772b.
+Poté v systému bylo objeveno rozhraní reprezentující rozhraní tohoto zařízení.
+Nastavení bylo provedeno Linuxovou utilitou ifconfig a ip.
+
+Dalším krokem po připojení zařízení bylo nastavení rodičovského uzlu jako aktivní, kde {\em eth1} specifikuje uzel rodičovského zařízení Asix AX88772b.
 
 \begtt
 > ifconfig eth1 up
 \endtt
 
-Po aktivování rodičovského zařízení připojíme DSA subsystém, aby mohl být ovládán konfigurovatelný přepínač.
+Po aktivování rodičovského zařízení bylo nutné připojit tento uzel k DSA subsystému.
 To bylo provedeno zapsaním do souboru {\em usb\_dsa\_bind}, který se nachází ve složce patřící k příslušnému USB zařízení v našem případě je tato cesta {\em /sys/devices/soc0/c5008000.usb/usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind}.
 Pak tento příkaz vypadá následovně.
 
@@ -1126,14 +1132,14 @@ Pak tento příkaz vypadá následovně.
      usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind
 \endtt
 
-Po tomto příkazu se ovladač přepínače inicializuje a vytvoří virtuální rozhraní pro každý ze svých portů.
-Zapnutí tohoto portu může probíhat například následovně, kde název rozhraní portu je {\em port1}.
+Po tomto příkazu byl ovladač přepínače inicializován a vytvořil virtuální rozhraní pro každý ze svých portů.
+Zapnutí tohoto portu by mohlo probíhat například následovně, kde název rozhraní portu je {\em port1}.
 
 \begtt
 > ifconfig port1 up
 \endtt
 
-Po tomto příkazu máme aktivován {\em port1}, který má nastavenou automatickou konfiguraci rychlosti a tento port není umístěn v žádné z VLAN.
+Po tomto příkazu bude aktivován {\em port1}, který má nastavenou automatickou konfiguraci rychlosti a tento port není umístěn v žádné z VLAN.
 
 \sec Testování zařízení a výkonu
 
@@ -1141,7 +1147,7 @@ V první řádě bylo potřeba se ujistit, že přepínač je dobře nastaven.
 To probíhalo kontrolou od nejnižších vrstev ISO/OSI, fyzickou, až po nějvyšší, kterou je aplikační.
 
 Po připojení UTP kabelu mezi přepínač a počítač bylo nutné zapnout port přepínače \ref[INIT].
-A zařízení by mělo začít komunikovat s počítačem a měla by proběhnout automatická konfigurace rychlosti.
+Po nastavnení portu přepínače by zařízení mělo začít komunikovat s počítačem tj. měla by proběhnout automatická konfigurace rychlosti.
 Jak je možné vidět níže z výpisu nástroje ethtool.
 
 \begtt
@@ -1152,8 +1158,8 @@ Settings for eth0:
 	Supports auto-negotiation: Yes
 	Advertised pause frame use: Symmetric Receive-only
 	Advertised auto-negotiation: Yes
-	Link partner advertised link modes:  10baseT/Half 10baseT/Full 
-	                                     100baseT/Half 100baseT/Full 
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
 	Link partner advertised pause frame use: No
 	Link partner advertised auto-negotiation: Yes
 	Speed: 100Mb/s
@@ -1165,7 +1171,15 @@ Settings for eth0:
 	Link detected: yes
 \endtt
 
-Po připojení dalšího zařízení a aktivování dalšího z portů mohla být testována komunikace mezi zařízeními skrze konfigurovatelný přepínač.
+Zde je vidět, že je připojena fyzická linka a přepínač podporuje automatickou konfiguraci rychlosti a rychlosti 10~Mb/s a 100~Mb/s.
+
+\medskip
+\clabel[PCcon]{Síť pro testování konfigurovatelného přepínače.}
+\picw=10cm \cinspic images/cpcon.pdf
+\caption/f Obrázek zobrazuje připojení konfigurovatelného přepínače pro testování komunikace.
+\medskip
+
+Po připojení dalšího zařízení, aktivování dalšího z portů a nastavení IP adres by mělo vypadat zapojení tak jak je uvedeno na obrázku \ref[PCcon] mohla být testováno zdali přepínač správně přenáší data.
 Mezi nejzákladnější testy připojení patří ping, který je jenden z kontrolních zpráv ICMP protokolu.
 
 \begtt
@@ -1178,16 +1192,17 @@ PING 192.168.202.222 (192.168.202.222) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.368/0.424/0.466/0.042 ms
 \endtt
 
-Jak je vidět na výpisu, zařízení úspěšně poskalo ICMP paket ping a také na něj dostalo odpověd ICMP paketu PONG.
-A nyní bylo možno otestovat přenos dat na reálných datech, která byla pro tento účel brána z nulového zařízení {\em /dev/null}.
+Jak je vidět na výpisu, zařízení PC2 úspěšně poslalo ICMP paket ping skrz přepípínač a také na tento dotaz dostalo odpověď formou ICMP paketu PONG.
 
-Pro zpuštění testu bylo nutno na jednom ze dvouch počítačů zapnout server, který bude naslouchat na portu 4242:
+Nyní bylo možno otestovat přenos dat na reálných datech, která byla pro tento účel brána z nulového zařízení {\em /dev/null}.
+Pro spuštění testu ryclosti přenosu dat bylo nutno na jednom z těchto počítačů zapnout server, který bude naslouchat na portu 4242.
+Pro tento úkol byl vybrán počítač PC1, který za použití nástroje netcat zapnul server, který poslouchá na portu 4242.
 
 \begtt
 > nc -lk -z 4242 > /dev/null
 \endtt
 
-A na druhém z počítačů bylo nutno zapnout přenos dat na druhý počítač s danou IP adresou a daným portem, tak jak můžeme vidět na výpisu níže:
+A na druhém počítači PC2 bylo nutno zapnout přenos dat na první počítač PC1 s danou IP adresou a daným portem, tak jak můžeme vidět na výpisu níže:
 
 \begtt
 > dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 4242
@@ -1212,7 +1227,8 @@ Na tomto příkaldě bylo odesláno 10~MB dat v 625 paketech, která byla přene
 1000000000 bytes (1.0 GB) copied, 85.9629 s, 11.6 MB/s
 \endtt
 
-Tyto testy také byla prováděny na různých velikostech a rychlost přenosu se pohybovala mezi 11.3~MB/s až 11.9~MB/s.
+Tyto testy také byly prováděny na různých velikostech a rychlost přenosu se pohybovala se v rozmezí od 11.3~MB/s až 11.9~MB/s.
+Toto rozmezí způsobuje délka a počet hlaviček paketů.
 
 
 \begtt
@@ -1260,19 +1276,20 @@ Proto se tato práce zabývá možností připojení ethernetového přepínače
 Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích.
 Zadání bylo vytvořeno za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
 Firma poskytla pro tuto práci modul Colibri T20 a konfigurovatelný přepínač i s návrhem.
-Deska konfigurovatelného přepínače byl založen na přepínacím obvodu 88E6065 a je vyvinut firmou Marvell a byl připojen USB--ethernetovým kontrolérem AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
+Deska konfigurovatelného přepínače byla založena na přepínacím obvodu 88E6065 a vyvinutým firmou Marvell, který je připojen USB--ethernetovým kontrolérem AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
 
 Pro vytvoření ovladače byla naportována nejnovější verze operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a splňuje industriální teplotní rozsahy.
-Dálé byl implementován ovladač pro přepínač do této verze operačního systému, který umožňuje inicializaci zařízení za běhu a umí reprezentovat každý port přepínače jako virtuální rozhraní v uživatelském prostoru operačního systému Linux.
+Dálé byl implementován ovladač pro přepínač do této verze operačního systému, který umožňuje inicializaci zařízení za běhu a umí reprezentovat každý port přepínače jako virtuální rozhraní viditelné v uživatelském prostoru operačního systému Linux.
 
 Tento ovladač byl složen z úpravy stávajícího ovladače pro kontrolér AX88772b, který byl rozšířen o podporu menežovacího rozhraní RMII.
 Další úpravou prošel subsystém DSA, který byl doplňen o možnost uvolňení zařízení za běhu a také jeho připojení.
-K implementaci ovladače pro menežovatelný přepínač taky patří ovladač pro čip ethernetového přepínače Marvell 88E6065, který řídí tento obvod.
+K implementaci ovladače také patří ovladač pro čip ethernetového přepínače Marvell 88E6065, který ovládá funkčnost samotného přepínače.
 Implementace byla provedena na současné verzi Linuxového jádra s pokusem dostat tuto upravu do hlavní větve Linuxového jádra.
-Kde bylo navrženo nějakolik úprav, vylepšení a chyb, které se vyskytli v ovladači.
+Při pokusu poslat tuto úpravu do hlavní větve Linuxového jádra bylo navrženo nějakolik úprav, vylepšení a chyb, které se vyskytli v ovladači.
 
-V této práci byl vytvořen ovladač ethernetového přepínače, který úspěšně zavede přepínač a vytvoření pro něj rozhraní viditělná z uživatelského prostoru.
-V další práci by bylo dobré rozšiřit funkčnost tohoto ovladače, aby podporoval více funkcí.
+V této práci byl vytvořen ovladač ethernetového přepínače, který úspěšně zavede přepínač do systému po jeho připojení a vytvoření pro něj rozhraní viditělná z uživatelského prostoru.
+
+Dalším krokem práce by bylo dobré rozšiřit funkčnost tohoto ovladače, aby podporoval více funkcí.
 
 %funguje, odezva, linuxova komunita, dosazene vysledky, vykon
 %MII,RMII,GMII,RGMII,SGMII,QGMII,XAUI
