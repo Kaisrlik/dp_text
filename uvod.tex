@@ -375,7 +375,7 @@ Každé zařízení naimplementované na nejnižší úrovni je v operačním sy
 Struktura device obsahuje informace o tom, co zařízení potřebuje, aby správně fungovalo v systému.
 Mnoho subsystémů uchovává informace o struktuře device a tyto informace využívá k dalším procesům.
 V dnešní době je velmi obtížné nalézt zařízení, které by bylo reprezentováno pouze strukturou {\em device}.
-Místo toho některé instance ve struktuře {\em device}, jako je kobj, obecně implementují zařízení, která jsou nadřazená struktuře {\em device} \ref[DEV].
+Místo toho některé instance ve struktuře {\em device}, jako je kobj, obecně implementují zařízení, která jsou nadřazená struktuře {\em device} \cite[DEV].
 \fnote{Popis datové struktury {\em device} lze nalézt na \url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
 
 \label[NETDEV]
@@ -492,7 +492,7 @@ Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobraz
 \medskip
 
 Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
-Nastavování přepínače, jako je nastavení portů a menežování MII rozhraní, je provedeno na základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení \ref[EMBLINUX].}.
+Nastavování přepínače, jako je nastavení portů a menežování MII rozhraní, je provedeno na základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení \cite[EMBLINUX].}.
 
 Subsystém DSA podporuje i propojení mezi přepínači tak, jak je možno vidět na obrázku \ref[DSAcon2].
 Takto propojené přepínače lze ovládat skrz MII rozhraní.
@@ -591,7 +591,7 @@ Také popisuje desku konfigurovatelného přepínače a čipy, které jsou na t�
 
 \sec Počítačový modul Colibri T20
 
-Colibri T20, vyráběný firmou Toradex \ref[TODADEX], je počítačový modul postaven na základě NVIDIA Tegra 2 vestavěném systému na čipu \cite[SOC].
+Colibri T20, vyráběný firmou Toradex \cite[TODADEX], je počítačový modul postaven na základě NVIDIA Tegra 2 vestavěném systému na čipu \cite[SOC].
 Tento modul dále obsahuje 256~MB DDR2 paměti a 512~MB NAND flash paměti.
 Má velké množství komunikačních rozhraní jako je I2C, SPI, UART, MMC, USB, ethernet a PWM.
 Také obsahuje výstup na video a audio.
@@ -742,22 +742,22 @@ V následujícím kroku bylo nutné stáhnout a zkompilovat nejnovější zavad�
 Jako konfigurační soubor byl zvolen {\em colibri\_t20\_iris\_config}, který popisuje modul Colibri T20 s vývojovou deskou Iris.
 
 \begtt
-$ git clone git://git.denx.de/u-boot.git
-$ export CROSS_COMPILE=~/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
-$ export ARCH=arm
-$ make colibri_t20_iris_config
-$ make -j8
+> git clone git://git.denx.de/u-boot.git
+> export CROSS_COMPILE=~/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
+> export ARCH=arm
+> make colibri_t20_iris_config
+> make -j8
 \endtt
 
 Dále bylo potřeba stáhnout nástroje, které by sloužily k vytvoření cílového binárního souboru zavaděče U-Boot.
 
 \begtt
-$ git clone https://github.com/NVIDIA/cbootimage-configs.git
-$ cbootimage -gbct -t20
+> git clone https://github.com/NVIDIA/cbootimage-configs.git
+> cbootimage -gbct -t20
 		tegra20/toradex/colibri-t20/colibri-t20_512_v12_nand.bct.cfg
  		colibri-t20_512_v12_nand.bct
-$ cp ../u-boot/u-boot-dtb-tegra.bin u-boot.bin
-$ cbootimage -t20
+> cp ../u-boot/u-boot-dtb-tegra.bin u-boot.bin
+> cbootimage -t20
  		tegra20/toradex/colibri-t20/colibri-t20_512_v12_nand.img.cfg
  		colibri-t20_512_v12_nand.img
 \endtt
@@ -765,7 +765,7 @@ $ cbootimage -t20
 Poté byl zavaděč zaveden z diskového souboru  následujícím příkazem:
 
 \begtt
-$ tegrarcm --bct colibri-t20_512_v12_nand.bct --loadaddr=0x00108000
+> tegrarcm --bct colibri-t20_512_v12_nand.bct --loadaddr=0x00108000
  		--bootloader=../u-boot/u-boot-dtb-tegra.bin
 \endtt
 
@@ -824,12 +824,12 @@ Pro instalaci Linuxového jádra bylo potřeba stáhnout a přeložit nejnověj�
 Pro nastavení jádra byla zvolena konfigurace {\em tegra\_defconfig}, která v jádře vybere moduly a ovladače pro jeho běh.
 
 \begtt
-$ git clone git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-$ export LOADADDR=0x408000
-$ export ARCH=arm
-$ export CROSS_COMPILE=/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
-$ make tegra_defconfig
-$ make -j8 uImage
+> git clone git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+> export LOADADDR=0x408000
+> export ARCH=arm
+> export CROSS_COMPILE=/PATH/gcc-linaro/bin/arm-linux-gnueabihf-
+> make tegra_defconfig
+> make -j8 uImage
 \endtt
 
 Po přeložení nejnovější verze bylo možno nahrát obraz jádra a přeloženého device tree
@@ -1048,10 +1048,12 @@ Můj příspěvek strhl debatu o možnostech subsystému DSA v Linuxovém jádř
 Pravděpodobně však tato změna subsystému DSA nenastane ani v příštích verzích Linuxového jádra.
 Z diskuze však vyplynulo, že se pravděpodobně celý subsystém DSA v budoucnu přepíše.
 
+\label[TEST]
+
 \chap Testování
 
 Tato kapitola se zabývá testováním implementovaného řešíní zejména na propustnost a stabilitu sítě.
-Jelikož se jedná o systém s podporou inicializace za běhu, je také důležité aby se v řešení neobjevovali žádné neuvolňené bloky paměti nebo aby v systém nespotřeboval paměť celou.
+Jelikož se jedná o systém s podporou inicializace za běhu, je také důležité aby se v řešení neobjevovali žádné neuvolňené bloky paměti nebo aby systém s postupem času nealokoval stále více paměťi.
 
 \sec Testování uvolňování paměti
 
@@ -1059,7 +1061,8 @@ Uvolňování paměti proběhlo několika způsoby.
 
 Prvním způsobem bylo testování pomocí utility v Linuxovém jádře, kterou je Kernel Memory Leak Detektor
 \fnote{Kernel Memory Leak Detektor je utilita v Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
-Díky tomu objeví naalokocané bloky, které už ztratili všechny ukazatele na tuto paměť.
+Tato utilita sleduje naalokocané bloky a ukladá si o nich informace.
+A vyhlasí chybovou hlášku, kterou můžeme vidět níže, pokud systém vymaže všechny ukazatele na tento objekt.
 
 \begtt
 unreferenced object 0xdaafbfc0 (size 64):
@@ -1086,58 +1089,63 @@ unreferenced object 0xdaafbfc0 (size 64):
     [<c0388818>] usb_set_configuration+0x530/0x75c
 \endtt
 
-Jak lze vidět z tohoto výpisu utility Kernel Memory Leak Detektoru, který drží informace ke každé alokované instaci objektu a ukladá o ni informace jako trasování -- zásobník, popisující volání funkcí až k zmíněné alokaci objektu.
-Z tohoto trasování můžeme nadále vyhledat .
+Jak lze vidět z tohoto výpisu utility Kernel Memory Leak Detektoru -- ten drží informace ke každé alokované instaci objektu a ukladá o ni informace jako trasování tj. zásobník, popisující volání funkce při alokaci objektu na který jsem zpratili reference.
+Z tohoto trasování můžeme nadále vyhledat jaká funkce alokovala pamět a na základě toho opravit kód.
 
-Tato chyba nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj.
+Chyba zmíněná výše nastala v mém kódu, kdy jsem zapoměl odregistrovat instanci kobj.
 Po opravení této chyby, další neočekavané neuvolňení paměti tato utilita neobjevila.
 
 Dalším způsobem bylo testování skriptem test.sh, který opakovaně registruje a odregistrovává ovladač.
 
 Ten objevil chybu v přístupu ke sdílenému objektu.
 Konkrétně v DSA subsystému, ten obsahuje periodickou rutinu {\em poll}, která je vyvolána časovačem.
-Tato rutina periodicky vyčítá zařízení a dotazuje se ho, zdali něco nepotřebuje.
+Tato rutina periodicky vyčítá zařízení a dotazuje se ho, zdali nepotřebuje nějakou interakci.
 
-Stalo se, že během zpracovávání funkce {\em poll} mohla být tato data uvolňena, což zapříčinilo zpanikaření jádra a systém spadl.
+Několikrát se stalo, že během zpracovávání funkce {\em poll} byla data se kterými pracuje funkce {\em poll}, uvolňena.
+To zapříčinilo zpanikaření jádra a následný pád systému.
 
-Po uzmčení sdílených dat, tento problém již nenastal.
+Po uzamčení sdílených dat, tento problém již nenastal.
+
+\label[INIT]
 
 \sec Inicializace zařízení
 
 Po připojení zařízení je důležité toto zařízení nastavit, to v rámci testování probíhalo Linuxovou utilitou ifconfig a ip.
-Prvním krokem po připojení zařízení je nastavení rodičovského uzlu, kde {\em eth1} specifikuje tento uzel.
+Prvním krokem po připojení zařízení je nastavení rodičovského uzlu jako aktivní, kde {\em eth1} specifikuje tento uzel.
 
 \begtt
-ifconfig eth1 up
+> ifconfig eth1 up
 \endtt
 
-Po nastavení rodičovského zařízení připojíme DSA subsystém, abychom mohli ovládat celý přepínač.
-A to zapsaním do souboru {\em usb\_dsa\_bind}, který se nachází ve složce patřící k příslušnému USB zařízení v našem případě je tato cesta {\em /sys/devices/soc0/c5008000.usb/usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind}.
+Po aktivování rodičovského zařízení připojíme DSA subsystém, aby mohl být ovládán konfigurovatelný přepínač.
+To bylo provedeno zapsaním do souboru {\em usb\_dsa\_bind}, který se nachází ve složce patřící k příslušnému USB zařízení v našem případě je tato cesta {\em /sys/devices/soc0/c5008000.usb/usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind}.
 Pak tento příkaz vypadá následovně.
 
 \begtt
-echo 1 > /sys/devices/soc0/c5008000.usb/
+> echo 1 > /sys/devices/soc0/c5008000.usb/
      usb3/3-1/3-1.1/DSA\_BIND/dsa\_bind/usb\_dsa\_bind
 \endtt
 
-Po tomto příkazu se ovladač přepínače inicializuje a nyní je připraven na práci.
-
-Například zapnutí portu probíhá následovně, kde název rozhraní portu je {\em port1}.
+Po tomto příkazu se ovladač přepínače inicializuje a vytvoří virtuální rozhraní pro každý ze svých portů.
+Zapnutí tohoto portu může probíhat například následovně, kde název rozhraní portu je {\em port1}.
 
 \begtt
-ifconfig port1 up
+> ifconfig port1 up
 \endtt
 
-Tento příkaz zapne port.
+Po tomto příkazu máme aktivován {\em port1}, který má nastavenou automatickou konfiguraci rychlosti a tento port není umístěn v žádné z VLAN.
 
 \sec Testování zařízení a výkonu
 
-V první řádě je potřeba je potřeba se ujistit, že přepínač je dobře nastaven a fyzická vrstva je připojena.
-Po připojení UTP kabelu mezi přepínač, který má zaplé porty a počítač.
-Je možné vidět, že přepínač má nastaveny následující vlastnosti.
+V první řádě bylo potřeba se ujistit, že přepínač je dobře nastaven.
+To probíhalo kontrolou od nejnižších vrstev ISO/OSI, fyzickou, až po nějvyšší, kterou je aplikační.
+
+Po připojení UTP kabelu mezi přepínač a počítač bylo nutné zapnout port přepínače \ref[INIT].
+A zařízení by mělo začít komunikovat s počítačem a měla by proběhnout automatická konfigurace rychlosti.
+Jak je možné vidět níže z výpisu nástroje ethtool.
 
 \begtt
-$ ethtool eth0
+> ethtool eth0
 Settings for eth0:
 	Supported ports: [ TP MII ]
 	Supported pause frame use: No
@@ -1157,11 +1165,11 @@ Settings for eth0:
 	Link detected: yes
 \endtt
 
-Nyní, když připojíme další zařízení k přepínači, kterému tak jistě nastavíme port můžeme otestovat, že tyto dvě zařízení komunikují.
-A to nejlépe příkazem ping, který je jeden z kontrolních zpráv ICMP protokolu.
+Po připojení dalšího zařízení a aktivování dalšího z portů mohla být testována komunikace mezi zařízeními skrze konfigurovatelný přepínač.
+Mezi nejzákladnější testy připojení patří ping, který je jenden z kontrolních zpráv ICMP protokolu.
 
 \begtt
-$ ping 192.168.202.222
+> ping 192.168.202.222
 PING 192.168.202.222 (192.168.202.222) 56(84) bytes of data.
 64 bytes from 192.168.202.222: icmp_seq=1 ttl=64 time=0.368 ms
 ...
@@ -1170,20 +1178,19 @@ PING 192.168.202.222 (192.168.202.222) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.368/0.424/0.466/0.042 ms
 \endtt
 
-Jak je vidět, zařízení na sebe vidí a komunikují spolu.
-Nyní však otestujeme reálnou komunikaci na zkutečných datech.
+Jak je vidět na výpisu, zařízení úspěšně poskalo ICMP paket ping a také na něj dostalo odpověd ICMP paketu PONG.
+A nyní bylo možno otestovat přenos dat na reálných datech, která byla pro tento účel brána z nulového zařízení {\em /dev/null}.
 
-Na jednom ze dvouch počítačů zapnememe server, který bude poslouchat na portu např. 4242:
+Pro zpuštění testu bylo nutno na jednom ze dvouch počítačů zapnout server, který bude naslouchat na portu 4242:
 
 \begtt
-$nc -lk -z 4242 > /dev/null
+> nc -lk -z 4242 > /dev/null
 \endtt
 
-A na druhém z počítačů zapneme přenos dat na druhý počítač s danou IP adresou a daným portem:
-A budeme sledovat jak se data liší na různých velikostech dat.
+A na druhém z počítačů bylo nutno zapnout přenos dat na druhý počítač s danou IP adresou a daným portem, tak jak můžeme vidět na výpisu níže:
 
 \begtt
-$ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 4242
+> dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 4242
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
@@ -1193,19 +1200,19 @@ $ dd if=/dev/zero bs=16000 count=625 | nc -v 192.168.202.222 4242
 Na tomto příkaldě bylo odesláno 10~MB dat v 625 paketech, která byla přenesena rychlostí 11.4~MB/s.
 
 \begtt
-$ dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
+> dd if=/dev/zero bs=160000 count=625 | nc -v 192.168.202.222 2112
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 100000000 bytes (100 MB) copied, 8.49099 s, 11.8 MB/s
-$ dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
+> dd if=/dev/zero bs=1600000 count=625 | nc -v 192.168.202.222 2112
 192.168.202.222 2112 (idonix-metanet) open
 625+0 records in
 625+0 records out
 1000000000 bytes (1.0 GB) copied, 85.9629 s, 11.6 MB/s
 \endtt
 
-Tyto testy také byla prováděny na různých velikostech a rychlost přenosu se pohybovala mezi 11.3~MB/s až 12.1~MB/s
+Tyto testy také byla prováděny na různých velikostech a rychlost přenosu se pohybovala mezi 11.3~MB/s až 11.9~MB/s.
 
 
 \begtt
@@ -1242,11 +1249,32 @@ Tyto testy také byla prováděny na různých velikostech a rychlost přenosu s
     from [<c0868c0c>] (start_kernel+0x360/0x3cc)
 \endtt
 
-\sec Cíle
+%\sec Zhodnocení
 
-\sec Zhodnocení
+\chap Závěr
 
-\chap Zaver
+Cílem mé diplomové práce bylo vytvoření ovladače do operačního systému Linux pro přepínač založený na bázi Ethernetu, který by splňoval industriální teplotní rozsahy.
+Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní pro připojení fyzické vrstvy, jsou finančně velmi nákladné.
+Proto se tato práce zabývá možností připojení ethernetového přepínače pomocí USB sběrnice.
 
-funguje, odezva, linuxova komunita, dosazene vysledky, vykon
-MII,RMII,GMII,RGMII,SGMII,QGMII,XAUI
+Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích.
+Zadání bylo vytvořeno za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
+Firma poskytla pro tuto práci modul Colibri T20 a konfigurovatelný přepínač i s návrhem.
+Deska konfigurovatelného přepínače byl založen na přepínacím obvodu 88E6065 a je vyvinut firmou Marvell a byl připojen USB--ethernetovým kontrolérem AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
+
+Pro vytvoření ovladače byla naportována nejnovější verze operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a splňuje industriální teplotní rozsahy.
+Dálé byl implementován ovladač pro přepínač do této verze operačního systému, který umožňuje inicializaci zařízení za běhu a umí reprezentovat každý port přepínače jako virtuální rozhraní v uživatelském prostoru operačního systému Linux.
+
+Tento ovladač byl složen z úpravy stávajícího ovladače pro kontrolér AX88772b, který byl rozšířen o podporu menežovacího rozhraní RMII.
+Další úpravou prošel subsystém DSA, který byl doplňen o možnost uvolňení zařízení za běhu a také jeho připojení.
+K implementaci ovladače pro menežovatelný přepínač taky patří ovladač pro čip ethernetového přepínače Marvell 88E6065, který řídí tento obvod.
+Implementace byla provedena na současné verzi Linuxového jádra s pokusem dostat tuto upravu do hlavní větve Linuxového jádra.
+Kde bylo navrženo nějakolik úprav, vylepšení a chyb, které se vyskytli v ovladači.
+
+V této práci byl vytvořen ovladač ethernetového přepínače, který úspěšně zavede přepínač a vytvoření pro něj rozhraní viditělná z uživatelského prostoru.
+V další práci by bylo dobré rozšiřit funkčnost tohoto ovladače, aby podporoval více funkcí.
+
+%funguje, odezva, linuxova komunita, dosazene vysledky, vykon
+%MII,RMII,GMII,RGMII,SGMII,QGMII,XAUI
+
+

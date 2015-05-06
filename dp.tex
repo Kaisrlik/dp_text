@@ -11,10 +11,17 @@
 \date {Květen 2015}
 \abstractEN {XXX}
 \abstractCZ {
-Cílem této diplomová práce je portace systému Linux na modul Colibri T20 a implementace ovladače do operačního systému Linux pro zařízení na bázi přepínacího obvodu 88E6065 vyvíjené firmou Marvell, který je připojen USB kontrolérem AX88772b od firmy Asix, které splňuje industriální rozsah teplot.
-Tato práce se též zabývá MII rozhraním, které slouží k připojení přepínacích obvadů, směrovacích zařízení a fyzických vrstev.
-A také se zabývá USB sběrnicí.
-Práce též rozebírá subsystémem ethernetového zasobníku a přepínacích obvodů v operačním systému Linux.
+
+Cílem této diplomové práce je portace operačního systému Linux na modul Colibri T20 a implementace ovladače do tohoto operačního systému pro teplotně odolný přepínač na bázi Ethernetu.
+Tento přepínač je postaven na obvodu 88E6065 vyvíjeným firmou Marvell, ke kterému je připojen USB-Ethernet kontrolérem AX88772b od firmy Asix, který splňuje požadovaný industriální rozsah teplot.
+Tento kontrolér slouží k připojení přepínače za pomoci USB sběrnice.
+V teoretické části práce je popsána USB sběrnice a MII rozhraní, které slouží k připojení tohoto přepínacího obvodu.
+Dále je charakterizován síťový a přepínací subsystém v operačním systému Linux.
+
+Daný problém byl vyřešen rozšířením stávajícího ovladače pro kontrolér AX88772b, úpravou přepínacího subsystému pro podporu zařízení připojených za běhu systému a vytvořením ovladače pro přepínací obvod 88E6065.
+
+V práci byl vytvořen systém, který úspěšně zavede přepínač a vytvoří pro něj rozhraní viditelné v uživatelském prostoru.
+
 }
 \declaration {
 Prohlašuji, že jsem předloženou práci vypracoval samostatně a že jsem uvedl veškeré použité informační zdroje v souladu s Metodickým pokynem o dodržování etických principů při přípravě vysokoškolských závěrečných prací.
