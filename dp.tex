@@ -12,15 +12,13 @@
 \abstractEN {XXX}
 \abstractCZ {
 
-Cílem této diplomové práce je portace operačního systému Linux na modul Colibri T20 a implementace ovladače do tohoto operačního systému pro teplotně odolný přepínač na bázi Ethernetu.
-Tento přepínač je postaven na obvodu 88E6065 vyvíjeným firmou Marvell, ke kterému je připojen USB-Ethernet kontrolérem AX88772b od firmy Asix, který splňuje požadovaný industriální rozsah teplot.
+Cílem této diplomové práce je portace operačního systému Linux na modul Colibri T20 a implementace ovladače do tohoto operačního systému pro teplotně odolný Ethernetový přepínač.
+Tento přepínač je postaven na obvodu 88E6065 vyvinutým firmou Marvell, ke kterému je připojen USB-Ethernet kontrolérem AX88772b od firmy Asix, který splňuje požadovaný průmyslový rozsah teplot.
 Tento kontrolér slouží k připojení přepínače za pomoci USB sběrnice.
-V teoretické části práce je popsána USB sběrnice a MII rozhraní, které slouží k připojení tohoto přepínacího obvodu.
-Dále je charakterizován síťový a přepínací subsystém v operačním systému Linux.
 
-Daný problém byl vyřešen rozšířením stávajícího ovladače pro kontrolér AX88772b, úpravou přepínacího subsystému pro podporu zařízení připojených za běhu systému a vytvořením ovladače pro přepínací obvod 88E6065.
+Dané zadání bylo vyřešeno rozšířením stávajícího ovladače pro kontrolér AX88772b, úpravou přepínacího subsystému pro podporu zařízení připojených za běhu systému a vytvořením ovladače pro přepínací obvod 88E6065.
 
-V práci byl vytvořen systém, který úspěšně zavede přepínač a vytvoří pro něj rozhraní viditelné v uživatelském prostoru.
+V práci byl vytvořen systém, který úspěšně zprovozní přepínač a vytvoří pro něj rozhraní viditelné v uživatelském prostoru operačního systému.
 
 }
 \declaration {
@@ -29,8 +27,8 @@ Prohlašuji, že jsem předloženou práci vypracoval samostatně a že jsem uve
    V~Praze~dne~11.5.2015
    \signature 
 }
-\keywordsCZ{Linux, Drivers, USB, DSA, Colibri T20, Marvell mv88e6065, Asix ax88772b}
-\keywordsEN{Linux, Ovladače, USB, DSA, Colibri T20, Marvell mv88e6065, Asix ax88772b}
+\keywordsCZ{Linux, Ovladače, USB, DSA, Colibri T20, Marvell mv88e6065, Asix ax88772b}
+\keywordsEN{Linux, Drivers, USB, DSA, Colibri T20, Marvell mv88e6065, Asix ax88772b}
 
 \thanks {}
 \draft

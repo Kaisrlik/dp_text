@@ -1,37 +1,38 @@
 \chap Úvod
 %citace
 
-Cílem mé diplomové práce je vytvoření ovladače do operačního systému Linux pro přepínač založený na bázi Ethernetu, který by splňoval industriální teplotní rozsahy.
-Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní pro připojení fyzické vrstvy, jsou finančně velmi nákladné. 
-Proto se tato práce zabývá možností připojení ethernetového přepínače pomocí USB sběrnice.
+Cílem mé diplomové práce je vytvoření ovladače do operačního systému Linux pro Ethernetový přepínač, který by splňoval průmyslové teplotní rozsahy.
 
-Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích. 
+
+Tyto přepínače se v dnešní době téměř nevyrábějí a moduly, které by splňovaly tyto teplotní rozsahy a měly integrované MII rozhraní, které složí ke komunikaci s přepínači a Ethernetovými fyzickými vrstvami, jsou finančně velmi nákladné.
+Proto se tato práce zabývá možností připojení ethernetového přepínače pomocí USB sběrnice, což umožní dosáhnout požadovaných vlastností levnějším způsobem.
+
+Vytvoření tohoto ovladače bylo zadáno firmou Retia a.s. se sídlem v Pardubicích.
 Tato firma se zabývá tvorbou elektronických vojenských systémů, záznamových zařízení a lokalizačních a bezpečnostních systémů.
-Zadání bylo za účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
-Firma poskytla pro tuto práci modul Colibri T20 a konfigurovatelný přepínač i s návrhem.
-Přepínač je založen na přepínacím obvodu 88E6065 a je vyvinut firmou Marvell.
-Deska konfigurovatelného přepínače je připojena USB-ethernetovým kontrolérem AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
+Účelem je nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za výkonnější.
+Firma poskytla pro tuto práci modul Colibri T20
+\fnote{\url{https://www.toradex.com/computer-on-modules/colibri-arm-family/nvidia-tegra-2}}
+a konfigurovatelný přepínač i s návrhem jeho zapojení.
+Přepínač je založen na přepínacím obvodu 88E6065, který je vyvinut firmou Marvell a který tvoří jádro samostatné desky plošných spojů.
+Deska konfigurovatelného přepínače je připojena Ethernetovým kontrolérem s USB rozhraním AX88772b, vyraběným firmou Asix, který podporuje připojení fyzické vrstvy za pomoci rozhraní RMII.
 
-Pro vytvoření ovladače bylo potřeba provést portaci operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a splňuje industriální teplotní rozsahy.
-Dálé bylo nutné implementovat ovladače do operačního systému Linux pro zařízení na bázi přepínacího obvodu s možností inicializace za běhu zařízení.
+Pro vytvoření ovladače bylo potřeba provést portaci operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB rozhraní a splňuje průmyslové teplotní rozsahy.
+Dálé bylo nutné implementovat ovladače do operačního systému Linux pro zařízení přepínacího obvodu s možností inicializace za běhu.
 Implementace byla provedena na současné verzi Linuxového jádra se snahou zařadit ovladač do hlavní větve Linuxového jádra.
 
 \medskip
 
-Po úvodu následuje druhá kapitola \ref[pouztech], kde je popsána použitá technologie, jako je sběrnice USB \ref[USB] a  MII rozhraní \ref[MII].
-Technologie jsou definovány, je vysvětleno, jak fungují, jaká mají omezení a jak vypadá jejich hardwarová implemementace.
-Tyto informace se dozvíme i o rozšířeném rozhraní RMII \ref[RMIIsub].
-Tato kapitole se také věnuje popisu mechanismu ovladačů a příslušných Linuxových subsystémů \ref[LINUXsub].
-Konkrétně se jedná o části síťového subsystému, USB subsystému a subsystému přepínače.
+Práce má následující strukturu.
+Ve druhé kapitole \ref[pouztech] je popsána použitá technologie, jako je sběrnice USB,  MII rozhraní i rozšířené rozhraní RMII.
+Tato kapitola se také věnuje popisu relevantních Linuxových subsystémů -- síťového, USB a subsystému přepínače.
 
-V kapitole Použitý Hardware \ref[pouzhw] je popsán zvolený modul Colibri T20 a vyrobená deska konfigurovatelného ethernetového přepínače.
+V kapitole \ref[pouzhw] Použitý Hardware je popsán zvolený procesorový modul Colibri T20 a použitá deska konfigurovatelného ethernetového přepínače.
 Zvláštní důraz je kladen na popis čipů použitých na této desce -- USB kontrolér Asix AX88772b a přepínací obvod Marvell 88E6065.
 
-V následující kapitole s názvem Implementace \ref[impl] je popsán postup nahrátí nového Linuxového jádra a navazující postup při oživování desky.
-Dále pak popisuje architektonický návrh ovladače pro operační systém Linux.
-Následující část kapitoly rozebírá implementaci tohoto návrhu.
+V následující kapitole \ref[impl] s názvem Implementace je popsán postup nahrání nového Linuxového jádra a navazující postup při oživování desky.
+Dále pak popisuje architektonický návrh daného ovladače pro operační systém Linux a rozebírá implementaci tohoto návrhu.
 
-V kapitole s názvem Testování \ref[TEST] je popsáno, jak probíhá nastavení přepínacího obvodu.
+V kapitole \ref[TEST] s názvem Testování je popsáno, jak bylo testováno nastavení přepínacího obvodu.
 Dále se zde popisují proběhlé testy ovladače přepínacího obvodu.
 Na závěr kapitoly jsou výsledky těchto testů vyhodnoceny.
 
@@ -39,10 +40,10 @@ Na závěr kapitoly jsou výsledky těchto testů vyhodnoceny.
 
 \chap Použité technologie
 
-V této kapitole je rozebírána použitá technologie.
-V první části je popsána sběrnice USB \ref[USB].
-V další významné části je popsáno rozhraní Media Independent Interface, které předpokládá znalost modelu ISO/OSI.
-Ke konci této kapitoly je pojednáváno o tom, jak vypadají ovladače v operačním systému Linux a jak vypadá tvář linuxového subsystému Distributed Switch Architecture a k němu přilehlé subsystémy.
+V této kapitole je popsána použitá technologie.
+První část je věnovaná popisu sběrnice USB, která je popsána v \ref[USB].
+V další části je popsáno rozhraní Media Independent Interface (MII).
+Ke konci této kapitoly je pojednáváno o tom, jak vypadají ovladače v operačním systému Linux a jak vypadá rozhraní Linuxového subsystému Distributed Switch Architecture, které je použito pro daný ovladač a s ním související subsystémy.
 
 %LDD3 pekny popis zarizeni http://www.makelinux.net/ldd3/?u=chp-13-sect-4
 %MAC podporuje 802.3 a 802.3u MAC funkce, jako je prijem a odeslani ramce, kontrolu CRC, duplex mode, forwarding, flow-control, detekce kolizi atd.
@@ -58,31 +59,32 @@ Ke konci této kapitoly je pojednáváno o tom, jak vypadají ovladače v opera�
 Univerzální sériová sběrnice (USB) je technický standard vyvíjený od roku 1994 pro připojení periferií k počítači.
 Tato sběrnice měla nahradit pomalé sběrnice (jako jsou sériová linka, paralelní port, PS2 a mnohé další) jednou sběrnicí \cite[LDD3].
 V dnešní době USB umožňuje přenášet velké množství dat s rychlostí až 640 MB/s u USB zařízení verze 3.0.
-Díky tomu se použití USB rozšířilo a nyní podporuje skoro každý druh zařízení, které umožňuje přenašet video, audio a dokonce i ethernetové rámce a pakety.
+Díky tomu se použití USB rozšířilo a nyní je podporováno skoro každým druhem zařízení, které umožňuje mimojiné přenašet video, audio či dokonce i Ethernetové rámce.
 Podporovaná zařízení jsou rozdělena do tříd z důvodu sjednocení funkcionality a chování zařízení.
-Nejznámějšími třídami jsou HID, Printer a Mass Storage, které jsou více popsány ve vývojářské dokumentaci \ref[USB].
-Toto sjednocené chování má za důsledek využívání společných ovladačů, které tato zařízení mohou využívat.
+Nejznámějšími třídami jsou Human Interface Device, Printer a Mass Storage, které jsou více popsány ve vývojářské dokumentaci \cite[USB].
+Toto sjednocené chování má za důsledek využívání společných ovladačů, které mohou uživatelé využívat pro práci s těmito zařízeními.
 Problém s některými druhy zařízení je takový, že je nejde do daných tříd zařadit, popřípadě mají rozšířené chování a potřebují speciální přístup.
 
 \secc Rysy USB zařízení
 
-USB je deterministická sběrnice (Master/Slave), která podporuje detekci připojeného zařízení za běhu (plug--and--play) a následnou automatickou konfiguraci (hotswap).
+USB sběrnice využívá metodu Master/Slave pro přístup k médiu a podporuje detekci připojeného zařízení za běhu (plug--and--play) a následnou automatickou konfiguraci (hotplug).
 USB síť se skládá ze tří druhů zařízení \cite[USB]:
 \begitems
-*Hostitel -- je zařízení typu Master a je jako jediný v systému, řídí komunikaci a obvykle integruje rozbočovač označen jako kořenový.
-Přiděluje zařízením unikátní adresu v síti.
+*Hostitel -- je zařízení typu Master a je jako jediný v systému, řídí komunikaci a obvykle integruje rozbočovač označený jako kořenový.
+Přiděluje zařízením unikátní adresy v síti.
 *Rozbočovač -- distribuuje datové toky a identifikuje připojení a odpojení dalších zařízení.
-*Zařízení -- pojmem zařízení je míňeno koncové zařízení s požadovanou funkcionalitou, které odpovídá na kontrolní zprávy.
+*Zařízení -- pojmem zařízení je míňeno koncové zařízení s požadovanou funkcionalitou, které odpovídá na řídící zprávy.
 \enditems
 
-USB je asymetrická sběrnice s jedním zařízením typu Master, která spíše vypadá jako strom složený z linek bod-bod, přičemž USB huby vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
+USB zařízení je asymetrická sběrnice se stromovou topilogií a s jedním zařízením typu Master.
+Strom je složený z linek bod-bod, přičemž USB rozbočovače vytvářejí jednotlivé uzly tohoto stromu a zařízení tvoří jejich listy.
 Linky USB sběrnice jsou 4--vodičové skládající se z diferenciálního páru datových linek, napěťového a zemnícího vodiče, které jsou připojeny k zařízení a USB rozbočovačům.
 USB umožňuje připojit až 127 zařízení v rámci jedné USB sítě o hloubce maximálně pěti rozbočovačů tak, jak můžeme vidět na obrázku \ref[USBhub].
 
 \medskip
-\clabel[USBhub]{USB tier.}
+\clabel[USBhub]{Příklad topologie USB sběrnice.}
 \picw=13cm \cinspic images/technet.microsoft.com.jpg
-\caption/f Obrázek popisuje, jak lze USB zapojit \cite[MSTECH].
+\caption/f Příklad topologie sběrnice USB. Obrázek převzat z \cite[MSTECH].
 \medskip
 
 
@@ -98,9 +100,7 @@ USB komunikace je založena na logických kanálech, tzv. rourách.
 Každému výstupnímu kanálu by měl odpovídat právě jeden vstupní.
 Koncový bod obsahuje rouru s definovaným směrem.
 
-USB může mít maximalně 30 koncových bodů. Koncový bod je roura s definovaným směrem.
-Tyto koncové body jsou inicializovány v průběhu enumarace USB zařízení, které probíhá po kontrolní rouře označené číslem 0, kterou mají všechna zařízení společnou.
-Každý koncový bod obsahuje rouru s předem definovaným typem přenosu:
+USB může mít maximalně 30 koncových bodů. Koncový bod je asociován s rourou, která má předem definovaný směr a typ přenosu:
 
 \begitems
 *Řídící -- obousměrná roura sloužící ke konfiguraci zařízení. Každé zařízení disponuje tímto druhem roury. Má rezervovanou určitou přenosovou kapacitu.
@@ -109,6 +109,8 @@ Každý koncový bod obsahuje rouru s předem definovaným typem přenosu:
 *Blokový -- jednosměrná roura sloužící k přenosu velkého množství dat. Nemá rezervovanou žádnou přenosovou kapacitu ani dobu odezvy. Komunikace po této rouře je spolehlivá a v případě chyby se přenos opakuje.
 \enditems
 
+Koncové body jsou inicializovány v průběhu enumarace USB zařízení, která probíhá po kontrolní rouře označené číslem 0, která je unikátní pro každé zařízení a jako jediná z rour je obousměrná.
+
 Enumerace je posloupnost standardizovaných příkazů, kterou započal hostitel.
 V průběhu enumerace se předávají deskriptory, které obsahují důležité informace o zařízení.
 Hierarchii deskriptorů lze vidět na obrázku \ref[USBhier].
@@ -116,18 +118,18 @@ Hierarchii deskriptorů lze vidět na obrázku \ref[USBhier].
 \medskip
 \clabel[USBhier]{Hierarchije USB deskriptorů.}
 \picw=13cm \cinspic images/IMG019.pdf
-\caption/f Obrázek popisuje, jak lze USB hierarchii deskriptorů interpretovat \cite[LUSB].
+\caption/f Hierarchie deskriptorů USB zařízení. Obrázek převzat z \cite[LUSB].
 \medskip
 
 
 \begitems
-*Dekriptor zařízení -- obsahuje informace jako je ID výrobce a produktu.
+*Deskriptor zařízení -- obsahuje informace jako je identifikátoru (ID) výrobce a produktu.
 Též obsahuje informace o třídě a maximální délce paketů, které může roura 0 přijmout.
 *Konfigurační deskriptor -- oznamuje, jak má být zařízení napájeno, jaký má zařízení maximální odběr proudu a počet rozhraní.
 Těchto dekriptorů může být více.
 *Deskriptor rozhraní -- tento deskriptor informuje o funkcionalitě celku, jako je třída koncových zařízení a počet koncových bodů.
 *Deskriptor koncového bodu -- používá se k přesnému popisu koncového bodu.
-*Textový deskriptor -- tento deskriptor přenáší pouze čitelné informace o zařízeních kódované v Unicodu.
+*Textový deskriptor -- tento deskriptor přenáší pouze čitelné informace o zařízeních v kódování Unicode.
 \enditems
 
 Na základě informací v deskriptorech se operační systém rozhoduje, který druh ovladače přiřadí danému druhu zařízení.
@@ -139,20 +141,23 @@ Na základě informací v deskriptorech se operační systém rozhoduje, který 
 
 \sec Media Independent Interface
 
-Media Independent Interface (MII) je typ rozhraní, které umožňuje připojení nezávislé na procesoru a fyzickém médiu.
-Tento typ rozhraní je specifikován standardem IEEE 802.3, který je popsán v kapitole 22 \cite[IEEE8023].
-MII propojuje dvě vrstvy modelu ISO/OSI, a to vrstvu spojovou, konkrétně její část Media Access Constroll (MAC),
-\fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímání a odesílání rámců (přístup k médiu), ochranu proti chybám.}
+
+Tato sekce předpokládá znalost modelu ISO/OSI.
+
+Media Independent Interface (MII) je typ rozhraní, které umožňuje připojení procesoru k fyzickému médiu a je na těchto prvcích nezávislé.
+Tento typ rozhraní je specifikován standardem IEEE 802.3, který je popsán v [\cite[IEEE8023], kapitola 22].
+MII propojuje dvě vrstvy modelu ISO/OSI, a to vrstvu spojovou, konkrétně její část Media Access Constroll (MAC)
+\fnote{MAC je popsána standardem IEEE 802.2001. Stará se o přijímání a odesílání rámců (přístup k médiu).},
 s vrstvou fyzickou (PHY)
 \fnote{PHY převádí bitový stream na signál a definuje jeho doručení.}.
-MII rozhraní podporuje dva datové toky - 10~Mb/s a 100~Mb/s.
+MII rozhraní podporuje dva datové toky -- 10~Mb/s a 100~Mb/s.
 Na obou datových tocích je funkcionalita MII identická, liší se pouze v nominální frekvenci hodin.
-Vyšší rychlosti přenosu je možno dosáhnout změnou rozhraní na Gigabite Media Independent Interface, které podporuje rychlost až 1~Gb/s.
+Vyšší rychlosti přenosu je možno dosáhnout použitím rozhraní na Gigabite Media Independent Interface, které podporuje rychlost až 1~Gb/s.
 
 \medskip
 \clabel[MIItoISO]{Spojitost mezi MII a ISO/OSI}
 \picw=16cm \cinspic images/802_iso.pdf
-\caption/f Obrázek popisuje spojitost mezi rozhraním MII, modelem ISO/OSI a modelem IEEE 802.3 CSMA/CD LAN \cite[IEEE8023].
+\caption/f Spojitost mezi rozhraním MII, modelem ISO/OSI a modelem IEEE 802.3 CSMA/CD LAN. Obrázek převzat z \cite[IEEE8023].
 \medskip
 
 Na obrázku \ref[MIItoISO] je vidět připojení MII na Reconsiliation Sublayer (RS) a Physical Coding Sublayer (PCS) nebo Physical Layer Signaling (PLS). %rozepsat zkratky
@@ -163,11 +168,11 @@ Konkrétní mapování MII signálů znázorňuje obrázek \ref[RStoMII].
 \medskip
 \clabel[RStoMII]{Mapování signálů RS na MII}
 \picw=15cm \cinspic images/802_rs.pdf
-\caption/f Obrázek popisuje, jak RS mapuje signály mezi MII a PLS. Také lze vidět připojení STA \cite[IEEE8023].
+\caption/f Mapování signálů podvrstvy RS mezi rozhraním MII a vrstvou PLS. Také lze vidět připojení STA. Obrázek převzat z \cite[IEEE8023].
 \medskip
 
-Jak můžeme vidět na obrázku \ref[RStoMII], fyzické rozhraní MII se skládá ze dvou druhů sběrnic, a to datové \ref[MIIdat] a menežovací (STA) \ref[MDIOs].
-STA může být připojeno až k 32 fyzickým jednotkám. které obsluhuje.
+Jak můžeme vidět na obrázku \ref[RStoMII], fyzické rozhraní MII se skládá ze dvou druhů sběrnic, a to datové \ref[MIIdat] a ovládací (STA) \ref[MDIOs].
+STA může být připojeno až k 32 fyzickým jednotkám, které obsluhuje.
 
 \label[MIIdat]
 
@@ -175,47 +180,48 @@ STA může být připojeno až k 32 fyzickým jednotkám. které obsluhuje.
 
 Datová část MII disponuje několika druhy signálů, které lze vidět na pravé straně obrázku \ref[RStoMII].
 Tyto signály jsou připojeny k přemapovací vrstvě RS.
-Piny vysílající datové signály jsou: %TODO mozna lepsi popisek
+Vývody vysílající datové signály jsou: %TODO mozna lepsi popisek
 
 \begitems
-*TX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech TX\_EN, TXD a TX\_ER.
+*TX\_CLK -- vývodu vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po vývodech TX\_EN, TXD a TX\_ER.
 Zdrojem signálu TX\_CLK je vrstva PHY.
-Frekvence tohoto signálu by měla být 20\% z nominální hodnoty přenosu dat, tedy $\pm 100ppm $.
-*RX\_CLK -- pin vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po pinech RX\_DV, RXD a RX\_ER.
+Frekvence tohoto signálu by měla být 20\% z nominální hodnoty přenosu dat, $\pm 100 ppm $.
+*RX\_CLK -- vývod vysílající referenční hodinový signál pro synchronizaci signálů vysílaných po vývodech RX\_DV, RXD a RX\_ER.
 Zdrojem signálu RX\_CLK je podvrstva RS. %XXX kouknout na manuál
-RX\_CLK může odvodit referenční hodnotu frekvence z přijímaných dat nebo z nominální hodnoty jako u signálu pinu TX\_CLK.
-*TX\_EN -- pin vysílající signál, který indikuje, že je podvrstva RS připravena odesílat data.
-*TDX -- čtveřice datových pinů vysílající signál (TDX[3:0]) ovládaná podvrstvou RS, která přenáší data synchronně na základě signálu z pinu TX\_CLK.
+RX\_CLK může odvodit referenční hodnotu frekvence z přijímaných dat nebo z nominální hodnoty jako u signálu vývoduu TX\_CLK.
+*TX\_EN -- vývod vysílající signál, který indikuje, že je podvrstva RS připravena odesílat data.
+*TDX -- čtveřice datových vývodů vysílající signál (TDX[3:0]) ovládaná podvrstvou RS, která přenáší data synchronně na základě signálu z vývodu TX\_CLK.
 TDX[0]  přenáší nejméně významný bit.
 Pokud je TX\_EN fyzicky odpojen, TDX nemá žádný efekt na činnost vrstvy PHY.
-*TX\_ER -- pin vysílající signál řízený podvrstvou RS, který indikuje. že vrstva PHY začala vysílat jeden či více symbolů, které nejsou součástí dat, nebo že předčasně došlo k přerušení rámce.
-Signál na tomto  pinu je synchronní s hodinovým signálem z pinu TX\_CLK.
-*RX\_DV -- pin vysílající signál, který značí, že přijatá data jsou validní. Tento signál je řízen vrstvou PHY a je synchronní se signálem z pinu RX\_CLK.
-*RXD -- čtveřice datových pinů vysílající signál (RDX[3:0]) ovládaná vrstvou PHY. Tato čtveřice pinů slouží k přenosu dat z vrstvy PHY do podvrstvy RS.
+*TX\_ER -- vývod vysílající signál řízený podvrstvou RS, který indikuje. že vrstva PHY začala vysílat jeden či více symbolů, které nejsou součástí dat, nebo že předčasně došlo k přerušení rámce.
+Signál na tomto  vývodu je synchronní s hodinovým signálem z vývodu TX\_CLK.
+*RX\_DV -- vývod vysílající signál, který značí, že přijatá data jsou validní. Tento signál je řízen vrstvou PHY a je synchronní se signálem z vývodu RX\_CLK.
+*RXD -- čtveřice datových vývodů vysílající signál (RDX[3:0]) ovládaná vrstvou PHY. Tato čtveřice vývodů slouží k přenosu dat z vrstvy PHY do podvrstvy RS.
 RXD[0] přenáší nejméně významný bit.
-*RX\_ER -- pin vysílající signál řízený vrstvou PHY, který indikuje, že nastala chyba detekovaná v průběhu přijímání rámce.
-Pokud je pin RX\_DV odpojen, pin RX\_ER nemá žadný vliv na činnost podvrstvy RS.
-*CRS -- pin vysílající signál indikující, zda je příjemce nebo odesílatel zaneprázdněn, nebo je ve stavu idle.
-Signál z pinu není synchronizován se signálem z pinů TX\_CLK,  RX\_CLK.
-Pokud je bit z registru \ref[miireg] 0.8 aktivní, signál na pinu má nedefinované chování. %XXX asi smazat
-*COL -- pin vysílající signál, který je vyvolán vrstvou PHY, indikující kolize, které nastaly na médiu.
-Signál z pinu není synchronizován se signálem z pinů TX\_CLK,  RX\_CLK.
-Pokud je bit z registru \ref[miireg] 0.8 aktivní, signál na pinu má nedefinované chování.
+*RX\_ER -- vývod vysílající signál řízený vrstvou PHY, který indikuje, že nastala chyba detekovaná v průběhu přijímání rámce.
+Pokud je vývod RX\_DV odpojen, vývod RX\_ER nemá žadný vliv na činnost podvrstvy RS.
+*CRS -- vývod vysílající signál indikující, zda je příjemce nebo odesílatel zaneprázdněn, nebo je ve stavu idle.
+Signál z vývodu není synchronizován se signálem z vývodů TX\_CLK,  RX\_CLK.
+Pokud je bit z registru 0.8, popsaný v \ref[miireg], aktivní, signál na vývodu má nedefinované chování. %XXX asi smazat
+*COL -- vývod vysílající signál, který je vyvolán vrstvou PHY, indikující kolize, které nastaly na médiu.
+Signál z vývodu není synchronizován se signálem z vývodů TX\_CLK,  RX\_CLK.
+Pokud je bit z registru 0.8, popsaný v \ref[miireg], aktivní, signál na vývodu má nedefinované chování. %XXX asi smazat
 \enditems
 %Reprezentuje pokud josu data na odeslani nebo prijeti.
 
 \medskip
 \clabel[transiotionMII]{Komunikace po MII bez kolize.}
 \picw=15cm \cinspic images/802_miicom.pdf
-\caption/f Obrázek znázorňuje, jak vypadá bezchybná komunikace po MII rozhraní \cite[IEEE8023].
+\caption/f Bezchybná komunikace po MII rozhraní. Obrázek převzat z \cite[IEEE8023].
 \medskip
 
 Na obrázku \ref[transiotionMII] lze vidět, jak vypadá komunikace po MII rozhraní.
 Pin TX\_CLK přenáší referenční hodinový signál, který se pravidelně mění.
-Při odesílání dat se nahodí signál z pinu TX\_EN, který začne odesílat preambuli.
+Při odesílání dat se aktivuje signál z vývodu TX\_EN.
+Následně se po vývodu  začne odesílat preambule.
 Přenos těchto dat je popsán níže.
-S přijímaním signálu začne být příjemce zaneprázdněn, a proto nahodí signál z pinu CRS.
-Celá komunikace probíhá pouze jedním směrem a neobsahuje žádnou chybu, jak je možno vidět ze signálu na pinu COL.
+S přijímaním signálu začne být příjemce zaneprázdněn, a proto aktivuje signál z vývou CRS.
+Celá komunikace probíhá pouze jedním směrem a neobsahuje žádnou chybu, jak je možno vidět ze signálu na vývodu COL.
 
 Rámec dat, který je přenášen po MII rozhraní, je doplněn o hlavičky a patičky popsáné formátem:
 
@@ -223,59 +229,59 @@ Rámec dat, který je přenášen po MII rozhraní, je doplněn o hlavičky a pa
 <vstupní rámec><preambule><sdf><data><edf>
 \endtt
 
-Kde jednotlivé položky mají následující význam:
+kde jednotlivé položky mají následující význam:
 
 \begitems
-*vstupní rámec -- je perioda mezi rámci, při které nesmí dojít k žádné činnosti na rozhraní MII.
+*vstupní rámec -- je doba mezi rámci, při které nesmí dojít k žádné činnosti na rozhraní MII.
 Délka této periody není přesně specifikována.
 *preambule -- je definovaná posloupnost dat, která se skládá ze 7 oktetů (bytů) a je přenášena ve formě pravidelného střídání jedniček a nul.
 *sdf -- oktet, který oznamuje začátek rámce.
 *data -- značí přenesená data.
-*efd -- konec rámce, který provede deaktivaci signálu na pinu TX\_EN.
+*efd -- konec rámce, který deaktivuje signál z vývodu TX\_EN.
 \enditems
 
 Rámce jsou přenášeny tak, že oktet je rozdělen na dvě poloviny tzv. nibbles.
 Tyto poloviny jsou odeslány po datových linkách TXD nebo RXD.
-Příklad odeslání oktetu po pinech TDX je znázorněn na obrázku níže \ref[NIBBLE].
+Příklad odeslání oktetu po signálech TDX je znázorněn na obrázku \ref[NIBBLE] níže.
 
 \medskip
-\clabel[NIBBLE]{Rozdělení oktetu po datových pinech}
+\clabel[NIBBLE]{Rozdělení oktetu po datových vývodech}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_nibble.pdf
-\caption/f Obrázek popisuje, jak je rozdělen byte, který je následně odeslán po pinech TDX \cite[IEEE8023].
+\caption/f Rozdělení bytů, který je následně odeslán po vývodech TDX. Obrázek převzat z \cite[IEEE8023].
 \medskip
 
 
 \label[MDIOs]
 
-\secc Menežovací rozhraní a příslušný registrový prostor
+\secc Ovládací rozhraní a příslušný registrový prostor
 
-Menežovací část sběrnice, která se značí STA, se používá k nastavování a čtení hodnot mezi vrstvami MAC a PHY.
+Ovládací část sběrnice, která se značí STA, se používá k nastavování a čtení hodnot mezi vrstvami MAC a PHY.
 Toto rozhraní je dvoulinkové sériové a obsahuje dva datové vodiče:
 \begitems
-*MDC -- pin vysílající signál určující časovou základnu pro signál vysílaný pinem MDIO.
-Signál z pinu MDC je aperiodický, nemá žádnou minimální ani maximální frekvenci, měl by se však pohybovat v rozmezí od 160~ns do 400~ns.
-*MDIO -- pin vysílající signál. Tento pin je vstupně výstupní a jsou po něm posílány signály oběma směry.
+*MDC -- vývod vysílající signál určující časovou základnu pro signál vysílaný vývodem MDIO.
+Signál z vývodu MDC je aperiodický, nemá žádnou minimální ani maximální frekvenci, měl by se však pohybovat v rozmezí od 160 do 400~ns.
+*MDIO -- vývod vysílající signál. Tento vývod je vstupně výstupní a jsou po něm posílány signály oběma směry.
 Je tvořen třístavovým obvodem mezi vrstvami PHY a STA.
 Pin se používá k přenosu kontrolních zpráv mezi zařizeními.
 Přenos je řízen z vrstvy PHY.
-Signál z pinu MDIO je synchronizovaný se signálem z pinu MDC.
+Signál z vývodu MDIO je synchronizovaný se signálem z vývodu MDC.
 \enditems
 
-Formát menežovacích rámců je popsán v tabulce \ref[MDIOframe].
-Data z této tabulky jsou odesílána po pinu MDIO ve směru z levé strany tabulky do pravé.
+Formát ovládacích rámců je popsán v tabulce \ref[MDIOframe].
+Data z této tabulky jsou odesílána po vývodu MDIO ve směru z levé strany tabulky do pravé.
 
-\midinsert \clabel[MDIOframe]{Formát menežovacích rámců.}
+\midinsert \clabel[MDIOframe]{Formát ovládacích rámců.}
 \ctable{lllllllll}{
  \hfil            & PRE & ST & OP & PHYAD & REGAD & TA & DATA & IDLE \crl \tskip4pt
           čtení   & 1...1 & 01 & 10 & AAAAA & RRRRR & Z0 & D...D & Z \cr
           zápis   & 1...1 & 01 & 01 & AAAAA & RRRRR & 10 & D...D & Z \cr
 }
-\caption/t Tabulka popisující formát menežovacích zpráv \cite[IEEE8023] (Tabulka 22-12).
+\caption/t Formát ovládacích zpráv. Tabulka převzata z [\cite[IEEE8023], Tabulka 22-12].
 \endinsert
 
 V tabulce \ref[MDIOframe] lze vidět hodnotu preambule (PRE), což je posloupnost 32 bitů skládajících se z hodnot logických jedniček.
-Preambule slouží k synchronizaci signálu z pinu MDC.
+Preambule slouží k synchronizaci signálu z vývodu MDC.
 Začátek rámce je označený ST a má hodnotu 01.
 Poté jsou odesílána data popisující operační kód (OP), která určují druh operace: čtení nebo zápis.
 PHYAD je zkratka pro fyzickou adresu zařízení o délce 5 bitů.
@@ -293,25 +299,25 @@ Odesílaná data mají 16 bitovou hodnotu, tedy stejnou jako je velikost registr
 \clabel[mdioread]{Čtení registru po STA.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/802_miimdio.pdf
-\caption/f Obrázek znázorňuje čtení z registru při komunikaci po sériové lince STA \cite[IEEE8023].
+\caption/f Čtení z registru při komunikaci po sériové ovládací lince STA. Obrázek převzat z \cite[IEEE8023].
 \medskip
 
 Operacemi čtení a zápis může vrstva MAC přistupovat k registrovému prostoru na vrstvě PHY, který tak může měnit.
 Část tohoto registrového prostoru je definována standardem 802.3.
-Registrový prostor obsahuje dva základní sety registrů -- kontrolní a stavový.
-Všechny vrstvy PHY, které podporují rozhraní MII, by měly používat právě tuto sadu registrů \ref[miireg].
+Registrový prostor obsahuje dva základní skupiny registrů -- kontrolní a stavový.
+Všechny vrstvy PHY, které podporují rozhraní MII, by měly používat právě tyto skupiny registrů \ref[miireg].
 
 
 \medskip
 \clabel[miireg]{Registry STA rozhraní.}
 \picw=15cm \cinspic images/802_miireg.pdf
-\caption/f Obrázek popisující registry STA rozhraní. Obrázek je převzat z~\cite[IEEE8023].
+\caption/f Registry STA rozhraní. Obrázek převzat z~\cite[IEEE8023].
 \medskip
 
 
 Tyto registry specifikují základní vlastnosti vrstvy PHY pro MII rozhraní o rychlostech 100~Mb/s a 1~Gb/s.
 Registry 2 -- 14 jsou částí rozšířeného registrového prostoru \cite[IEEE8023] (22.2.4).
-Bližší popis stavového a kontrolního registru je uveden v příloze \ref[MIIcntr] a \ref[MIIstat].
+Bližší popis stavového a kontrolního registru je uveden v přílohách \ref[MIIcntr] a \ref[MIIstat].
 
 
 % Ne do DP
@@ -322,23 +328,24 @@ Bližší popis stavového a kontrolního registru je uveden v příloze \ref[MI
 
 \label[RMIIsub]
 
-\secc Reduce Media Independent Interface
+\secc Reduced Media Independent Interface
 
-Reduce Media Independent Interface (RMII) je obdoba rozhraní MII, která má ale snížený počet pinů z 16 na 8 \cite[RMII].
-RMII přidává pouze Reconciliation Sublayer (RS), a to buď jako novou, která je připojena za stávající RS, nebo jako náhradu aktuální podvrstvu RS v rozhraní MII \cite[RMIIcon].
+Reduced Media Independent Interface (RMII) je obdoba rozhraní MII, která má ale snížený počet vývodů z 16 na 8 \cite[RMII].
+Toto snížení je zajištěno přidáním přemapující podvrstvy Reconsiliation Sublayer (RS).
+Ta může nahradit stávající podvrstvu RS nebo může být připojena za ni \cite[RMIIcon].
 
-Připojenou podvrstvy RS za stávající rozhraní lze vidět na obrázku \ref[RMIIRS].
+Připojenou podvrstvu RS za stávající rozhraní lze vidět na obrázku \ref[RMIIRS].
 
 \medskip
 \clabel[RMIIRS]{Rozšíření MII o další RS.}
 \picw=15cm \cinspic images/rmiirs.pdf
-\caption/f Obrázek znázorňující rozšíření rozhraní MII o další podvrstvu RS.  Obrázek je převzat z~\cite[RMII].
+\caption/f Rozšíření rozhraní MII o další podvrstvu RS. Obrázek převzat z~\cite[RMII].
 \medskip
 
-RMII používá stejné menežovací rozhraní jako MII definované standardem IEEE 802.3u \cite[IEEE8023], který je popsán v sekci \ref[MDIOs].
+RMII používá stejné ovládací rozhraní jako MII definované standardem IEEE 802.3u \cite[IEEE8023], který je popsán v sekci \ref[MDIOs].
 
-Hlavními rozdíly RMII rozhraní oproti MII jsou datové piny TXD a RXD. které jsou v RMII rozhraní pouze 2 bity široké.
-Dále signály z pinů COL a CRS jsou zde sjednoceny do jednoho signálu na pinu CRS\_DV.
+Hlavními rozdíly RMII rozhraní oproti MII jsou datové signály TXD a RXD. které jsou v RMII rozhraní pouze 2 bity široké.
+Dále signály COL a CRS jsou zde sjednoceny do jednoho signálu na vývodu CRS\_DV.
 Dalším rozdílem je detekce kolizí, která je na vrstvě MAC provedena jako logický součin signálů TX\_EN a CRS\_DV.
 Zdrojem hodinového signálu je vrstva MAC nebo je generován externími hodinami.
 
@@ -417,7 +424,7 @@ Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí přijatých desk
 \medskip
 \clabel[USBMAP]{Hierarchie USB.}
 \picw=15cm \cinspic images/usbendpmap.pdf
-\caption/f Na obrázku lze vyčíst hierarchii USB prvků. Obrázek převzat z \cite[LDD3]. 
+\caption/f Hierarchii USB prvků. Obrázek převzat z \cite[LDD3]. 
 %TODO popisek
 \medskip
 
@@ -481,7 +488,7 @@ Struktora {\em mii\_bus} reprezentuje MII rozhraní tabulkou virtuálních funkc
 
 \secc Distributed Switch Architecture
 
-Distributed Switch Architecture (DSA) je subsystém pro menežování hardwarových přepínačů \cite[DSA].
+Distributed Switch Architecture (DSA) je subsystém pro ovládaní hardwarových přepínačů \cite[DSA].
 %Obsahuje MII menežovací registry, příkazy pro nastavení přepínače a formát ethernetových hlaviček, který signalizuje na kterém portu byl paket přijat nebo ktery se hodlá odeslat 
 Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobrazeným na obrázku \ref[DSAcon].
 
@@ -493,7 +500,7 @@ Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobraz
 \medskip
 
 Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
-Nastavování přepínače, jako je nastavení portů a menežování MII rozhraní, je provedeno na základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení \cite[EMBLINUX].}.
+Nastavování přepínače, jako je nastavení portů a ovládání MII rozhraní, je provedeno na základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je standardní utilita Linuxu pro ovládání a podporu ovladačů a zařízení \cite[EMBLINUX].}.
 
 Subsystém DSA podporuje i propojení mezi přepínači tak, jak je možno vidět na obrázku \ref[DSAcon2].
 Takto propojené přepínače lze ovládat skrz MII rozhraní.
@@ -532,7 +539,7 @@ Struktura {\em dsa\_switch} nesoucí data o připojeném přepínači obsahuje n
 Navíc obsahuje informace o popisu hardwaru ve zkompilovaném device tree
 \fnote{Device tree je struktura, která popisuje hardwarového zařízení. A odlehčuje kódu, který by popisoval každý detail. \cite[DT].}.
 *device -- je odkaz na hostovské zařízení přepínače.
-*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na menežování připojeného přepínače, v jádře se tato struktura někdy označuje jako tabulka virtuálních funcí \cite[ULNI].
+*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na ovládání připojeného přepínače, v jádře se tato struktura někdy označuje jako tabulka virtuálních funcí \cite[ULNI].
 *mii\_bus -- je ovladač MII sběrnice.
 *net\_device -- je odkaz na síťové zařízení \ref[NETDEV] reprezentující port zařízení.
 \enditems
@@ -649,7 +656,7 @@ MAC rozhraní je plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u.
 %jake umoznuje propojeni po rmii?
 
 Jak je vidět na obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrstvu PHY, která však nemůže být aktivní současně s RMII rozhraním.
-Dále obsahuje periferii pro připojení EEPROM paměti a nastavitelné piny nejčastěji používáné pro světelnou signaliaci.
+Dále obsahuje periferii pro připojení EEPROM paměti a nastavitelné vývody nejčastěji používáné pro světelnou signaliaci.
 Tento čip též obsahuje regulátor napětí z 3,3~V na 1,8~V.
 
 
@@ -661,16 +668,16 @@ Tento čip též obsahuje regulátor napětí z 3,3~V na 1,8~V.
 Marvell 88E6065 je 5~+~1 portový ethernetový přepínač integrovaný na čipu.
 Obsahuje  pět portů na fyzické vrstvě 10~BASE-T/100~BASE-TX, z nichž dva porty mohou být využity pro optickou linku 100~BASE-FX,
 Navíc obsahuje port, pro připojení MAC vrstvy za pomoci RMII nebo MII rozhraní.
-Též jde připojit pouze přez menežovací rozhraní z MII.
+Též jde připojit pouze přez ovládací rozhraní z MII.
 Zařízení má vysokorychlostní neblokující čtyřúrovňový QoS
 \fnote{QoS umožňuje síti, garantovat lepší kvalitu služeb. A umožňuje aplikacím požadovat a přijímat předvídatelné úrovně těchto služeb, aby zvýšili průtok sítě a její odezvu. \cite[CISCO].}.
 
 Vrstva PHY tohoto zařízení podporuje plug--and--play s možností automatického určení směru, automatického určení polarity a automatického určení rychlosti.
 Zařízení dále podporuje 64 z 4096 802.1Q WLAN s 3 úrovňovou ochranou.
-Obsahuje dvě RMII/MII/SNI rozhraní, která mohou být připojena k menežovacímu rozhraní nebo ke kontroleru s integrovanou MAC.
+Obsahuje dvě RMII/MII/SNI rozhraní, která mohou být připojena k ovládacímu rozhraní nebo ke kontroleru s integrovanou MAC.
 MAC a PHY vrstvy jsou plně kompatibilní se standardy IEEE~802.3, IEEE~802.3u a IEEE~802.3x.
 
-Zařízení může být konfigurováno přes menežovací rozhraní nebo může načítat nastavení z EEPROM paměti.
+Zařízení může být konfigurováno přes ovládací rozhraní nebo může načítat nastavení z EEPROM paměti.
 
 Výjimečně se přepínač Marvell 88E6065 může využívat jako směrovač či výchozí brána.
 %jake umoznuje porjojeni RMII
@@ -730,11 +737,11 @@ Práce byla započata s verzí Linuxového jádra 3.17, a vzhledem k aktualizac�
 
 \label[UPSTREAM]
 
-\sec Portace upstreamového Linuxového jádra a zavaděče
+\sec Portace Linuxového systému
 
 Pro portaci upstreamového Linuxového jádra bylo vyžadováno několik nástrojů a programů pro překlad kódu, linkování a nahrání do paměti.
 
-\secc U-Boot
+\secc Zavaděč U-Boot
 
 Jako první krok bylo potřeba nainstalovat zavaděč, který by se postaral o zavedení Linuxového jádra na modul Colibri T20.
 Pro tento úkol byl zvolen zavaděč U-Boot, který je využíván i výrobcem modulu Colibri T20, avšak byla zvolena jeho novejší verze
@@ -905,10 +912,10 @@ Posledním krokem k oživení USB kontroléru Asix AX88772b bylo nastavení vhod
 
 \label[oMV]
 
-\secc Oživení ethernetového přepínače Marvell 88E6065
+\secc Oživení Ethernetového přepínače Marvell 88E6065
 
 K oživení a stabilnímu chování ethernetového přepínače Marvell 88E6065 bylo zapotřebí aktivovat RMII rozhraní a provést několik zásahů do zapojení čipu na desce.
-Taktéž bylo zapotřebí aktivovat funkční komunikaci přes kontrolér Asix AX88772b \ref[oAX], který na základě USB příkazů je schopen posílat menežovací zprávy přes RMII rozhraní.
+Taktéž bylo zapotřebí aktivovat funkční komunikaci přes kontrolér Asix AX88772b \ref[oAX], který na základě USB příkazů je schopen posílat ovládací zprávy přes RMII rozhraní.
 Navíc bylo potřeba vyřešit, v jakém módu bude tento ethernetový přepínáč připojen.
 Pro připojení přepínače bylo zvoleno připojení MAC--to--MAC, ve kterém hodiny pro MDIO vysílá zařízení AX88772b a hodiny o frekvenci 50~MHz pro RMII rozhraní ethernetový přepínač Marvell 88E6065.
 Zapojení je znázorněno na obrázku \ref[MARVELL6065rmii].
@@ -919,17 +926,17 @@ Pro vyřešení tohoto problému byl k čipu doplněn kondenzátor, který zař�
 
 $$ T(s) = R (\Omega) * C(F)  $$
 
-Deska tak měla během této doby možnost, aby se vstupní hodnoty na všech pinech ustálily ve správném stavu.
+Deska tak měla během této doby možnost, aby se vstupní hodnoty na všech vývodech ustálily ve správném stavu.
 
 Pro zajištění správného a deterministického chování přepínače byly přidány pull-up a pull-down rezistory \ref[zapojeni2].
 \begitems
-*pull up rezistor -- pin SW\_MODE, ADDR4, P5\_MODE0, P5\_MODE1 a P5\_MODE3
-*pull dwon rezistor -- pin P5\_MODE2
+*pull up rezistor -- vývod SW\_MODE, ADDR4, P5\_MODE0, P5\_MODE1 a P5\_MODE3
+*pull dwon rezistor -- vývod P5\_MODE2
 \enditems
 
 \label[ARCH]
 
-\sec Návrh ovladače
+\sec Návrh subsystému
 
 Ovladač byl navržen tak, aby propojoval ovladač pro Asix AX88772b se subsystémem DSA \ref[DSA].
 
@@ -1020,7 +1027,7 @@ Funkce na uvolňování ovladače nebyla v původní verzi dokončena, a proto b
 
 \label[mvdri]
 
-\secc Vytvoření ovladač zařízení Marvell 88E6065
+\secc Vytvoření ovladače zařízení Marvell 88E6065
 
 Pro kontrolu zařízení Marvell 88E6065 bylo zapotřebí vytvořit ovladač, který není v současné době naimplementován v Linuxovém jádře.
 
@@ -1281,7 +1288,7 @@ Deska konfigurovatelného přepínače byla založena na přepínacím obvodu 88
 Pro vytvoření ovladače byla naportována nejnovější verze operačního systému Linux na modul Colibri T20, který má integrované hostitelské USB zařízení a splňuje industriální teplotní rozsahy.
 Dálé byl implementován ovladač pro přepínač do této verze operačního systému, který umožňuje inicializaci zařízení za běhu a umí reprezentovat každý port přepínače jako virtuální rozhraní viditelné v uživatelském prostoru operačního systému Linux.
 
-Tento ovladač byl složen z úpravy stávajícího ovladače pro kontrolér AX88772b, který byl rozšířen o podporu menežovacího rozhraní RMII.
+Tento ovladač byl složen z úpravy stávajícího ovladače pro kontrolér AX88772b, který byl rozšířen o podporu ovládacího rozhraní RMII.
 Další úpravou prošel subsystém DSA, který byl doplňen o možnost uvolňení zařízení za běhu a také jeho připojení.
 K implementaci ovladače také patří ovladač pro čip ethernetového přepínače Marvell 88E6065, který ovládá funkčnost samotného přepínače.
 Implementace byla provedena na současné verzi Linuxového jádra s pokusem dostat tuto upravu do hlavní větve Linuxového jádra.
