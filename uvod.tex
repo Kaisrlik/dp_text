@@ -1,5 +1,5 @@
 \chap Úvod
-%citace
+%citace, spravující nebo ovládací
 
 Cílem mé diplomové práce je~vytvoření ovladače do~operačního systému Linux pro~Ethernetový přepínač, který by splňoval průmyslové teplotní rozsahy.
 
@@ -370,43 +370,43 @@ Zdrojem hodinového signálu je~vrstva MAC nebo je~generován externími hodinam
 
 \sec Subsystémy operačního systému Linux
 
-Tato kapitola obsahuje informace o~tom, co to je~ovladač, a~dále popisuje základní stavební prvky naimplementováné v~operačním systému Linux: device, net\_device, usb subsystém, usbnet, mii\_bus, DSA a~sysfs.
+Tato kapitola obsahuje informace o~tom, co to je~ovladač, a~dále popisuje základní stavební prvky poskytováné operačním systému Linux: device, net\_device, usb subsystém, usbnet, mii\_bus, DSA a~sysfs.
 
 \secc Ovladač
 
 Ovladač je~část programu (algoritmu), která spravuje nebo kontroluje určité zařízení připojené k~počítači.
 Ovladače vytvářejí softwarové rozhraní pro~hardwarové zařízení, které umožňují operačnímu systému ovládat tento hardware, aniž by uživatel věděl, jak přesně funguje \cite[LDD3].
 
-Linuxové jádro je~monolitivký operační systém a~proto ovladače zařízení jsou nahrány ve~stejném prostoru jako samotné jádro.
-Avšak umožňuje zavádět tyto ovladače za~běhu systému nebo při jeho kompilaci.
+Linuxové jádro je~monolitický operační systém a~proto ovladače zařízení jsou nahrány ve~stejném paměťovém prostoru jako samotné jádro.
+Operační systém Linux umožňuje zavádět tyto ovladače dynamicky za~běhu systému nebo staticky při jeho kompilaci.
 
-\secc device
+\secc Struktura device
 
-Každé zařízení naimplementované na~nejnižší úrovni je~v~operačním systému Linux reprezentováno instancí struktury {\em device}.
+Každé zařízení je~v~operačním systému Linux reprezentováno instancí struktury {\em device}.
 Struktura device obsahuje informace o~tom, co zařízení potřebuje, aby správně fungovalo v~systému.
-Mnoho subsystémů uchovává informace o~struktuře device a~tyto informace využívá k~dalším procesům.
-V dnešní době je~velmi obtížné nalézt zařízení, které by bylo reprezentováno pouze strukturou {\em device}.
-Místo toho některé instance ve~struktuře {\em device}, jako je~kobj, obecně implementují zařízení, která jsou nadřazená struktuře {\em device} \cite[DEV].
-\fnote{Popis datové struktury {\em device} lze nalézt na~\url{http://lxr.free-electrons.com/source/include/linux/device.h\#L730}}.
+Mnoho subsystémů uchovává informace o~struktuře device a~tyto informace využívá k~dalším úkonům.
+Většina zařízení není reprezentována pouze strukturou {\em device}.
+Místo toho některé instance ve~struktuře {\em device}, jako je~kobj, obecně implementují zařízení, která jsou nadřazená struktuře {\em device} \cite[DEV]
+\fnote{Popis datové struktury {\em device} lze nalézt na~\url{http://lxr.free-electrons.com/source/include/linux/device.h?v=3.19\#L730}}.
 
 \label[NETDEV]
 
-\secc net device
+\secc Zařízení typu net device
 
 Struktura {\em net\_device } popisuje síťové rozhraní jak fyzické tak virtuální (jako jsou VLAN)\cite[ULNI].
 Síťové rozhraní může přijímat a~vysílat velké množství dat, a~proto je~implementace podobná diskovým zařízením \cite[LDD3].
 Síťová zařízení přijímají data asynchronně a~ukládájí je~do~vyrovnávací paměti.
 
-V linuxovém jádře je~síťový subsystém naimplementován tak, že je~na~protokolu nezávislý.
+V linuxovém jádře je~síťový subsystém implementován tak, že je~na~protokolu nezávislý.
 
 
-Jednotlivé složky struktury {\em net\_device } mohou být klasifikovány do~několika kategorií \cite[ULNI]:
+Jednotlivé položky struktury {\em net\_device } mohou být klasifikovány do~několika kategorií \cite[ULNI]:
 \begitems
-*Konfigurace -- některá konfigurace je~dána Linuxovým jádrem a~nějaké jsou možné nastavit programy z~uživatelského rozhraní, jako je~ifconfig a~ip.
-*Statistiky -- statistiky jako počet odeslaných paketů a~paketů přiajtých, popsané v~struktuře, která se~jmenuje priv.
+*Konfigurační položky -- část konfigurace je~automaticky naistalována Linuxovým jádrem a~je možné je měnit programy z~uživatelského rozhraní, jako je~ifconfig a~ip.
+*Statistiky -- například statistiky jako počet odeslaných paketů a~paketů přiajtých.
 *Stav zařízení
-*Menežování přenosu -- nastavení kvality služeb (QoS).
-*Tabulka virtuálních funkcí -- tyto ukazatele jsou implemntovány ovladači zařízeních. Obsahují funkce jako je~nahození portů, shození portů, nastavení adres a~mnohé další popsané v~dokumentaci Linuxového jádra nebo \cite[ULNI].
+*Správa přenosu -- nastavení kvality služeb (QoS).
+*Tabulka virtuálních funkcí -- je tabulku ukazatelů implementovaných ovladačů zařízení. Obsahují funkce jako je~aktivace portů, deaktivování portů, nastavení adres a~mnohé další popsané v~dokumentaci Linuxového jádra nebo \cite[ULNI].
 \enditems
 
 
@@ -416,39 +416,46 @@ Jednotlivé složky struktury {\em net\_device } mohou být klasifikovány do~n�
 
 Linuxové jádro podporuje dva druhy USB ovladačů -- ovladače na~hostovském systému a~ovladače na~peroferním zařízení \cite[LDD3].
 USB ovladač na~hostovském systému pracuje na~systému, ke kterému je~USB zařizení připojeno.
-Ovladač v~periferních zařízeních, neboli \"USB gadget drivers\", je~připojen k~hostovskému systému ale chová se~jako hostovská stanice připojená přes USB.
-Na obrázku níže můžeme vidět USB hierarchii, kde USB může existovat v~několika různých subsystémech (net, block, char ...). %chybí obrázek TODO XXX
-USB jádro implementuje rozhraní pro~USB ovladače, které chtějí kontrolovat hardware a~přistupovat k~němu.
+Ovladač v~periferních zařízeních, neboli \uv{USB gadget drivers}, které kontrolují připojená zařízení přes USB.
+Na obrázku níže můžeme vidět USB hierarchii datových struktur USB subsystému, kde USB zařízení může existovat v~několika různých subsystémech (net, block, char ...).
+Jádro USB je část USB subsystému, která implementuje rozhraní pro~USB ovladače, které chtějí ovládat hardware a~přistupovat k~němu tak jak můžeme vidět na obrázky \ref[USBH].
+
+\medskip
+\clabel[USBH]{Hierarchie USB subsystému.}
+\picw=15cm \cinspic images/usbsub.pdf
+\caption/f Hierarchie USB subsystému. Obrázek převzat z~\cite[LDD3].
+\medskip
 
 Koncové body USB jsou popsány v~jádře Linuxu strukturou {\em usb\_host\_endpoint}.
-Tato struktura obsahuje informace o~reálném koncovém bodu ve~struktuře {\em usb\_endpoint\_descriptor}.
+Tato struktura obsahuje informace o~reálné informace koncovém bodu připojeného zařízení ve~struktuře {\em usb\_endpoint\_descriptor}.
 Struktura {\em usb\_endpoint\_descriptor} popisuje data pomocí přijatých deskriptorů.
 
 \medskip
 \clabel[USBMAP]{Hierarchie USB.}
 \picw=15cm \cinspic images/usbendpmap.pdf
-\caption/f Hierarchii USB prvků. Obrázek převzat z~\cite[LDD3]. 
-%TODO popisek
+\caption/f Hierarchie USB poposuje jak jsou zaobaleny jednotlivé části USB subsystému. Obrázek převzat z~\cite[LDD3]. 
+%TODO XXX popisek
 \medskip
 
 
-USB rozhraní je~složeno z~několika koncových bodů, které tvoří jedno logické připojení jako je~napřiklad myš, klávesnice, video atd.
+USB rozhraní, tak jak můžeme vidět na obrázku \ref[USBMAP], je~složeno z~několika koncových bodů, které tvoří jedno logické připojení jako je~napřiklad myš, klávesnice, video atd. %TODO XXX
 Některá USB zařízení však mohou mít více rozhraní.
-Například USB repoduktory mohou mít dvě rozhraní, jako je~USB klávesnice pro~tlačítka reproduktoru a~USB audio pro~jeho zvuk \cite[LDD3].%TODO presunout nahoru
-Linuxové jádro používá pro~každé rozhraní právě jeden hardwarový ovladač.
-Toto rozhraní je~popsáno strukturou {\em usb\_interface}.
-Tato struktura je~to, co USB jádro předává USB ovladačům.
+Například USB repoduktory mohou mít dvě rozhraní, jako je~USB klávesnice pro~tlačítka reproduktoru a~USB audio pro~jeho zvuk \cite[LDD3]. %TODO presunout nahoru
+Linuxové jádro používá pro~každé rozhraní právě jeden ovladač.
+Každé rozhraní je~popsáno strukturou {\em usb\_interface}.
+Tato struktura obsahuje informace, které jádro USB předává USB ovladačům.
 
-Každé zařízení je~vázáno konfigurací, které je~předáváno v~deskriptorech.
-Linuxové jádro popisuje konfigurace ve~struktuře {\em usb\_host\_config} a~celé USB zařízení strukturou {\em usb\_device}.
+Každé zařízení může mít různé nastavení, které je~předáváno v~deskriptorech.
+Linuxové jádro popisuje toto nastavení ve~struktuře {\em usb\_host\_config} a~celé USB zařízení strukturou {\em usb\_device}.
 Jedno USB zařízení však může mít konfigurací více.
 Konfigurace se~mohou v~průběhu práce zařízení měnit.
-Linuxové jádro ale nemůže obsluhovat více konfigurací v~jeden čas.
+%Linuxové jádro ale nemůže obsluhovat více konfigurací v~jeden čas. %TODO XXX
 
 
-Ovladače USB zařízení  obyčejně přepisují data z~{\em usb\_interaface} do~{\em usb\_device}.
-Samotné struktury {\em usb\_device} a~{\em usb\_interface} jsou zobrazeny v~subsystému sysfs \ref[SYSFS] jako jednotlivé soubory.
-Ukázková cesta ke struktuře {\em usb\_device} reprezentována pomocí sysfs \ref[SYSFS] může vypadat následovně:
+Ovladače USB zařízení  obyčejně odkazují data ze struktury ~{\em usb\_interaface} do struktury ~{\em usb\_device}.
+
+Subsystém sysfs (viz v sekci \ref[SYSFS]) umožňuje přístup ke strukturám {\em usb\_device} a~{\em usb\_interface}, které jsou zobrazeny jako složky a soubory.
+Příklad cesty v sysfs reprezentující k strukturu {\em usb\_device} může vypadat následovně:
 
 \begtt  /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1  \endtt
 
@@ -457,62 +464,64 @@ Tato struktura je~pojmenována podle formátu root\_hub-hub\_port:config.interfa
 
 \begtt /sys/devices/pci0000:00/0000:00:09.0/usb2/2-1/2-1:1.0 \endtt
 
-Pro komunikaci se~všemi USB zařízeními používá Linuxové jádro strukturu USB request block (urb).
-Struktura urb definuje asynchronní typ komunikace, která se~využívá k~posílaní a~příjmu dat pro~specifický koncový bod USB a~specifické USB zařízení.
+Pro komunikaci se~všemi USB zařízeními používá Linuxové jádro strukturu USB request block (URB).
+URB definuje asynchronní typ komunikace, která slouží k~posílaní a~příjmu dat pro~specifický koncový bod USB a~specifické USB zařízení.
 
 \label[USBNET]
 
-\secc usbnet
+\secc Subsystém usbnet
 
-Usbnet je~subsystém Linuxového jádra, který umožňuje ovládat USB--síťová zařízení jako je~ethernet, DSL, IDSN atd. \ref[USBNET]
-Usbnet je~obecná USB--síťová nadstavba, která pracuje na~různých rychlostech a~nad různými protokoly.
+Usbnet je~subsystém Linuxového jádra, který umožňuje ovládat síťová zařízení jako je~ethernet, DSL, IDSN atd.
+%Usbnet je~obecná síťová nadstavba, která pracuje na~různých rychlostech a~nad různými protokoly.
 
-Na obrázku níže lze vidět uml diagram důležitých struktur v~ovladači AX88772b \ref[umlASIX].
+Ovladač pro zařízení Asix AX88772b, patří do třídy usbnet.
+Na obrázku \ref[umlASIX] níže lze vidět UML diagram důležitých struktur pro~tento ovladač.
 
 \medskip
 \clabel[umlASIX]{Diagram tříd ovladače AX88772b.}
 \picw=15cm \cinspic images/driver_asix.pdf
-\caption/f Na obrázku můžeme vidět popis vybraných datových struktur v~subsystému usbnet.
+\caption/f Diagram tříd vybraných datových struktur v~subsystému usbnet.
 \medskip
 
-Na obrázku \ref[umlASIX] je~znázorněn subsystém usbnet obsahující informace o:
+Na obrázku \ref[umlASIX] je~znázorněn subsystém usbnet obsahující vztahy mezi jednotlivými strukturami, které mají následující význam:
 \begitems
-*net\_device -- zařízení reprezentující síťové rozhraní
-*driver\_info -- rozhraní pro~ovladač usbnet zařízení
+*net\_device -- struktura reprezentující síťové rozhraní
+*driver\_info -- struktura pro~ovladač usbnet zařízení
 *usb\_device -- struktura reprezentující zařízení USB
 \enditems
 
 
-\secc mii bus
+\secc Struktura mii bus
 
-Struktora {\em mii\_bus} reprezentuje MII rozhraní tabulkou virtuálních funkcí a~umožňuje přístup k~registrům popsaných v~oddíle \ref[miireg].
+Struktura {\em mii\_bus} reprezentuje MII rozhraní.
+Obsahuje tabulkou virtuálních funkcí a~umožňuje přístup k~registrům popsaných v~sekci \ref[miireg].
 
 \label[DSA]
 
-\secc Distributed Switch Architecture
+\secc Subsystém Distributed Switch Architecture
 
-Distributed Switch Architecture (DSA) je~subsystém pro~ovládaní hardwarových přepínačů \cite[DSA].
+Distributed Switch Architecture (DSA) je~subsystém pro~správu hardwarových Ethernetových přepínačů \cite[DSA].
 %Obsahuje MII menežovací registry, příkazy pro~nastavení přepínače a~formát ethernetových hlaviček, který signalizuje na~kterém portu byl paket přijat nebo ktery se~hodlá odeslat 
 Tento subsystém podporuje přepínače, které jsou připojeny způsobem zobrazeným na~obrázku \ref[DSAcon].
 
 \medskip
-\clabel[DSAcon]{Připojení DSA k~CPU.}
+\clabel[DSAcon]{Připojení přepínače k~CPU.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/DSAcon.pdf
-\caption/f Obrázek popisuje, jak je~možné připojit DSA přepínač k~procesoru. Obrázek je~převzat z~\cite[DSA].
+\caption/f Možné připojení Ethenetového přepínače k~procesoru, které využívá subsystém DSA. Obrázek je~převzat z~\cite[DSA].
 \medskip
 
-Tento subsystém reprezentující přepínače interpretuje každý port jako oddělené síťové rozhraní \ref[NETDEV].
-Nastavování přepínače, jako je~nastavení portů a~ovládání MII rozhraní, je~provedeno na~základě virtuální tabulky funkcí {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je~standardní utilita Linuxu pro~ovládání a~podporu ovladačů a~zařízení \cite[EMBLINUX].}.
+DSA subsystém interpretuje každý port přepínače jako oddělené síťové rozhraní popsané v sekci \ref[NETDEV].
+Konfigurace přepínače, jako je~nastavení portů a~správu MII rozhraní, se děje na~základě struktury okazatelů na funkce {\em ethtool\_ops}, kterou využívá například nástroj Ethtool \fnote{Ethtool je~standardní nástroj Linuxu pro~ovládání a~podporu ovladačů a~zařízení \cite[EMBLINUX].}.
 
 Subsystém DSA podporuje i propojení mezi přepínači tak, jak je~možno vidět na~obrázku \ref[DSAcon2].
-Takto propojené přepínače lze ovládat skrz MII rozhraní.
+Takto propojené přepínače lze ovládat skrz MII rozhraní. %TODO XXX skrz mii neni na obrazku a je jich tam nekolik???
 
 \medskip
 \clabel[DSAcon2]{Připojení více přepínačů DSA k~CPU.}
 %\picw=13cm \cinspic MIItoISO.png
 \picw=15cm \cinspic images/DSAcon2.pdf
-\caption/f Obrázek popisuje, jak je~možné připojit DSA přepínač k~procesoru. Obrázek je~převzat z~\cite[DSA].
+\caption/f Možné připojení DSA přepínačů k~procesoru. Obrázek je~převzat z~\cite[DSA].
 \medskip
 
 Na obrázku \ref[umlDSA] je~diagram tříd důležitých struktur v~subsystému DSA, které jsou nezbytné pro~funkčnost subsystému.
@@ -520,51 +529,52 @@ Na obrázku \ref[umlDSA] je~diagram tříd důležitých struktur v~subsystému 
 \medskip
 \clabel[umlDSA]{Diagram tříd DSA subsystému.}
 \picw=15cm \cinspic images/dsa_uml.pdf
-\caption/f Na obrázku jsou popsány vybrané datové struktury.
+\caption/f Diagram tříd vyhraných datových struktur DSA subsystému.
 \medskip
 
 Na tomto obrázku jsou zvýrazněny struktury {\em mii\_bus}, {\em net\_device} a~{\em dsa\_platform\_data}.
-Tyto struktury DSA subsystém nevytváří, a~proto je~potřeba je~předat subsystému způsobem, který je~popsán v~kapitole Implementace \ref[ARCH].
+Tyto struktury DSA subsystém nevytváří, a~proto je~potřeba je~předat subsystému způsobem, který je~popsán v~kapitole \ref[ARCH] Implementace.
 
 %XXX upravit aby to bylo více vypovídající
-Subsystém DSA je~reprezentován strukturou {\em dsa\_switch\_tree}, která obsahuje odkazy na~struktury:
+Instance subsystém DSA je~reprezentován strukturou {\em dsa\_switch\_tree}, která obsahuje odkazy na~struktury:
 \begitems
 *dsa\_platform\_data -- tato struktura obsahuje informace o~kořeovém zařízení.
 Také obsahuje strukturu {\em dsa\_chip\_data} popsanou níže.
-*net\_device -- tato struktura odkazuje na~hlavní síťové zařízení \ref[NETDEV], za~učelem znalosti protokolu.
-*dsa\_switch -- obsahuje data pro~jednotlivé přepínače popsané níže.
-\enditems
-
-Struktura {\em dsa\_switch} nesoucí data o~připojeném přepínači obsahuje následující data:
+*net\_device -- tato struktura odkazuje na~hlavní síťové zařízení ( viz sekce \ref[NETDEV] ), která obsahuje informace o použitém protokolu.
+*dsa\_switch -- obsahuje data pro~jednotlivé přepínače:
 \begitems
 *dsa\_switch\_tree -- je~odkaz na~rodičovskou strukturu.
 *dsa\_chip\_data -- struktura obsahující informace o~fyzickém přepínači -- kolik má portů a~jaké jsou jejich názvy.
 Navíc obsahuje informace o~popisu hardwaru ve~zkompilovaném device tree
-\fnote{Device tree je~struktura, která popisuje hardwarového zařízení. A odlehčuje kódu, který by popisoval každý detail. \cite[DT].}.
-*device -- je~odkaz na~hostovské zařízení přepínače.
-*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na~ovládání připojeného přepínače, v~jádře se~tato struktura někdy označuje jako tabulka virtuálních funcí \cite[ULNI].
+\fnote{Device tree je~struktura, předávána zavaděčem operačního systému, která popisuje připojení hardwaru. A tak odlehčuje kódu, který by popisoval každý detail. \cite[DT].}.
+*device -- je~odkaz zařízení přepínače.
+*dsa\_switch\_driver -- struktura popisující ovladač přepínačů, obsahuje funkce na~správu připojeného přepínače.
+V~jádře se~struktura obsahující odkazy na funkce označuje jako tabulka virtuálních funcí \cite[ULNI].
 *mii\_bus -- je~ovladač MII sběrnice.
-*net\_device -- je~odkaz na~síťové zařízení \ref[NETDEV] reprezentující port zařízení.
+*net\_device -- je~odkaz na~síťové zařízení reprezentující port zařízení.
 \enditems
+\enditems
+
 
 
 
 
 \label[SYSFS]
 
-\secc System Filesystem
+\secc Souborový systém sysfs
 
-System FileSystem (Sysfs) je~charakteristika Linuxového jádra od verze 2.6, která umožňuje jadernému kódu exportovat informace do~uživatelského prostoru za~použití paměti VFS\ref[SYSFS].
-Hlavním účelem je~reprezentovat objekty jádra, jejich atributy a~jejich vztahy navzájem.
-Většina atributů je~reprezentována souborem, který je~ve~formátu ASCII a~obsahuje pouze jednu hodnotu.
-Sysfs poskytuje dvě složky:
+Souborový systém sysfs je~obsažen v Linuxovém jádře od verze 2.6.
+Umožňuje jádru operačního systému exportovat informace do~uživatelského prostoru za~použití paměti \cite[SYSFS]. %TODO XXX VFS ??
+Hlavním účelem je~reprezentovat objekty jádra, jejich atributy a~jejich vzájemné vztahy.
+Většina atributů je~reprezentována textovými soubory, které jsou~v~kódování ASCII a~obsahuje pouze jednu hodnotu.
+Sysfs poskytuje dvě rozhraní k reprezentování dat:
 
 \begitems
 *kernel programming interface -- slouží k~exportování a~importování položek (viz níže) skrz sysfs do~jádra
 *user interface -- slouží k~zobrazení a~manipulaci s~těmito položkami (viz níže), které mapuje zpět na~objekty v~jádře
 \enditems
 
-Mapování objektů a~atributů můžeme vidět v~\ref[SYSFSmap].
+Mapování objektů a~atributů na objekty v sysfs můžeme vidět v~tabulce \ref[SYSFSmap].
 
 \midinsert \clabel[SYSFSmap]{Mapováni objektů a~atributů v~sysfs.}
 \ctable{ll}{
@@ -576,7 +586,7 @@ Mapování objektů a~atributů můžeme vidět v~\ref[SYSFSmap].
 \caption/t  Tabulka popisující mapování objektů a~atributů z~jádra. Tabulka převzata z~\cite[SYSFS].
 \endinsert
 
-Toto mapování lze vidět ve~složce {\em /sys/}, která reprezentuje zařízení a~data jádra.
+Sysfs je připojen do složky {\em /sys/}.
 Složka /sys/ může vypadat následovně:
 \begtt
     /sys/
@@ -589,53 +599,53 @@ Složka /sys/ může vypadat následovně:
     ‘-- power
 \endtt
 
-Sysfs je~reprezentováno v~Linuxovém jádře jako struktura {\em kobj}, která obsahuje tři druhy obslužného volání -- na~zápis, čtení a~na uvolňení.
+Sysfs je~reprezentováno v~Linuxovém jádře jako struktura {\em kerfs_root}, která se skládá z~uzlů {\em kernfs\_node}.
+Tyto struktury využívají instance struktur kobj k reprezentaci dat a také obsahují tři druhy obslužného volání -- na~zápis, čtení a~na uvolňení.
 
 \label[pouzhw]
 
 
 \chap Použitý hardware
 
-Tato kapitola popisuje použitý modul na~kterém byl provaděn vývoj ovladačů.
-Také popisuje desku konfigurovatelného přepínače a~čipy, které jsou na~této desce použity.
+Tato kapitola popisuje použitý procesorový modul na~kterém byl provaděn vývoj ovladačů, desku konfigurovatelného přepínače a~čipy, které jsou na~této desce použity.
 
 \label[T20]
 
-\sec Počítačový modul Colibri T20
+\sec Procesorový modul Colibri T20
 
-Colibri T20, vyráběný firmou Toradex \cite[TODADEX], je~počítačový modul postaven na~základě NVIDIA Tegra 2 vestavěném systému na~čipu \cite[SOC].
+Modul Colibri T20, vyráběný firmou Toradex \cite[TODADEX], je~počítačový modul založen na~NVIDIA Tegra 2 vestavěném systému na~čipu \cite[SOC].
 Tento modul dále obsahuje 256~MB DDR2 paměti a~512~MB NAND flash paměti.
-Má velké množství komunikačních rozhraní jako je~I2C, SPI, UART, MMC, USB, ethernet a~PWM.
-Také obsahuje výstup na~video a~audio.
-Čip obsahuje periferie popsané na~blokovém diagramu na~obrázku \ref[SOC].
+Má velké množství komunikačních rozhraní jako je~I2C, SPI, UART, MMC, USB a Ethernet a~výstupem pro PWM.
+Také obsahuje audio a~video výstup.
+Čip obsahuje periferie popsané v~blokovém diagramu na~obrázku \ref[SOC].
 
 \medskip
 \clabel[SOC]{Colibri T20 blokový diagram.}
 \picw=15cm \cinspic images/soc.pdf
-\caption/f Obrázek popisuje části integrované na~modulu Colibri T20 \cite[SOC].
+\caption/f Procesorový modulu Colibri T20 \cite[SOC].
 \medskip
 
 Firma Toradex dodává k~tomuto modulu podporu pro~Linuxové jádro verze 3.1.10.
 
 \sec Systém na~čipu NVIDIA Tegra 2
 
-Systém na~čipu NVIDIA Tegra 2 od firmy ARM je~založen na~dvoujádrovém procesoru Cortex A9 se~symetrickým procesorovým jádrem s~frekvencí procesoru okolo 1~GHz \cite[TEGRA2].
+Systém na~čipu NVIDIA Tegra 2 od firmy NVidia je~založen na~dvoujádrovém procesoru Cortex A9 se~symetrickým procesorovým jádrem s~frekvencí okolo 1~GHz \cite[TEGRA2].
 Jelikož se~jedná o~systém na~čipu, obsahuje tento čip mnoho bloků, jako je~například Audio/Video rekordér, grafický procesor s~podporou 2D rendrovaní a~3D pixelové a~vektorové shadery.
+Tento systém na~čipu dosahuje vysokého grafického i výpočetního výkonu, viz \cite[BENCH].
 
 Procesor Cortex A9 má 32-bitovou RISC
-\fnote{Architektura RISC označuje procesory s~redukovanou instrukční sadou \cite[RISC].}
+\fnote{Architektura RISC označuje procesory s~redukovanou instrukční sadou.}
 architekturu vyvinutou společností ARM Holding věnující se~vývoji procesorových jader.
 Tento procesor podporuje out--of--order a~spekulativní provádění instrukcí.
 Má plnou podporu koherence pamětí pro~symetrické procesory.
-Procesor A9 dosahuje vysokého grafického i výpočetního výkonu, viz \cite[BENCH].
 Procesor též obsahuje jednotku pro~výpočty s~plovoucí řádovou čárkou.
 
-Popis jádra NVIDIA Tegra 2 lze vidět na~obrázku níže \ref[TEGRA].
+Bloky systému na~čipu NVIDIA Tegra 2 lze vidět na~obrázku níže \ref[TEGRA].
 
 \medskip
-\clabel[TEGRA]{Popis jádra NVIDIA Tegra 2.}
+\clabel[TEGRA]{Bloky systému na~čipu NVIDIA Tegra 2.}
 \picw=15cm \cinspic images/tegra2.pdf
-\caption/f Obrázek popisuje architekturu procesoru NVIDIA Tegra 2 \cite[TEGRA].
+\caption/f Bloky procesoru NVIDIA Tegra 2 \cite[TEGRA].
 \medskip
 
 \label[ASIX]
@@ -643,23 +653,24 @@ Popis jádra NVIDIA Tegra 2 lze vidět na~obrázku níže \ref[TEGRA].
 \sec USB--Ethernet kontrolér Asix AX88772b
 
 
-AX88772b je~zákaznický integrovaný obvod vyráběný firmou Asix, který umožňuje plug--and--play Fast Ethernet internetové připojení pro~zařízení využívající standardizované USB verze 1.1 a~verze 2.0 popsané v~\ref[USB].
+AX88772b je~zákaznický integrovaný obvod vyráběný firmou Asix, který umožňuje připojení Fast Ethernet rozhraní za běhu systému.
+To je určeno pro~zařízení disponující hostitelským rozhraním USB verze 1.1 nebo verze 2.0.
 
 
-Jako jediný z~vyráběných modelů dosahuje v~revizi AX88772bli teplotních rozsahů od $ -40^{\circ}C  až +85^{\circ}C $. Což odpovídá industriálním teplotním rozsahům.
-AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII \ref[RMIIsub] nebo Reverse-RMII způsobem MAC--to--MAC k~mikrokontroléru s~Ethernet MAC RMII rozhraním.
+Jako jediný z~vyráběných modelů dosahuje v~revizi AX88772b teplotních rozsahů od $ -40 do  +85^{\circ}C $. Což odpovídá průmyslovým teplotním rozsahům.
+AX88772b má modifikovatelnou vícefunkční sběrnici, která umožňuje připojit RMII, popsané v sekci\ref[RMIIsub], nebo Reverse-RMII způsobem MAC--to--MAC k~mikrokontroléru s~Ethernet MAC RMII rozhraním.
 MAC rozhraní je~plně kompatibilní se~standardy IEEE~802.3, IEEE~802.3u.
 
 %TODO ASIX
 \medskip
 \clabel[ASIXcip]{Blokový diagram AX88772b.}
 \picw=15cm \cinspic images/asix_conn.pdf
-\caption/f Obrázek popisuje blokový diagram architektury čipu AX88772b od firmy Asix. Obrázek je~převzat z~\cite[ASIX].
+\caption/f Blokový diagram čipu AX88772b od firmy Asix. Obrázek je~převzat z~\cite[ASIX].
 \medskip
 %jake umoznuje propojeni po rmii?
 
 Jak je~vidět na~obrázku \ref[ASIXcip], čip AX88772b obsahuje ethernetovou vrstvu PHY, která však nemůže být aktivní současně s~RMII rozhraním.
-Dále obsahuje periferii pro~připojení EEPROM paměti a~nastavitelné vývody nejčastěji používáné pro~světelnou signaliaci.
+Dále obsahuje periferii pro~připojení EEPROM paměti a~nastavitelné vývody nejčastěji používáné pro~připojení LED diod.
 Tento čip též obsahuje regulátor napětí z~3,3~V na~1,8~V.
 
 
@@ -669,9 +680,9 @@ Tento čip též obsahuje regulátor napětí z~3,3~V na~1,8~V.
 \sec Ethernetový přepínač Marvell 88E6065
 
 Marvell 88E6065 je~5~+~1 portový ethernetový přepínač integrovaný na~čipu.
-Obsahuje  pět portů na~fyzické vrstvě 10~BASE-T/100~BASE-TX, z~nichž dva porty mohou být využity pro~optickou linku 100~BASE-FX,
-Navíc obsahuje port, pro~připojení MAC vrstvy za~pomoci RMII nebo MII rozhraní.
-Též jde připojit pouze přez ovládací rozhraní z~MII.
+Obsahuje  pět portů s~fyzickou vrstvou 10~BASE-T/100~BASE-TX, z~nichž dva porty mohou být využity pro~optickou linku 100~BASE-FX.
+Navíc obsahuje port, pro~připojení MAC vrstvy pomocí RMII nebo MII rozhraní.
+Též jde připojit pouze přes ovládací rozhraní z~MII.
 Zařízení má vysokorychlostní neblokující čtyřúrovňový QoS
 \fnote{QoS umožňuje síti, garantovat lepší kvalitu služeb. A umožňuje aplikacím požadovat a~přijímat předvídatelné úrovně těchto služeb, aby zvýšili průtok sítě a~její odezvu. \cite[CISCO].}.
 
@@ -682,16 +693,16 @@ MAC a~PHY vrstvy jsou plně kompatibilní se~standardy IEEE~802.3, IEEE~802.3u a
 
 Zařízení může být konfigurováno přes ovládací rozhraní nebo může načítat nastavení z~EEPROM paměti.
 
-Výjimečně se~přepínač Marvell 88E6065 může využívat jako směrovač či výchozí brána.
+%Výjimečně se~přepínač Marvell 88E6065 může využívat jako směrovač či výchozí brána.
 %jake umoznuje porjojeni RMII
 \medskip
 \clabel[MARVELL6060]{Blokový diagram 88E6060.}
 \picw=15cm \cinspic images/6060conn.pdf
-\caption/f Obrázek popisuje blokové zapojení čipu 88E6060 od firmy Marvell, které je~velmi podobné zapojení čipu 88E6065. Obrázek je~převzat z~\cite[MARVELL].
+\caption/f Zapojení systému s čipem 88E6060 od firmy Marvell, které je~velmi podobné zapojení čipu 88E6065. Obrázek je~převzat z~\cite[MARVELL].
 \medskip
 
-Jak lze videt na~obrázku \ref[MARVELL6060], který popisuje Marvell 88E6060, který je~velmi podobný zařízení Marvell 88E6065 obsahuje tento přepínač pouze 4~+~1 portů.
-Avšak jako jako nevější model potřebuje externí hodinový krystal a~zdroj napětí.
+Jak lze videt na~obrázku \ref[MARVELL6060], který popisuje obvod Marvell 88E6060, který je~velmi podobný obvodu Marvell 88E6065.
+Oba tyto modely potřebují externí hodinový krystal a~zdroj napětí.
 
 \label[SWITCH]
 
@@ -702,18 +713,18 @@ Deska konfigurovatelného přepínače byla vyrobena firmou Retia a.s.
 \fnote{Firma zabývající se~elektronickými vojenskými systémy, záznamovými zařízeními a~lokalizačními a~bezpečnostními systémy. \url{www.retia.cz}}
 na základě jejich návrhu a~zapojení, ktará jsou popsaná v~přílohách \ref[zapojeni1], \ref[zapojeni2].
 
-Tato deska byla vyrobena za~účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje industriální teplotní rozsahy, za~výkonnější.
+Tato deska byla vyrobena za~účelem nahrazení staršího modelu konfigurovatelného přepínače, který splňuje průmyslové teplotní rozsahy, za~výkonnější.
 
 Zjednodušené schéma této desky je~znázorněno na~obrázku \ref[deska].
 
 \medskip
 \clabel[deska]{Blokové schéma desky konfigurovatelného přepínače.}
 \picw=15cm \cinspic images/diagdeska.pdf
-\caption/f Obrázek popisuje blokové schéma zapojení desky konfigurovatelného přepínače.
+\caption/f Blokové schéma zapojení desky konfigurovatelného přepínače.
 \medskip
 
 Konfigurovatelný přepínač umožňuje nastavení ethernetového přepínače za~pomoci USB Ethernet kontroléru AX88772b od firmy Asix \ref[ASIX], ke kterému je~připojena externí pamět EEPROM M93-C66 \fnote{Popsané na~\url{http://www.st.com/web/catalog/mmc/FM76/CL1276/SC112/PF63995?referrer=70071840}}.
-Tento kontrolér je~připojen přes RMII rozhraní k~čipu Marvell 88E6065 \ref[MARVELL] tak, jak lze vidět na~obrázku níže \ref[MARVELL6065rmii].
+Tento kontrolér je~připojen přes RMII rozhraní k~čipu Marvell 88E6065 \ref[MARVELL] tak, viz na~obrázku níže \ref[MARVELL6065rmii].
 
 \medskip
 \clabel[MARVELL6065rmii]{Zapojení RMII k~čipu Marvell 88E6065.}
@@ -724,7 +735,9 @@ Tento kontrolér je~připojen přes RMII rozhraní k~čipu Marvell 88E6065 \ref[
 I k~tomuto čipu je~připojena externí pamět EEPROM.
 
 Oba čipy Asix AX88772b a~Marvell 88E6065 mají vlastní krystal s~frekvencí 25~MHz.
-Deska je~navíc osazena regulátorem napětí a~přepínači pro~různá nastavení MII rozhraní (K3 a~K2), resetování (K5) a~externí vzbuzení (K4), jak je~možno vidět v~příloze \ref[zapojeni1].
+Deska je~navíc osazena regulátorem napětí a~přepínači pro~různá nastavení MII rozhraní,
+%(K3 a~K2), resetování (K5) a~externí vzbuzení (K4), 
+jak je~možno vidět v~příloze \ref[zapojeni1].
 
 \label[impl]
 
@@ -761,7 +774,7 @@ Jako konfigurační soubor byl zvolen {\em colibri\_t20\_iris\_config}, který p
 > make -j8
 \endtt
 
-Dále bylo potřeba stáhnout nástroje, které by sloužily k~vytvoření cílového binárního souboru zavaděče U-Boot.
+Dále bylo potřeba stáhnout nástroj, které by sloužily k~vytvoření cílového binárního souboru zavaděče U-Boot.
 
 \begtt
 > git clone https://github.com/NVIDIA/cbootimage-configs.git
@@ -1072,9 +1085,9 @@ Jelikož se~jedná o~systém s~podporou inicializace za~běhu, je~také důleži
 
 Uvolňování paměti proběhlo několika způsoby.
 
-Prvním způsobem bylo testování pomocí utility v~Linuxovém jádře, kterou je~Kernel Memory Leak Detektor
-\fnote{Kernel Memory Leak Detektor je~utilita v~Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
-Tato utilita sleduje naalokocané bloky a~ukladá si o~nich informace
+Prvním způsobem bylo testování pomocí nástroje v~Linuxovém jádře, kterou je~Kernel Memory Leak Detektor
+\fnote{Kernel Memory Leak Detektor je~nástroj v~Linuxovém jadře, která umožňuje nalezení špatného uvolňení paměti. Funguje podobně jako trasující garbage collector.}.
+Tento nástroje sleduje naalokocané bloky a~ukladá si o~nich informace
 Pokud nalezne neuvolňený blok paměti, který nemá reference vyhlasí chybovou hlášku, kterou můžeme vidět níže.
 
 \begtt
@@ -1102,12 +1115,12 @@ unreferenced object 0xdaafbfc0 (size 64):
     [<c0388818>] usb_set_configuration+0x530/0x75c
 \endtt
 
-Jak lze vidět z~tohoto výpisu utility Kernel Memory Leak Detektoru -- ten drží informace ke každé alokované instaci objektu a~ukladá o~ni informace jako je~její velikost, stráří a~trasování tj.~zásobník, popisující volání funkce při alokaci objektu na~které byla zpracena reference.
+Jak lze vidět z~tohoto výpisu nástroje Kernel Memory Leak Detektoru -- ten drží informace ke každé alokované instaci objektu a~ukladá o~ni informace jako je~její velikost, stráří a~trasování tj.~zásobník, popisující volání funkce při alokaci objektu na~které byla zpracena reference.
 Z tohoto trasování můžeme nadále vyhledat jaká funkce alokovala pamět a~na základě toho opravit kód.
 
 Chyba zmíněná výše nastala v~mém kódu, kdy jsem zapoměl odregistrovat instanci kobj subsystému sysfs.
 
-Po opravení této chyby, další neočekavané neuvolňení paměti tato utilita neobjevila.
+Po opravení této chyby, další neočekavané neuvolňení paměti tento nástroj neobjevila.
 
 Dalším způsobem bylo testování skriptem test.sh, který opakovaně registruje a~odregistrovává ovladač.
 Ten objevil chybu v~přístupu ke sdílenému objektu.
@@ -1125,7 +1138,7 @@ Po uzamčení sdílených dat, tento problém již nenastal.
 
 Po připojení zařízení systém zaregistruje připojené zařízení na~základě ID produktu a~vyrobce, a~přídělí ovladač zařízení AX88772b.
 Poté v~systému bylo objeveno rozhraní reprezentující rozhraní tohoto zařízení.
-Nastavení bylo provedeno Linuxovou utilitou ifconfig a~ip.
+Nastavení bylo provedeno Linuxovým nástrojem ifconfig a~ip.
 
 Dalším krokem po připojení zařízení bylo nastavení rodičovského uzlu jako aktivní, kde {\em eth1} specifikuje uzel rodičovského zařízení Asix AX88772b.
 
